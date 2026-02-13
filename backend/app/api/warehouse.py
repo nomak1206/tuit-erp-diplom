@@ -52,6 +52,25 @@ async def create_product(data: dict):
     return product
 
 
+@router.patch("/products/{product_id}")
+async def update_product(product_id: int, data: dict):
+    for p in _products:
+        if p["id"] == product_id:
+            p.update(data)
+            return p
+    raise HTTPException(status_code=404, detail="Product not found")
+
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: int):
+    global _products
+    before = len(_products)
+    _products = [p for p in _products if p["id"] != product_id]
+    if len(_products) == before:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"detail": "Product deleted"}
+
+
 @router.get("/products/{product_id}")
 async def get_product(product_id: int):
     for p in _products:
@@ -76,6 +95,16 @@ async def create_movement(data: dict):
     movement = {"id": new_id, **data, "created_at": datetime.now(timezone.utc).isoformat()}
     _stock_movements.append(movement)
     return movement
+
+
+@router.delete("/movements/{movement_id}")
+async def delete_movement(movement_id: int):
+    global _stock_movements
+    before = len(_stock_movements)
+    _stock_movements = [m for m in _stock_movements if m["id"] != movement_id]
+    if len(_stock_movements) == before:
+        raise HTTPException(status_code=404, detail="Movement not found")
+    return {"detail": "Movement deleted"}
 
 
 @router.get("/stock/report")

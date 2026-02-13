@@ -1,61 +1,96 @@
-import { Row, Col, Card, Statistic, Tag, Table } from 'antd'
-import { TeamOutlined, DollarOutlined, ClockCircleOutlined, UserOutlined } from '@ant-design/icons'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Row, Col, Spin, Card, Statistic, Space, Button, Tag, Progress, Divider, Descriptions } from 'antd'
+import { TeamOutlined, IdcardOutlined, ClockCircleOutlined, WalletOutlined, ArrowRightOutlined, CalendarOutlined, ScheduleOutlined, DollarOutlined, CalculatorOutlined, AlertOutlined } from '@ant-design/icons'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { useEmployees, useDepartments, useLeaves, useHrStats } from '../../api/hooks'
+import { useNavigate } from 'react-router-dom'
 
-const deptData = [
-    { name: 'IT', count: 3 },
-    { name: 'Продажи', count: 3 },
-    { name: 'Бухгалтерия', count: 2 },
-    { name: 'HR', count: 1 },
-    { name: 'Склад', count: 1 },
-]
+const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#22c55e', '#06b6d4']
 
-const recentLeaves = [
-    { id: 1, employee: 'Гулнора Маматова', type: 'vacation', start: '01.03.2026', days: 14, status: 'approved' },
-    { id: 2, employee: 'Мария Петрова', type: 'sick', start: '08.02.2026', days: 3, status: 'approved' },
-    { id: 3, employee: 'Анна Волкова', type: 'personal', start: '15.02.2026', days: 1, status: 'pending' },
-]
-
-const typeLabels: Record<string, string> = { vacation: 'Отпуск', sick: 'Больничный', personal: 'Отгул' }
-const statusLabels: Record<string, { color: string; label: string }> = {
-    approved: { color: 'green', label: 'Одобрено' },
-    pending: { color: 'orange', label: 'Ожидает' },
-    rejected: { color: 'red', label: 'Отклонено' },
+const statusMap: Record<string, string> = {
+    active: 'Активный', on_leave: 'В отпуске', terminated: 'Уволен', probation: 'Испытательный',
 }
 
 export default function HrDashboard() {
+    const navigate = useNavigate()
+    const { data: employees = [], isLoading: el } = useEmployees()
+    const { data: departments = [] } = useDepartments()
+    const { data: leaves = [] } = useLeaves()
+    const { data: stats } = useHrStats()
+
+    if (el) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
+
+    const activeCount = employees.filter((e: any) => e.status === 'active').length
+    const pendingLeaves = leaves.filter((l: any) => l.status === 'pending').length
+    const totalSalary = employees.reduce((s: number, e: any) => s + (e.salary || 0), 0)
+    const byDepartment = departments.map((d: any) => ({ name: d.name, value: employees.filter((e: any) => e.department_id === d.id).length })).filter((d: any) => d.value > 0)
+    const byStatus = Object.entries(employees.reduce((acc: any, e: any) => { acc[e.status || 'active'] = (acc[e.status || 'active'] || 0) + 1; return acc }, {})).map(([name, value]) => ({ name: statusMap[name] || name, value }))
+
+    const kpis = [
+        { title: 'Всего сотрудников', value: employees.length, icon: <TeamOutlined />, color: '#6366f1', path: '/hr/employees' },
+        { title: 'Активных', value: activeCount, icon: <IdcardOutlined />, color: '#22c55e', path: '/hr/employees' },
+        { title: 'Ожидающие отпуска', value: pendingLeaves, icon: <AlertOutlined />, color: pendingLeaves > 0 ? '#f97316' : '#64748b', path: '/hr/vacations' },
+        { title: 'ФОТ (месяц)', value: `${(totalSalary / 1e6).toFixed(1)}M`, icon: <WalletOutlined />, color: '#8b5cf6', path: '/hr/payroll' },
+    ]
+
     return (
         <div className="fade-in">
-            <div className="page-header"><h1>HR и Кадры</h1><p>Управление персоналом предприятия</p></div>
-            <div className="stats-grid">
-                <div className="kpi-card blue stagger-item"><div className="kpi-value">10</div><div className="kpi-label">Сотрудников</div></div>
-                <div className="kpi-card green stagger-item"><div className="kpi-value">5</div><div className="kpi-label">Отделов</div></div>
-                <div className="kpi-card purple stagger-item"><div className="kpi-value">85 млн</div><div className="kpi-label">ФОТ / мес</div></div>
-                <div className="kpi-card orange stagger-item"><div className="kpi-value">1</div><div className="kpi-label">Заявки на отпуск</div></div>
-            </div>
-            <Row gutter={[24, 24]}>
+            <div className="page-header"><h1>HR — Обзор</h1><p>Управление персоналом и кадрами</p></div>
+            <Row gutter={[16, 16]}>
+                {kpis.map(k => (
+                    <Col xs={12} lg={6} key={k.title}>
+                        <Card hoverable onClick={() => navigate(k.path)} style={{ cursor: 'pointer', borderLeft: `3px solid ${k.color}` }}>
+                            <Statistic title={k.title} value={k.value} prefix={<span style={{ color: k.color }}>{k.icon}</span>} />
+                            <div style={{ textAlign: 'right', marginTop: 8 }}><ArrowRightOutlined style={{ color: k.color }} /></div>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
+
+            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24} lg={12}>
-                    <div className="chart-container"><h3>👥 Сотрудники по отделам</h3>
+                    <Card title="По отделам" extra={<Button type="link" onClick={() => navigate('/hr/employees')}>Все сотрудники →</Button>}>
                         <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={deptData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" />
-                                <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                                <YAxis stroke="#64748b" fontSize={12} />
-                                <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid #2d2d4a', borderRadius: 8, color: '#e2e8f0' }} />
-                                <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
-                            </BarChart>
+                            <PieChart><Pie data={byDepartment} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, value }: any) => `${name}: ${value}`}>
+                                {byDepartment.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                            </Pie><Tooltip /></PieChart>
                         </ResponsiveContainer>
-                    </div>
+                    </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title="📝 Заявки на отсутствие" bordered={false}>
-                        <Table dataSource={recentLeaves} rowKey="id" pagination={false} size="small" columns={[
-                            { title: 'Сотрудник', dataIndex: 'employee', key: 'employee', render: (v: string) => <span style={{ fontWeight: 500 }}>{v}</span> },
-                            { title: 'Тип', dataIndex: 'type', key: 'type', render: (v: string) => <Tag>{typeLabels[v]}</Tag> },
-                            { title: 'Начало', dataIndex: 'start', key: 'start' },
-                            { title: 'Дней', dataIndex: 'days', key: 'days' },
-                            { title: 'Статус', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusLabels[s]?.color}>{statusLabels[s]?.label}</Tag> },
-                        ]} />
+                    <Card title="По статусам">
+                        {byStatus.map((s: any) => (
+                            <div key={s.name} style={{ marginBottom: 12 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                    <span>{s.name}</span><Tag>{s.value as number}</Tag>
+                                </div>
+                                <Progress percent={Math.round(((s.value as number) / employees.length) * 100)} strokeColor="#6366f1" />
+                            </div>
+                        ))}
+                    </Card>
+                </Col>
+            </Row>
+
+            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+                <Col xs={24} lg={14}>
+                    <Card title="Быстрые действия">
+                        <Row gutter={[12, 12]}>
+                            <Col span={8}><Button block icon={<IdcardOutlined />} onClick={() => navigate('/hr/employees')}>Сотрудники</Button></Col>
+                            <Col span={8}><Button block icon={<ClockCircleOutlined />} onClick={() => navigate('/hr/timesheet')}>Табель учёта</Button></Col>
+                            <Col span={8}><Button block icon={<WalletOutlined />} onClick={() => navigate('/hr/payroll')}>Зарплата</Button></Col>
+                            <Col span={8}><Button block icon={<CalendarOutlined />} type="primary" ghost onClick={() => navigate('/hr/vacations')}>Отпуска</Button></Col>
+                            <Col span={8}><Button block icon={<ScheduleOutlined />} type="primary" ghost onClick={() => navigate('/hr/schedules')}>Графики</Button></Col>
+                            <Col span={8}><Button block icon={<CalculatorOutlined />} type="primary" ghost onClick={() => navigate('/hr/payroll')}>Калькулятор</Button></Col>
+                        </Row>
+                    </Card>
+                </Col>
+                <Col xs={24} lg={10}>
+                    <Card title={<><DollarOutlined /> Ставки УзР (2025/2026)</>} size="small">
+                        <Descriptions column={1} size="small" bordered>
+                            <Descriptions.Item label="НДФЛ (от сотрудника)"><Tag color="red">12%</Tag></Descriptions.Item>
+                            <Descriptions.Item label="ИНПС (от сотрудника)"><Tag color="orange">1%</Tag></Descriptions.Item>
+                            <Descriptions.Item label="ЕСН (от работодателя)"><Tag color="blue">12%</Tag></Descriptions.Item>
+                            <Descriptions.Item label="МРОТ"><strong>{stats?.mrot ? stats.mrot.toLocaleString('ru-RU') : '1 155 000'} сўм</strong></Descriptions.Item>
+                        </Descriptions>
                     </Card>
                 </Col>
             </Row>

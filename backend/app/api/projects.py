@@ -50,6 +50,27 @@ async def create_project(data: dict):
     return project
 
 
+@router.patch("/{project_id}")
+async def update_project(project_id: int, data: dict):
+    for p in _projects:
+        if p["id"] == project_id:
+            p.update(data)
+            return p
+    raise HTTPException(status_code=404, detail="Project not found")
+
+
+@router.delete("/{project_id}")
+async def delete_project(project_id: int):
+    global _projects, _tasks
+    before = len(_projects)
+    _projects = [p for p in _projects if p["id"] != project_id]
+    if len(_projects) == before:
+        raise HTTPException(status_code=404, detail="Project not found")
+    # Cascade delete associated tasks
+    _tasks = [t for t in _tasks if t["project_id"] != project_id]
+    return {"detail": "Project deleted"}
+
+
 @router.get("/tasks/all")
 async def get_all_tasks(project_id: int = None):
     if project_id:
@@ -80,6 +101,18 @@ async def update_task(task_id: int, data: dict):
             t.update(data)
             return t
     raise HTTPException(status_code=404, detail="Task not found")
+
+
+@router.delete("/tasks/{task_id}")
+async def delete_task(task_id: int):
+    global _tasks, _comments
+    before = len(_tasks)
+    _tasks = [t for t in _tasks if t["id"] != task_id]
+    if len(_tasks) == before:
+        raise HTTPException(status_code=404, detail="Task not found")
+    # Cascade delete associated comments
+    _comments = [c for c in _comments if c["task_id"] != task_id]
+    return {"detail": "Task deleted"}
 
 
 @router.get("/tasks/{task_id}/comments")

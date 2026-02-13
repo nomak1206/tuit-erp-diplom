@@ -14,11 +14,11 @@ _contacts = [
 ]
 
 _leads = [
-    {"id": 1, "title": "Автоматизация склада", "contact_name": "Азиз Каримов", "email": "aziz@example.com", "phone": "+998901111111", "company": "TechCorp UZ", "source": "website", "status": "qualified", "score": 85, "estimated_value": 15000000, "description": "Нужна система управления складом", "created_at": "2026-01-10T10:00:00Z"},
-    {"id": 2, "title": "CRM для строительной компании", "contact_name": "Нодира Рахимова", "email": "nodira@example.com", "phone": "+998902222222", "company": "BuildPro", "source": "referral", "status": "in_progress", "score": 70, "estimated_value": 25000000, "description": "CRM + управление проектами", "created_at": "2026-01-18T14:00:00Z"},
-    {"id": 3, "title": "ERP для логистики", "contact_name": "Дмитрий Ким", "email": "dmitriy@example.com", "phone": "+998903333333", "company": "LogiTrans", "source": "phone", "status": "new", "score": 60, "estimated_value": 50000000, "description": "Полная автоматизация логистики", "created_at": "2026-02-01T09:00:00Z"},
-    {"id": 4, "title": "Торговая платформа", "contact_name": "Шахзод Усманов", "email": "shahzod@example.com", "phone": "+998904444444", "company": "FoodMarket", "source": "advertising", "status": "new", "score": 45, "estimated_value": 8000000, "description": "Онлайн торговля продуктами", "created_at": "2026-02-05T11:00:00Z"},
-    {"id": 5, "title": "Маркетинговая аналитика", "contact_name": "Лола Мирзаева", "email": "lola@example.com", "phone": "+998905555555", "company": "MediaGroup", "source": "social", "status": "converted", "score": 90, "estimated_value": 12000000, "description": "Система аналитики рекламных кампаний", "created_at": "2026-02-08T16:00:00Z"},
+    {"id": 1, "title": "Автоматизация склада", "contact_name": "Азиз Каримов", "email": "aziz@example.com", "phone": "+998901111111", "company": "TechCorp UZ", "source": "website", "status": "qualified", "score": 85, "budget": 15000000, "description": "Нужна система управления складом", "created_at": "2026-01-10T10:00:00Z"},
+    {"id": 2, "title": "CRM для строительной компании", "contact_name": "Нодира Рахимова", "email": "nodira@example.com", "phone": "+998902222222", "company": "BuildPro", "source": "referral", "status": "contacted", "score": 70, "budget": 25000000, "description": "CRM + управление проектами", "created_at": "2026-01-18T14:00:00Z"},
+    {"id": 3, "title": "ERP для логистики", "contact_name": "Дмитрий Ким", "email": "dmitriy@example.com", "phone": "+998903333333", "company": "LogiTrans", "source": "cold_call", "status": "new", "score": 60, "budget": 50000000, "description": "Полная автоматизация логистики", "created_at": "2026-02-01T09:00:00Z"},
+    {"id": 4, "title": "Торговая платформа", "contact_name": "Шахзод Усманов", "email": "shahzod@example.com", "phone": "+998904444444", "company": "FoodMarket", "source": "advertisement", "status": "new", "score": 45, "budget": 8000000, "description": "Онлайн торговля продуктами", "created_at": "2026-02-05T11:00:00Z"},
+    {"id": 5, "title": "Маркетинговая аналитика", "contact_name": "Лола Мирзаева", "email": "lola@example.com", "phone": "+998905555555", "company": "MediaGroup", "source": "social", "status": "converted", "score": 90, "budget": 12000000, "description": "Система аналитики рекламных кампаний", "created_at": "2026-02-08T16:00:00Z"},
 ]
 
 _deals = [
@@ -62,6 +62,25 @@ async def create_contact(data: dict):
     return contact
 
 
+@router.patch("/contacts/{contact_id}")
+async def update_contact(contact_id: int, data: dict):
+    for c in _contacts:
+        if c["id"] == contact_id:
+            c.update(data)
+            return c
+    raise HTTPException(status_code=404, detail="Contact not found")
+
+
+@router.delete("/contacts/{contact_id}")
+async def delete_contact(contact_id: int):
+    global _contacts
+    before = len(_contacts)
+    _contacts = [c for c in _contacts if c["id"] != contact_id]
+    if len(_contacts) == before:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    return {"detail": "Contact deleted"}
+
+
 # ============ LEADS ============
 @router.get("/leads")
 async def get_leads():
@@ -91,6 +110,16 @@ async def update_lead(lead_id: int, data: dict):
             l.update(data)
             return l
     raise HTTPException(status_code=404, detail="Lead not found")
+
+
+@router.delete("/leads/{lead_id}")
+async def delete_lead(lead_id: int):
+    global _leads
+    before = len(_leads)
+    _leads = [l for l in _leads if l["id"] != lead_id]
+    if len(_leads) == before:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"detail": "Lead deleted"}
 
 
 # ============ DEALS ============
@@ -124,6 +153,16 @@ async def update_deal(deal_id: int, data: dict):
     raise HTTPException(status_code=404, detail="Deal not found")
 
 
+@router.delete("/deals/{deal_id}")
+async def delete_deal(deal_id: int):
+    global _deals
+    before = len(_deals)
+    _deals = [d for d in _deals if d["id"] != deal_id]
+    if len(_deals) == before:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    return {"detail": "Deal deleted"}
+
+
 # ============ ACTIVITIES ============
 @router.get("/activities")
 async def get_activities():
@@ -136,6 +175,16 @@ async def create_activity(data: dict):
     activity = {"id": new_id, **data, "created_at": datetime.now(timezone.utc).isoformat()}
     _activities.append(activity)
     return activity
+
+
+@router.delete("/activities/{activity_id}")
+async def delete_activity(activity_id: int):
+    global _activities
+    before = len(_activities)
+    _activities = [a for a in _activities if a["id"] != activity_id]
+    if len(_activities) == before:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return {"detail": "Activity deleted"}
 
 
 # ============ PIPELINE STATS ============

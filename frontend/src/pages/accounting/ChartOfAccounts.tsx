@@ -1,58 +1,123 @@
-import { Tree, Card, Tag, Row, Col, Statistic } from 'antd'
-import { AccountBookOutlined } from '@ant-design/icons'
+import { useState, useMemo } from 'react'
+import { Table, Tag, Button, Space, Input, Select, Modal, Form, Row, Col, message, Popconfirm, Tooltip, Spin, Statistic, Card } from 'antd'
+import { PlusOutlined, SearchOutlined, ExportOutlined, EditOutlined, DeleteOutlined, ApartmentOutlined } from '@ant-design/icons'
+import { useChartOfAccounts, useCreateAccount, useUpdateAccount, useDeleteAccount } from '../../api/hooks'
+import { exportToCSV } from '../../utils/export'
 
-const typeColors: Record<string, string> = { asset: 'blue', liability: 'red', equity: 'green', revenue: 'purple', expense: 'orange' }
-const typeLabels: Record<string, string> = { asset: 'Актив', liability: 'Пассив', equity: 'Капитал', revenue: 'Доход', expense: 'Расход' }
-
-const treeData = [
-    {
-        title: '0100 — Основные средства', key: '0100', tag: 'asset', balance: 150000000, children: [
-            { title: '0110 — Здания и сооружения', key: '0110', tag: 'asset', balance: 100000000 },
-            { title: '0120 — Оборудование', key: '0120', tag: 'asset', balance: 50000000 },
-        ]
-    },
-    { title: '5000 — Расчётный счёт', key: '5000', tag: 'asset', balance: 85000000 },
-    { title: '5100 — Касса', key: '5100', tag: 'asset', balance: 5000000 },
-    { title: '6000 — Расчёты с поставщиками', key: '6000', tag: 'liability', balance: 12000000 },
-    { title: '6200 — Расчёты с покупателями', key: '6200', tag: 'asset', balance: 28000000 },
-    { title: '7000 — Доходы от реализации', key: '7000', tag: 'revenue', balance: 95000000 },
-    { title: '8000 — Себестоимость продукции', key: '8000', tag: 'expense', balance: 45000000 },
-    { title: '8100 — Административные расходы', key: '8100', tag: 'expense', balance: 22000000 },
-    { title: '8500 — Уставный капитал', key: '8500', tag: 'equity', balance: 200000000 },
-]
-
-const renderTitle = (node: any) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '4px 0' }}>
-        <span style={{ fontWeight: 500 }}>{node.title}</span>
-        <div style={{ display: 'flex', gap: 8 }}>
-            <Tag color={typeColors[node.tag]}>{typeLabels[node.tag]}</Tag>
-            <span style={{ color: '#94a3b8', fontSize: 12, minWidth: 100, textAlign: 'right' }}>{(node.balance / 1000000).toFixed(1)} млн</span>
-        </div>
-    </div>
-)
+const typeLabels: Record<string, string> = { asset: 'Актив', liability: 'Пассив', equity: 'Капитал', revenue: 'Доход', expense: 'Расход', contra_asset: 'Контр-актив' }
+const typeColors: Record<string, string> = { asset: 'blue', liability: 'red', equity: 'purple', revenue: 'green', expense: 'orange', contra_asset: 'cyan' }
 
 export default function ChartOfAccounts() {
+    const { data: accounts = [], isLoading } = useChartOfAccounts()
+    const createAccount = useCreateAccount()
+    const updateAccount = useUpdateAccount()
+    const deleteAccount = useDeleteAccount()
+    const [search, setSearch] = useState('')
+    const [typeFilter, setTypeFilter] = useState<string | undefined>()
+    const [groupFilter, setGroupFilter] = useState<string | undefined>()
+    const [modalOpen, setModalOpen] = useState(false)
+    const [editRecord, setEditRecord] = useState<any>(null)
+    const [form] = Form.useForm()
+
+    const groups = useMemo(() => {
+        const seen = new Map<string, string>()
+        accounts.forEach((a: any) => { if (a.group_code && !seen.has(a.group_code)) seen.set(a.group_code, a.group_name || a.group_code) })
+        return Array.from(seen.entries()).map(([code, name]) => ({ value: code, label: `${code} — ${name}` }))
+    }, [accounts])
+
+    const filtered = useMemo(() => {
+        let result = accounts
+        if (search) { const s = search.toLowerCase(); result = result.filter((a: any) => a.name?.toLowerCase().includes(s) || a.code?.toLowerCase().includes(s)) }
+        if (typeFilter) result = result.filter((a: any) => a.account_type === typeFilter)
+        if (groupFilter) result = result.filter((a: any) => a.group_code === groupFilter)
+        return result
+    }, [accounts, search, typeFilter, groupFilter])
+
+    const openCreate = () => { setEditRecord(null); form.resetFields(); setModalOpen(true) }
+    const openEdit = (r: any) => { setEditRecord(r); form.setFieldsValue(r); setModalOpen(true) }
+
+    const handleSubmit = async (values: any) => {
+        try {
+            if (editRecord) { await updateAccount.mutateAsync({ id: editRecord.id, ...values }); message.success('Счёт обновлён') }
+            else { await createAccount.mutateAsync(values); message.success('Счёт создан') }
+            setModalOpen(false); form.resetFields(); setEditRecord(null)
+        } catch { message.error('Ошибка') }
+    }
+
+    const handleDelete = async (id: number) => {
+        try { await deleteAccount.mutateAsync(id); message.success('Счёт удалён') }
+        catch { message.error('Ошибка') }
+    }
+
+    const handleExport = () => {
+        exportToCSV(filtered, 'chart_of_accounts', [
+            { key: 'code', title: 'Код' }, { key: 'name', title: 'Название' },
+            { key: 'group_code', title: 'Группа' }, { key: 'account_type', title: 'Тип' }, { key: 'balance', title: 'Баланс' },
+        ])
+        message.success(`Экспортировано ${filtered.length} записей`)
+    }
+
+    /* Balance summaries */
+    const totalAssets = accounts.filter((a: any) => a.account_type === 'asset').reduce((s: number, a: any) => s + (a.balance || 0), 0)
+    const totalContraAsset = accounts.filter((a: any) => a.account_type === 'contra_asset').reduce((s: number, a: any) => s + (a.balance || 0), 0)
+    const totalLiabilities = accounts.filter((a: any) => a.account_type === 'liability').reduce((s: number, a: any) => s + (a.balance || 0), 0)
+    const totalEquity = accounts.filter((a: any) => a.account_type === 'equity').reduce((s: number, a: any) => s + (a.balance || 0), 0)
+
+    const columns: any[] = [
+        { title: 'Группа', dataIndex: 'group_code', key: 'group', width: 80, render: (v: string, r: any) => v ? <Tooltip title={r.group_name}><Tag>{v}</Tag></Tooltip> : '—' },
+        { title: 'Код', dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</span> },
+        { title: 'Название', dataIndex: 'name', key: 'name', render: (v: string, r: any) => <span style={{ fontWeight: r.parent_id ? 400 : 700, paddingLeft: r.parent_id ? 12 : 0 }}>{v}</span> },
+        { title: 'Тип', dataIndex: 'account_type', key: 'account_type', width: 120, render: (v: string) => <Tag color={typeColors[v]}>{typeLabels[v] || v}</Tag> },
+        { title: 'Баланс', dataIndex: 'balance', key: 'balance', width: 160, render: (v: number) => <span style={{ fontWeight: 600, color: (v || 0) >= 0 ? '#52c41a' : '#ff4d4f' }}>{(v || 0).toLocaleString('ru-RU')} UZS</span>, sorter: (a: any, b: any) => (a.balance || 0) - (b.balance || 0) },
+        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', width: 90, render: (v: boolean) => <Tag color={v !== false ? 'green' : 'default'}>{v !== false ? 'Активный' : 'Закрыт'}</Tag> },
+        {
+            title: '', key: 'actions', width: 100,
+            render: (_: any, r: any) => (
+                <Space onClick={(e) => e.stopPropagation()}>
+                    <Tooltip title="Редактировать"><Button type="text" icon={<EditOutlined />} onClick={() => openEdit(r)} /></Tooltip>
+                    <Popconfirm title="Удалить счёт?" onConfirm={() => handleDelete(r.id)}><Button type="text" danger icon={<DeleteOutlined />} /></Popconfirm>
+                </Space>
+            ),
+        },
+    ]
+
+    if (isLoading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
+
     return (
         <div className="fade-in">
-            <div className="page-header"><h1>План счетов</h1><p>Структура бухгалтерских счетов (1С-style)</p></div>
-            <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col span={6}><Card bordered={false}><Statistic title="Всего счетов" value={11} prefix={<AccountBookOutlined />} /></Card></Col>
-                <Col span={6}><Card bordered={false}><Statistic title="Активы" value="268 млн" valueStyle={{ color: '#6366f1' }} /></Card></Col>
-                <Col span={6}><Card bordered={false}><Statistic title="Доходы" value="95 млн" valueStyle={{ color: '#52c41a' }} /></Card></Col>
-                <Col span={6}><Card bordered={false}><Statistic title="Расходы" value="67 млн" valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div><h1>План счетов (НСБУ №21)</h1><p>Бухгалтерские счета — {filtered.length} из {accounts.length}</p></div>
+                <Space><Button icon={<ExportOutlined />} onClick={handleExport}>Экспорт</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Новый счёт</Button></Space>
+            </div>
+
+            <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                <Col xs={12} md={6}><Card size="small"><Statistic title="Активы (нетто)" value={totalAssets - totalContraAsset} suffix="UZS" valueStyle={{ fontSize: 14, color: '#22c55e' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title="Обязательства" value={totalLiabilities} suffix="UZS" valueStyle={{ fontSize: 14, color: '#ef4444' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title="Капитал" value={totalEquity} suffix="UZS" valueStyle={{ fontSize: 14, color: '#8b5cf6' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title="Групп / Счетов" value={`${groups.length} / ${accounts.length}`} valueStyle={{ fontSize: 14 }} /></Card></Col>
             </Row>
-            <Card bordered={false} className="account-tree">
-                <Tree
-                    showLine
-                    defaultExpandAll
-                    treeData={treeData.map(node => ({
-                        ...node,
-                        title: renderTitle(node),
-                        key: node.key,
-                        children: node.children?.map(child => ({ ...child, title: renderTitle(child), key: child.key })),
-                    }))}
-                />
-            </Card>
+
+            <Space style={{ marginBottom: 16 }} wrap>
+                <Input placeholder="Поиск по коду или названию..." prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
+                <Select placeholder="Тип счёта" style={{ width: 160 }} allowClear value={typeFilter} onChange={setTypeFilter} options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
+                <Select placeholder="Группа" style={{ width: 220 }} allowClear value={groupFilter} onChange={setGroupFilter} options={groups} showSearch optionFilterProp="label" />
+            </Space>
+            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 20, showTotal: t => `Всего: ${t}` }} size="small" />
+
+            <Modal title={editRecord ? 'Редактировать счёт' : 'Новый счёт'} open={modalOpen}
+                onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
+                onOk={() => form.submit()} confirmLoading={createAccount.isPending || updateAccount.isPending}
+                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText="Отмена" width={520}>
+                <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                    <Row gutter={16}>
+                        <Col span={8}><Form.Item name="code" label="Код счёта" rules={[{ required: true }]}><Input placeholder="1010" /></Form.Item></Col>
+                        <Col span={16}><Form.Item name="name" label="Название" rules={[{ required: true }]}><Input /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="account_type" label="Тип" rules={[{ required: true }]}><Select options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="parent_id" label="Родительский счёт"><Select allowClear placeholder="— нет —" options={accounts.map((a: any) => ({ value: a.id, label: `${a.code} — ${a.name}` }))} showSearch optionFilterProp="label" /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="description" label="Описание"><Input /></Form.Item></Col>
+                    </Row>
+                </Form>
+            </Modal>
         </div>
     )
 }
