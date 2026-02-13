@@ -1,3 +1,4 @@
+import os
 import asyncio
 from logging.config import fileConfig
 
@@ -28,9 +29,21 @@ from app.models import (  # noqa: F401
 target_metadata = Base.metadata
 
 
+def get_url() -> str:
+    """
+    Get database URL.
+    Priority: DATABASE_URL env var > alembic.ini sqlalchemy.url
+    This allows Docker to override the connection string via environment.
+    """
+    env_url = os.getenv("DATABASE_URL")
+    if env_url:
+        return env_url
+    return config.get_main_option("sqlalchemy.url", "")
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -49,8 +62,12 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     """Run migrations in 'online' mode with async engine."""
+    # Build config section and override URL from environment if available
+    section = config.get_section(config.config_ini_section, {})
+    section["sqlalchemy.url"] = get_url()
+
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
