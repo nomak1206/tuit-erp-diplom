@@ -5,7 +5,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     APP_NAME: str = "ERP/CRM System"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     # Database (PostgreSQL 18 on port 5433)
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5433/erp_db"
@@ -18,10 +18,10 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
 
-    # JWT
-    JWT_SECRET_KEY: str = "super-secret-key-change-in-production-2024"
+    # JWT — Override via .env! This fallback is for dev only.
+    JWT_SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION-run-python-c-import-secrets-print-secrets-token-hex-64"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # CORS

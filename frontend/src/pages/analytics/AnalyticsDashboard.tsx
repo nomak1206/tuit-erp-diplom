@@ -2,11 +2,13 @@ import { Row, Col, Spin, Card, Statistic, Tag, Descriptions } from 'antd'
 import { DollarOutlined, RiseOutlined, TeamOutlined, ShoppingCartOutlined, ProjectOutlined, WalletOutlined, BankOutlined } from '@ant-design/icons'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, PieChart, Pie, Cell } from 'recharts'
 import { useContacts, useLeads, useDeals, useEmployees, useProducts, useProjects, useInvoices, usePayroll } from '../../api/hooks'
+import { useTranslation } from 'react-i18next'
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 const fmt = (v: number) => v.toLocaleString('ru-RU')
 
 export default function AnalyticsDashboard() {
+    const { t } = useTranslation()
     const { data: contacts = [], isLoading: l1 } = useContacts()
     const { data: leads = [], isLoading: l2 } = useLeads()
     const { data: deals = [], isLoading: l3 } = useDeals()
@@ -19,23 +21,23 @@ export default function AnalyticsDashboard() {
 
     /* CRM conversion funnel */
     const funnelData = [
-        { stage: 'Контакты', count: contacts.length },
-        { stage: 'Лиды', count: leads.length },
-        { stage: 'Квалиф.', count: leads.filter((l: any) => l.status === 'qualified' || l.status === 'converted').length },
-        { stage: 'Сделки', count: deals.length },
-        { stage: 'Выиграно', count: deals.filter((d: any) => d.stage === 'won').length },
+        { stage: t('dashboard.modules.contacts', 'Контакты'), count: contacts.length },
+        { stage: t('dashboard.modules.leads', 'Лиды'), count: leads.length },
+        { stage: t('analytics.qualified', 'Квалиф.'), count: leads.filter((l: any) => l.status === 'qualified' || l.status === 'converted').length },
+        { stage: t('dashboard.modules.deals', 'Сделки'), count: deals.length },
+        { stage: t('dashboard.won', 'Выиграно'), count: deals.filter((d: any) => d.stage === 'won').length },
     ]
 
     /* Module radar */
     const radarData = [
         { module: 'CRM', score: contacts.length + leads.length + deals.length },
         { module: 'HR', score: employees.length },
-        { module: 'Склад', score: products.length },
-        { module: 'Проекты', score: projects.length },
+        { module: t('dashboard.warehouse_label', 'Склад'), score: products.length },
+        { module: t('dashboard.projects_label', 'Проекты'), score: projects.length },
     ].map(d => ({ ...d, score: Math.min(d.score * 10, 100) }))
 
     /* Deal amounts by stage */
-    const stageLabels: Record<string, string> = { new: 'Новые', negotiation: 'Перегов.', proposal: 'Предлож.', contract: 'Контракт', won: 'Выиграно', lost: 'Проиграно' }
+    const stageLabels: Record<string, string> = { new: t('analytics.st_new', 'Новые'), negotiation: t('analytics.st_neg', 'Перегов.'), proposal: t('analytics.st_prop', 'Предлож.'), contract: t('analytics.st_contract', 'Контракт'), won: t('dashboard.won', 'Выиграно'), lost: t('dashboard.lost', 'Проиграно') }
     const stageAmounts = ['new', 'negotiation', 'proposal', 'contract', 'won', 'lost'].map(s => ({
         stage: stageLabels[s],
         amount: deals.filter((d: any) => d.stage === s).reduce((sum: number, d: any) => sum + (d.amount || 0), 0),
@@ -50,10 +52,10 @@ export default function AnalyticsDashboard() {
     const totalNetSalary = totalSalary - totalNdfl - totalInps
 
     const payrollPieData = [
-        { name: 'К выплате', value: totalNetSalary },
-        { name: 'НДФЛ 12%', value: totalNdfl },
-        { name: 'ИНПС 1%', value: totalInps },
-        { name: 'ЕСН 12%', value: totalEsn },
+        { name: t('analytics.to_pay', 'К выплате'), value: totalNetSalary },
+        { name: t('analytics.ndfl', 'НДФЛ 12%'), value: totalNdfl },
+        { name: t('analytics.inps', 'ИНПС 1%'), value: totalInps },
+        { name: t('analytics.esn', 'ЕСН 12%'), value: totalEsn },
     ]
 
     /* Warehouse */
@@ -68,55 +70,55 @@ export default function AnalyticsDashboard() {
 
     return (
         <div className="fade-in">
-            <div className="page-header"><h1>Аналитика</h1><p>Бизнес-аналитика и отчётность (УзР)</p></div>
+            <div className="page-header"><h1>{t('analytics.title')}</h1><p>{t('analytics.subtitle')}</p></div>
 
             <div className="stats-grid">
                 <div className="kpi-card purple stagger-item">
-                    <div className="kpi-value">{(totalWon / 1e6).toFixed(1)} млн</div>
-                    <div className="kpi-label">Выручка</div>
-                    <div className="kpi-change up"><DollarOutlined /> по выигранным сделкам</div>
+                    <div className="kpi-value">{(totalWon / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
+                    <div className="kpi-label">{t('dashboard.revenue', 'Выручка')}</div>
+                    <div className="kpi-change up"><DollarOutlined /> {t('analytics.won_deals', 'по выигранным сделкам')}</div>
                 </div>
                 <div className="kpi-card blue stagger-item">
-                    <div className="kpi-value">{(avgDeal / 1e6).toFixed(1)} млн</div>
-                    <div className="kpi-label">Средний чек</div>
-                    <div className="kpi-change up"><RiseOutlined /> средняя сделка</div>
+                    <div className="kpi-value">{(avgDeal / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
+                    <div className="kpi-label">{t('analytics.avg_check', 'Средний чек')}</div>
+                    <div className="kpi-change up"><RiseOutlined /> {t('analytics.avg_deal', 'средняя сделка')}</div>
                 </div>
                 <div className="kpi-card green stagger-item">
                     <div className="kpi-value">{convRate}%</div>
-                    <div className="kpi-label">Конверсия</div>
-                    <div className="kpi-change up"><TeamOutlined /> лидов в сделки</div>
+                    <div className="kpi-label">{t('crm.conversion', 'Конверсия')}</div>
+                    <div className="kpi-change up"><TeamOutlined /> {t('analytics.leads_to_deals', 'лидов в сделки')}</div>
                 </div>
                 <div className="kpi-card orange stagger-item">
-                    <div className="kpi-value">{(totalSalary / 1e6).toFixed(1)} млн</div>
-                    <div className="kpi-label">ФОТ (месяц)</div>
-                    <div className="kpi-change up"><WalletOutlined /> фонд оплаты труда</div>
+                    <div className="kpi-value">{(totalSalary / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
+                    <div className="kpi-label">{t('analytics.fot_month', 'ФОТ (месяц)')}</div>
+                    <div className="kpi-change up"><WalletOutlined /> {t('analytics.fot_desc', 'фонд оплаты труда')}</div>
                 </div>
             </div>
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} lg={14}>
                     <div className="chart-container">
-                        <h3>📈 Воронка продаж (CRM)</h3>
+                        <h3>📈 {t('analytics.sales_funnel_chart', 'Воронка продаж (CRM)')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={funnelData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" />
                                 <XAxis dataKey="stage" stroke="#64748b" fontSize={12} />
                                 <YAxis stroke="#64748b" fontSize={12} />
                                 <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid #2d2d4a', borderRadius: 8, color: '#e2e8f0' }} />
-                                <Bar dataKey="count" name="Количество" fill="#6366f1" radius={[6, 6, 0, 0]} barSize={50} />
+                                <Bar dataKey="count" name={t('analytics.count_label')} fill="#6366f1" radius={[6, 6, 0, 0]} barSize={50} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </Col>
                 <Col xs={24} lg={10}>
                     <div className="chart-container">
-                        <h3>🎯 Активность модулей</h3>
+                        <h3>🎯 {t('analytics.module_activity', 'Активность модулей')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <RadarChart data={radarData}>
                                 <PolarGrid stroke="#2d2d4a" />
                                 <PolarAngleAxis dataKey="module" tick={{ fill: '#94a3b8', fontSize: 12 }} />
                                 <PolarRadiusAxis tick={false} axisLine={false} />
-                                <Radar name="Активность" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} strokeWidth={2} />
+                                <Radar name={t('analytics.activity_label')} dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} strokeWidth={2} />
                             </RadarChart>
                         </ResponsiveContainer>
                     </div>
@@ -126,30 +128,30 @@ export default function AnalyticsDashboard() {
             <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
                 <Col xs={24} lg={14}>
                     <div className="chart-container">
-                        <h3>💰 Суммы по стадиям сделок</h3>
+                        <h3>💰 {t('analytics.stage_amounts', 'Суммы по стадиям сделок')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={stageAmounts}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" />
                                 <XAxis dataKey="stage" stroke="#64748b" fontSize={12} />
                                 <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `${(v / 1e6).toFixed(0)}M`} />
                                 <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid #2d2d4a', borderRadius: 8, color: '#e2e8f0' }} formatter={(v: number) => `${fmt(v)} UZS`} />
-                                <Bar dataKey="amount" name="Сумма (UZS)" fill="#10b981" radius={[6, 6, 0, 0]} barSize={50} />
-                                <Bar dataKey="count" name="Количество" fill="#6366f1" radius={[6, 6, 0, 0]} barSize={50} />
+                                <Bar dataKey="amount" name={t('analytics.amount_label')} fill="#10b981" radius={[6, 6, 0, 0]} barSize={50} />
+                                <Bar dataKey="count" name={t('analytics.count_label')} fill="#6366f1" radius={[6, 6, 0, 0]} barSize={50} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </Col>
                 <Col xs={24} lg={10}>
                     <div className="chart-container">
-                        <h3>👥 ФОТ: Распределение затрат</h3>
+                        <h3>👥 {t('analytics.fot_distribution', 'ФОТ: Распределение затрат')}</h3>
                         <ResponsiveContainer width="100%" height={220}>
                             <PieChart><Pie data={payrollPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value" label={({ name, value }: any) => `${name}: ${(value / 1e6).toFixed(1)}M`}>
                                 {payrollPieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                             </Pie><Tooltip formatter={(v: number) => `${fmt(v)} UZS`} /></PieChart>
                         </ResponsiveContainer>
                         <Descriptions size="small" column={2} style={{ marginTop: 8 }}>
-                            <Descriptions.Item label="Склад"><strong>{fmt(totalStockValue)} UZS</strong></Descriptions.Item>
-                            <Descriptions.Item label="Мало на складе">{lowStock > 0 ? <Tag color="red">{lowStock} поз.</Tag> : <Tag color="green">Все ОК</Tag>}</Descriptions.Item>
+                            <Descriptions.Item label={t('warehouse.warehouse')}><strong>{fmt(totalStockValue)} UZS</strong></Descriptions.Item>
+                            <Descriptions.Item label={t('analytics.low_stock_items')}>{lowStock > 0 ? <Tag color="red">{lowStock} {t('analytics.positions')}</Tag> : <Tag color="green">{t('analytics.all_ok')}</Tag>}</Descriptions.Item>
                         </Descriptions>
                     </div>
                 </Col>

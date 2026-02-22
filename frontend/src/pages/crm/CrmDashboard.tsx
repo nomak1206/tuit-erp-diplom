@@ -3,15 +3,14 @@ import { TeamOutlined, DollarOutlined, RiseOutlined, FundProjectionScreenOutline
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { useContacts, useLeads, useDeals, useActivities } from '../../api/hooks'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#22c55e']
-
-const leadStatusMap: Record<string, string> = { new: 'Новый', contacted: 'Связались', qualified: 'Квалифицирован', converted: 'Конвертирован', lost: 'Потерян' }
-const dealStageMap: Record<string, string> = { new: 'Новые', negotiation: 'Переговоры', proposal: 'Предложение', contract: 'Контракт', won: 'Выиграно', lost: 'Проиграно' }
 const fmt = (v: number) => v.toLocaleString('ru-RU')
 
 export default function CrmDashboard() {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const { data: contacts = [], isLoading: cl } = useContacts()
     const { data: leads = [], isLoading: ll } = useLeads()
     const { data: deals = [], isLoading: dl } = useDeals()
@@ -24,21 +23,19 @@ export default function CrmDashboard() {
     const conversionRate = deals.length ? ((wonDeals.length / deals.length) * 100).toFixed(1) : '0'
     const avgDeal = wonDeals.length ? (wonDeals.reduce((s: number, d: any) => s + (d.amount || 0), 0) / wonDeals.length) : 0
 
-    const leadsByStatus = Object.entries(leads.reduce((acc: any, l: any) => { acc[l.status] = (acc[l.status] || 0) + 1; return acc }, {})).map(([name, value]) => ({ name: leadStatusMap[name] || name, value }))
-    const dealsByStage = Object.entries(deals.reduce((acc: any, d: any) => { acc[d.stage] = (acc[d.stage] || 0) + (d.amount || 0); return acc }, {})).map(([key, value]) => ({ name: dealStageMap[key] || key, value }))
-
-    const activityTypeMap: Record<string, string> = { call: 'Звонок', meeting: 'Встреча', email: 'Email', task: 'Задача', note: 'Заметка' }
+    const leadsByStatus = Object.entries(leads.reduce((acc: any, l: any) => { acc[l.status] = (acc[l.status] || 0) + 1; return acc }, {})).map(([name, value]) => ({ name: t(`crm.lead_statuses.${name}`, name), value }))
+    const dealsByStage = Object.entries(deals.reduce((acc: any, d: any) => { acc[d.stage] = (acc[d.stage] || 0) + (d.amount || 0); return acc }, {})).map(([key, value]) => ({ name: t(`crm.deal_stages.${key}`, key), value }))
 
     const kpis = [
-        { title: 'Контакты', value: contacts.length, icon: <ContactsOutlined />, color: '#6366f1', path: '/crm/contacts' },
-        { title: 'Лиды', value: leads.length, icon: <SolutionOutlined />, color: '#8b5cf6', path: '/crm/leads' },
-        { title: 'Воронка', value: `${(totalPipeline / 1e6).toFixed(1)}M`, icon: <DollarOutlined />, color: '#ec4899', path: '/crm/deals', suffix: 'UZS' },
-        { title: 'Конверсия', value: parseFloat(conversionRate), icon: <RiseOutlined />, color: '#22c55e', suffix: '%', path: '/crm/deals' },
+        { title: t('crm.contacts'), value: contacts.length, icon: <ContactsOutlined />, color: '#6366f1', path: '/crm/contacts' },
+        { title: t('crm.leads'), value: leads.length, icon: <SolutionOutlined />, color: '#8b5cf6', path: '/crm/leads' },
+        { title: t('crm.pipeline'), value: `${(totalPipeline / 1e6).toFixed(1)}M`, icon: <DollarOutlined />, color: '#ec4899', path: '/crm/deals', suffix: 'UZS' },
+        { title: t('crm.conversion'), value: parseFloat(conversionRate), icon: <RiseOutlined />, color: '#22c55e', suffix: '%', path: '/crm/deals' },
     ]
 
     return (
         <div className="fade-in">
-            <div className="page-header"><h1>CRM — Обзор</h1><p>Управление взаимоотношениями с клиентами</p></div>
+            <div className="page-header"><h1>{t('crm.title')}</h1><p>{t('crm.subtitle')}</p></div>
             <Row gutter={[16, 16]}>
                 {kpis.map(k => (
                     <Col xs={12} lg={6} key={k.title}>
@@ -51,7 +48,7 @@ export default function CrmDashboard() {
             </Row>
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24} lg={12}>
-                    <Card title="Лиды по статусам" extra={<Button type="link" onClick={() => navigate('/crm/leads')}>Все лиды →</Button>}>
+                    <Card title={t('crm.leads_by_status')} extra={<Button type="link" onClick={() => navigate('/crm/leads')}>{t('crm.all_leads')}</Button>}>
                         <ResponsiveContainer width="100%" height={260}>
                             <PieChart><Pie data={leadsByStatus} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, value }: any) => `${name}: ${value}`}>
                                 {leadsByStatus.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -60,27 +57,27 @@ export default function CrmDashboard() {
                     </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title="Сделки по стадиям (UZS)" extra={<Button type="link" onClick={() => navigate('/crm/deals')}>Воронка →</Button>}>
+                    <Card title={t('crm.deals_by_stage')} extra={<Button type="link" onClick={() => navigate('/crm/deals')}>{t('crm.pipeline_link')}</Button>}>
                         <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={dealsByStage}><CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" /><XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} /><YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(v) => `${(v / 1e6).toFixed(0)}M`} /><Tooltip formatter={(v: number) => `${fmt(v)} UZS`} /><Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
+                            <BarChart data={dealsByStage}><CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" /><XAxis dataKey="name" tick={{ fill: 'var(--chart-label)', fontSize: 11 }} /><YAxis tick={{ fill: 'var(--chart-label)', fontSize: 11 }} tickFormatter={(v) => `${(v / 1e6).toFixed(0)}M`} /><Tooltip formatter={(v: number) => `${fmt(v)} UZS`} /><Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
                         </ResponsiveContainer>
                     </Card>
                 </Col>
             </Row>
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24} lg={12}>
-                    <Card title="Последние активности" extra={<Button type="link" onClick={() => navigate('/crm/contacts')}>Контакты →</Button>}>
+                    <Card title={t('crm.recent_activities')} extra={<Button type="link" onClick={() => navigate('/crm/contacts')}>{t('crm.contacts_link')}</Button>}>
                         <List dataSource={(activities as any[]).slice(0, 5)} renderItem={(a: any) => (
-                            <List.Item><List.Item.Meta title={activityTypeMap[a.type] || a.type || 'Активность'} description={a.description || a.notes || '—'} /></List.Item>
-                        )} locale={{ emptyText: 'Нет активностей' }} />
+                            <List.Item><List.Item.Meta title={String(t(`crm.activity_types.${a.type}`, a.type || 'Activity'))} description={a.description || a.notes || '—'} /></List.Item>
+                        )} locale={{ emptyText: t('crm.no_activities') }} />
                     </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title="Быстрые действия">
+                    <Card title={t('crm.quick_actions')}>
                         <Space direction="vertical" style={{ width: '100%' }}>
-                            <Button block icon={<ContactsOutlined />} onClick={() => navigate('/crm/contacts')}>Открыть контакты</Button>
-                            <Button block icon={<SolutionOutlined />} onClick={() => navigate('/crm/leads')}>Управление лидами</Button>
-                            <Button block icon={<DollarOutlined />} onClick={() => navigate('/crm/deals')}>Воронка продаж</Button>
+                            <Button block icon={<ContactsOutlined />} onClick={() => navigate('/crm/contacts')}>{t('crm.open_contacts')}</Button>
+                            <Button block icon={<SolutionOutlined />} onClick={() => navigate('/crm/leads')}>{t('crm.manage_leads')}</Button>
+                            <Button block icon={<DollarOutlined />} onClick={() => navigate('/crm/deals')}>{t('crm.sales_funnel')}</Button>
                         </Space>
                     </Card>
                 </Col>

@@ -39,6 +39,15 @@ class RegisterRequest(BaseModel):
     role: str = "employee"
 
 
+class UpdateProfileRequest(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    position: Optional[str] = None
+    department: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
 # ============ CRM ============
 class ContactBase(BaseModel):
     first_name: str

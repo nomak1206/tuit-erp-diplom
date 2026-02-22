@@ -799,3 +799,100 @@ export const useUpdateProfile = () => {
         onSuccess: () => qc.invalidateQueries({ queryKey: ['auth', 'me'] }),
     })
 }
+
+// ==================== Month Close (1С) ====================
+
+export const useCloseMonth = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (data: any) => api.post('/accounting/close-month', data).then(r => r.data),
+        onSuccess: () => invalidateMany(qc, [
+            ['accounting', 'closed-months'],
+            ['accounting', 'journal'],
+            ['accounting', 'accounts'],
+            ['accounting', 'summary'],
+            ['accounting', 'trial-balance'],
+            ['dashboard', 'kpis'],
+        ]),
+    })
+}
+
+export const useClosedMonths = () =>
+    useQuery({
+        queryKey: ['accounting', 'closed-months'],
+        queryFn: () => api.get('/accounting/closed-months').then(r => r.data),
+    })
+
+// ==================== Trial Balance (ОСВ) ====================
+
+export const useTrialBalance = () =>
+    useQuery({
+        queryKey: ['accounting', 'trial-balance'],
+        queryFn: () => api.get('/accounting/trial-balance').then(r => r.data),
+    })
+
+// ==================== Staffing Table ====================
+
+export const useStaffing = () =>
+    useQuery({
+        queryKey: ['hr', 'staffing'],
+        queryFn: () => api.get('/hr/staffing').then(r => r.data),
+    })
+
+export const useStaffingSummary = () =>
+    useQuery({
+        queryKey: ['hr', 'staffing', 'summary'],
+        queryFn: () => api.get('/hr/staffing/summary').then(r => r.data),
+    })
+
+export const useCreateStaffing = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (data: any) => api.post('/hr/staffing', data).then(r => r.data),
+        onSuccess: () => invalidateMany(qc, [
+            ['hr', 'staffing'],
+        ]),
+    })
+}
+
+export const useUpdateStaffing = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, ...data }: any) => api.patch(`/hr/staffing/${id}`, data).then(r => r.data),
+        onSuccess: () => invalidateMany(qc, [
+            ['hr', 'staffing'],
+        ]),
+    })
+}
+
+export const useDeleteStaffing = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: number) => api.delete(`/hr/staffing/${id}`).then(r => r.data),
+        onSuccess: () => invalidateMany(qc, [
+            ['hr', 'staffing'],
+        ]),
+    })
+}
+
+// ==================== Inventory ====================
+
+export const useInventories = () =>
+    useQuery({
+        queryKey: ['warehouse', 'inventory'],
+        queryFn: () => api.get('/warehouse/inventory').then(r => r.data),
+    })
+
+export const useCreateInventory = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (data: any) => api.post('/warehouse/inventory', data).then(r => r.data),
+        onSuccess: () => invalidateMany(qc, [
+            ['warehouse', 'inventory'],
+            ['warehouse', 'movements'],
+            ['warehouse', 'products'],
+            ['warehouse', 'stock-report'],
+        ]),
+    })
+}
+

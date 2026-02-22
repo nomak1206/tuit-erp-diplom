@@ -1,138 +1,200 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
+from app.database import get_db
+from app.models.warehouse import Product, Category, Warehouse, StockMovement, InventoryCheck
+from app.schemas.schemas import ProductBase, ProductResponse, StockMovementBase, StockMovementResponse
 
 router = APIRouter(prefix="/api/warehouse", tags=["Warehouse"])
 
-# ============ DEMO DATA ============
-_categories = [
-    {"id": 1, "name": "Электроника", "parent_id": None, "description": "Компьютеры, мониторы, комплектующие"},
-    {"id": 2, "name": "Мебель", "parent_id": None, "description": "Офисная мебель"},
-    {"id": 3, "name": "Канцтовары", "parent_id": None, "description": "Бумага, ручки, папки"},
-    {"id": 4, "name": "Оргтехника", "parent_id": 1, "description": "Принтеры, сканеры"},
-]
 
-_products = [
-    {"id": 1, "sku": "ELEC-001", "name": "Ноутбук HP ProBook 450", "category_id": 1, "unit": "piece", "purchase_price": 8500000, "selling_price": 11000000, "min_stock": 5, "description": "15.6\", Intel i5, 8GB RAM", "barcode": "4710001234001", "is_active": True, "created_at": "2025-06-01T10:00:00Z"},
-    {"id": 2, "sku": "ELEC-002", "name": "Монитор Samsung 27\"", "category_id": 1, "unit": "piece", "purchase_price": 3200000, "selling_price": 4500000, "min_stock": 10, "description": "IPS, 4K", "barcode": "4710001234002", "is_active": True, "created_at": "2025-06-01T10:00:00Z"},
-    {"id": 3, "sku": "FURN-001", "name": "Стол офисный", "category_id": 2, "unit": "piece", "purchase_price": 1500000, "selling_price": 2200000, "min_stock": 3, "description": "160x80 см, с тумбой", "barcode": "4710001234003", "is_active": True, "created_at": "2025-07-15T10:00:00Z"},
-    {"id": 4, "sku": "FURN-002", "name": "Кресло офисное", "category_id": 2, "unit": "piece", "purchase_price": 2000000, "selling_price": 3000000, "min_stock": 5, "description": "Эргономичное, сетка", "barcode": "4710001234004", "is_active": True, "created_at": "2025-07-15T10:00:00Z"},
-    {"id": 5, "sku": "STAT-001", "name": "Бумага A4 (пачка 500 л.)", "category_id": 3, "unit": "box", "purchase_price": 45000, "selling_price": 65000, "min_stock": 50, "description": "80 г/м²", "barcode": "4710001234005", "is_active": True, "created_at": "2025-08-01T10:00:00Z"},
-    {"id": 6, "sku": "ELEC-003", "name": "Принтер Canon LBP-623", "category_id": 4, "unit": "piece", "purchase_price": 4500000, "selling_price": 5800000, "min_stock": 3, "description": "Лазерный, А4, Wi-Fi", "barcode": "4710001234006", "is_active": True, "created_at": "2025-09-01T10:00:00Z"},
-]
-
-_warehouses = [
-    {"id": 1, "name": "Основной склад", "code": "WH-01", "address": "Ташкент, Чиланзар, ул. Бунёдкор 15", "manager_id": 9, "is_active": True},
-    {"id": 2, "name": "Мелкооптовый склад", "code": "WH-02", "address": "Ташкент, Мирзо Улугбек, ул. Мустакиллик 45", "manager_id": None, "is_active": True},
-]
-
-_stock_movements = [
-    {"id": 1, "product_id": 1, "warehouse_id": 1, "type": "incoming", "quantity": 20, "unit_price": 8500000, "total_price": 170000000, "document_ref": "ПН-001", "notes": "Закупка у поставщика", "date": "2026-01-10", "created_at": "2026-01-10T10:00:00Z"},
-    {"id": 2, "product_id": 2, "warehouse_id": 1, "type": "incoming", "quantity": 30, "unit_price": 3200000, "total_price": 96000000, "document_ref": "ПН-002", "notes": "", "date": "2026-01-10", "created_at": "2026-01-10T10:00:00Z"},
-    {"id": 3, "product_id": 1, "warehouse_id": 1, "type": "outgoing", "quantity": 5, "unit_price": 11000000, "total_price": 55000000, "document_ref": "РН-001", "notes": "Продажа TechCorp", "date": "2026-01-25", "created_at": "2026-01-25T14:00:00Z"},
-    {"id": 4, "product_id": 5, "warehouse_id": 1, "type": "incoming", "quantity": 100, "unit_price": 45000, "total_price": 4500000, "document_ref": "ПН-003", "notes": "Закупка канцтоваров", "date": "2026-02-01", "created_at": "2026-02-01T11:00:00Z"},
-    {"id": 5, "product_id": 3, "warehouse_id": 2, "type": "incoming", "quantity": 10, "unit_price": 1500000, "total_price": 15000000, "document_ref": "ПН-004", "notes": "", "date": "2026-02-05", "created_at": "2026-02-05T09:00:00Z"},
-]
+def _prod_dict(p: Product) -> dict:
+    return {
+        "id": p.id, "sku": p.sku, "name": p.name, "category_id": p.category_id,
+        "unit": p.unit.value if p.unit else "piece",
+        "purchase_price": p.purchase_price, "selling_price": p.selling_price,
+        "min_stock": p.min_stock, "description": p.description, "barcode": p.barcode,
+        "is_active": p.is_active,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    }
 
 
+def _mov_dict(m: StockMovement) -> dict:
+    return {
+        "id": m.id, "product_id": m.product_id, "warehouse_id": m.warehouse_id,
+        "type": m.type.value if m.type else "incoming",
+        "quantity": m.quantity, "unit_price": m.unit_price, "total_price": m.total_price,
+        "document_ref": m.document_ref, "notes": m.notes,
+        "date": str(m.date) if m.date else None,
+        "created_at": m.created_at.isoformat() if m.created_at else None,
+    }
+
+
+# ============ CATEGORIES ============
 @router.get("/categories")
-async def get_categories():
-    return _categories
+async def get_categories(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category))
+    return [{"id": c.id, "name": c.name, "parent_id": c.parent_id, "description": c.description} for c in result.scalars().all()]
 
 
+# ============ PRODUCTS ============
 @router.get("/products")
-async def get_products():
-    return _products
+async def get_products(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
+    result = await db.execute(select(Product).offset(skip).limit(limit))
+    return [_prod_dict(p) for p in result.scalars().all()]
 
 
-@router.post("/products")
-async def create_product(data: dict):
-    new_id = max(p["id"] for p in _products) + 1 if _products else 1
-    product = {"id": new_id, **data, "is_active": True, "created_at": datetime.now(timezone.utc).isoformat()}
-    _products.append(product)
-    return product
+@router.post("/products", status_code=201)
+async def create_product(data: ProductBase, db: AsyncSession = Depends(get_db)):
+    product = Product(**data.model_dump(), is_active=True)
+    db.add(product)
+    await db.commit()
+    await db.refresh(product)
+    return _prod_dict(product)
 
 
 @router.patch("/products/{product_id}")
-async def update_product(product_id: int, data: dict):
-    for p in _products:
-        if p["id"] == product_id:
-            p.update(data)
-            return p
-    raise HTTPException(status_code=404, detail="Product not found")
+async def update_product(product_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    p = result.scalars().first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Product not found")
+    allowed = {"sku", "name", "category_id", "unit", "purchase_price", "selling_price", "min_stock", "description", "barcode", "is_active"}
+    for k, v in data.items():
+        if k in allowed:
+            setattr(p, k, v)
+    await db.commit()
+    await db.refresh(p)
+    return _prod_dict(p)
 
 
 @router.delete("/products/{product_id}")
-async def delete_product(product_id: int):
-    global _products
-    before = len(_products)
-    _products = [p for p in _products if p["id"] != product_id]
-    if len(_products) == before:
+async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    p = result.scalars().first()
+    if not p:
         raise HTTPException(status_code=404, detail="Product not found")
+    await db.delete(p)
+    await db.commit()
     return {"detail": "Product deleted"}
 
 
 @router.get("/products/{product_id}")
-async def get_product(product_id: int):
-    for p in _products:
-        if p["id"] == product_id:
-            return p
-    raise HTTPException(status_code=404, detail="Product not found")
+async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    p = result.scalars().first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return _prod_dict(p)
 
 
+# ============ WAREHOUSES ============
 @router.get("/warehouses")
-async def get_warehouses():
-    return _warehouses
+async def get_warehouses(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Warehouse))
+    return [{"id": w.id, "name": w.name, "code": w.code, "address": w.address, "manager_id": w.manager_id, "is_active": w.is_active} for w in result.scalars().all()]
 
 
+# ============ MOVEMENTS ============
 @router.get("/movements")
-async def get_movements():
-    return _stock_movements
+async def get_movements(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 200):
+    result = await db.execute(select(StockMovement).offset(skip).limit(limit))
+    return [_mov_dict(m) for m in result.scalars().all()]
 
 
-@router.post("/movements")
-async def create_movement(data: dict):
-    new_id = max(m["id"] for m in _stock_movements) + 1 if _stock_movements else 1
-    movement = {"id": new_id, **data, "created_at": datetime.now(timezone.utc).isoformat()}
-    _stock_movements.append(movement)
-    return movement
+@router.post("/movements", status_code=201)
+async def create_movement(data: StockMovementBase, db: AsyncSession = Depends(get_db)):
+    movement = StockMovement(**data.model_dump())
+    db.add(movement)
+    await db.commit()
+    await db.refresh(movement)
+    return _mov_dict(movement)
 
 
 @router.delete("/movements/{movement_id}")
-async def delete_movement(movement_id: int):
-    global _stock_movements
-    before = len(_stock_movements)
-    _stock_movements = [m for m in _stock_movements if m["id"] != movement_id]
-    if len(_stock_movements) == before:
+async def delete_movement(movement_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(StockMovement).where(StockMovement.id == movement_id))
+    m = result.scalars().first()
+    if not m:
         raise HTTPException(status_code=404, detail="Movement not found")
+    await db.delete(m)
+    await db.commit()
     return {"detail": "Movement deleted"}
 
 
+# ============ STOCK REPORT ============
 @router.get("/stock/report")
-async def get_stock_report():
-    """Calculate current stock per product per warehouse"""
+async def get_stock_report(db: AsyncSession = Depends(get_db)):
+    products = (await db.execute(select(Product))).scalars().all()
+    warehouses = (await db.execute(select(Warehouse))).scalars().all()
+    movements = (await db.execute(select(StockMovement))).scalars().all()
+
     stock = {}
-    for m in _stock_movements:
-        key = f"{m['product_id']}_{m['warehouse_id']}"
+    for m in movements:
+        key = f"{m.product_id}_{m.warehouse_id}"
         if key not in stock:
-            prod = next((p for p in _products if p["id"] == m["product_id"]), {})
+            prod = next((p for p in products if p.id == m.product_id), None)
             stock[key] = {
-                "product_id": m["product_id"],
-                "product_name": prod.get("name", ""),
-                "sku": prod.get("sku", ""),
-                "warehouse_id": m["warehouse_id"],
-                "quantity": 0,
-                "total_value": 0,
+                "product_id": m.product_id, "product_name": prod.name if prod else "",
+                "sku": prod.sku if prod else "", "warehouse_id": m.warehouse_id,
+                "quantity": 0, "total_value": 0,
             }
-        if m["type"] in ("incoming", "return"):
-            stock[key]["quantity"] += m["quantity"]
-            stock[key]["total_value"] += m["total_price"]
-        elif m["type"] in ("outgoing", "write_off"):
-            stock[key]["quantity"] -= m["quantity"]
-            stock[key]["total_value"] -= m["total_price"]
+        mv = m.type.value if m.type else "incoming"
+        if mv in ("incoming", "return"):
+            stock[key]["quantity"] += m.quantity
+            stock[key]["total_value"] += m.total_price or 0
+        elif mv in ("outgoing", "write_off"):
+            stock[key]["quantity"] -= m.quantity
+            stock[key]["total_value"] -= m.total_price or 0
 
     return {
         "items": list(stock.values()),
-        "total_products": len(_products),
-        "total_warehouses": len(_warehouses),
-        "total_movements": len(_stock_movements),
+        "total_products": len(products),
+        "total_warehouses": len(warehouses),
+        "total_movements": len(movements),
     }
+
+
+# ============ INVENTORY ============
+@router.get("/inventory")
+async def get_inventories(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(InventoryCheck))
+    return [{"id": ic.id, "warehouse_id": ic.warehouse_id, "product_id": ic.product_id, "expected_qty": ic.expected_qty, "actual_qty": ic.actual_qty, "difference": ic.difference, "date": str(ic.date) if ic.date else None, "notes": ic.notes, "created_at": ic.created_at.isoformat() if ic.created_at else None} for ic in result.scalars().all()]
+
+
+@router.post("/inventory", status_code=201)
+async def create_inventory(data: dict, db: AsyncSession = Depends(get_db)):
+    items = data.get("items", [])
+    results = []
+    for item in items:
+        ic = InventoryCheck(
+            warehouse_id=data.get("warehouse_id", 1),
+            product_id=item.get("product_id"),
+            expected_qty=item.get("book_qty", 0),
+            actual_qty=item.get("actual_qty", 0),
+            difference=item.get("actual_qty", 0) - item.get("book_qty", 0),
+            date=datetime.strptime(data.get("date", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d").date(),
+            notes=item.get("comment", ""),
+        )
+        db.add(ic)
+        results.append(ic)
+
+        # Auto-create movement for discrepancies
+        diff = ic.difference
+        if diff != 0:
+            prod = (await db.execute(select(Product).where(Product.id == ic.product_id))).scalars().first()
+            mov = StockMovement(
+                product_id=ic.product_id, warehouse_id=ic.warehouse_id,
+                type="return" if diff > 0 else "write_off",
+                quantity=abs(diff), unit_price=prod.purchase_price if prod else 0,
+                total_price=abs(diff) * (prod.purchase_price if prod else 0),
+                document_ref=f"INV-{datetime.now().strftime('%Y%m%d')}",
+                notes=f"Inventory: {ic.notes}",
+                date=ic.date,
+            )
+            db.add(mov)
+
+    await db.commit()
+    return {"status": "completed", "items_checked": len(results)}

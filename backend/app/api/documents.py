@@ -1,28 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.database import get_db
+from app.models.document import Document, ApprovalStep, DocumentVersion
 
 router = APIRouter(prefix="/api/documents", tags=["Documents"])
 
-# ============ DEMO DATA ============
-_documents = [
-    {"id": 1, "title": "Договор с TechCorp UZ", "number": "ДОГ-2026-001", "doc_type": "contract", "status": "approved", "content": "Договор на внедрение ERP-системы...", "file_path": None, "file_size": None, "author_id": 1, "author_name": "Алексей Иванов", "department": "IT", "tags": "договор,erp,techcorp", "created_at": "2026-01-15T10:00:00Z"},
-    {"id": 2, "title": "Счёт для MediaGroup", "number": "СЧ-2026-001", "doc_type": "invoice", "status": "approved", "content": "Счёт на оплату услуг аналитики...", "file_path": None, "file_size": None, "author_id": 5, "author_name": "Татьяна Козлова", "department": "Бухгалтерия", "tags": "счёт,mediagroup", "created_at": "2026-02-09T16:00:00Z"},
-    {"id": 3, "title": "Приказ о приёме на работу", "number": "ПР-2026-005", "doc_type": "order", "status": "approved", "content": "Приказ о приёме Волковой А.Д. на должность стажёра...", "file_path": None, "file_size": None, "author_id": 7, "author_name": "Динара Юсупова", "department": "HR", "tags": "приказ,приём,кадры", "created_at": "2025-12-28T10:00:00Z"},
-    {"id": 4, "title": "Акт инвентаризации склада", "number": "АКТ-2026-001", "doc_type": "act", "status": "pending", "content": "Акт инвентаризации по основному складу за январь...", "file_path": None, "file_size": None, "author_id": 9, "author_name": "Равшан Турсунов", "department": "Склад", "tags": "акт,инвентаризация,склад", "created_at": "2026-02-01T14:00:00Z"},
-    {"id": 5, "title": "Служебная записка — закупка ПО", "number": "СЗ-2026-003", "doc_type": "memo", "status": "draft", "content": "Прошу рассмотреть закупку лицензий на...", "file_path": None, "file_size": None, "author_id": 1, "author_name": "Алексей Иванов", "department": "IT", "tags": "служебная записка,закупка", "created_at": "2026-02-10T11:00:00Z"},
-    {"id": 6, "title": "Отчёт по продажам за январь", "number": "ОТЧ-2026-001", "doc_type": "report", "status": "approved", "content": "Итоги продаж за январь 2026 года...", "file_path": None, "file_size": None, "author_id": 3, "author_name": "Бобур Ахмедов", "department": "Продажи", "tags": "отчёт,продажи", "created_at": "2026-02-03T09:00:00Z"},
-    {"id": 7, "title": "Внутренний регламент ИБ", "number": "РЕГ-2026-001", "doc_type": "other", "status": "pending", "content": "Регламент информационной безопасности...", "file_path": None, "file_size": None, "author_id": 8, "author_name": "Дмитрий Сидоров", "department": "IT", "tags": "регламент,безопасность", "created_at": "2026-02-11T09:00:00Z"},
-    {"id": 8, "title": "Расчётный лист за январь 2026", "number": "РЛ-2026-001", "doc_type": "payslip", "status": "approved", "content": "Расчётный лист сотрудника Иванов А.П. за январь 2026...", "file_path": None, "file_size": None, "author_id": 5, "author_name": "Татьяна Козлова", "department": "Бухгалтерия", "tags": "расчётный лист,зарплата", "created_at": "2026-02-01T12:00:00Z"},
-    {"id": 9, "title": "Приказ на отпуск Маматовой Г.Б.", "number": "ПР-О-2026-001", "doc_type": "vacation_order", "status": "approved", "content": "Приказ о предоставлении ежегодного основного отпуска...", "file_path": None, "file_size": None, "author_id": 7, "author_name": "Динара Юсупова", "department": "HR", "tags": "приказ,отпуск", "created_at": "2026-02-10T10:00:00Z"},
-]
-
-_approval_steps = [
-    {"id": 1, "document_id": 4, "step_order": 1, "approver_id": 9, "approver_name": "Равшан Турсунов", "action": "approved", "comment": "Проверено", "acted_at": "2026-02-02T10:00:00Z"},
-    {"id": 2, "document_id": 4, "step_order": 2, "approver_id": 5, "approver_name": "Татьяна Козлова", "action": "pending", "comment": None, "acted_at": None},
-    {"id": 3, "document_id": 7, "step_order": 1, "approver_id": 1, "approver_name": "Алексей Иванов", "action": "pending", "comment": None, "acted_at": None},
-]
-
-# ============ DOCUMENT TEMPLATES ============
+# Static templates (no model needed — read-only config)
 _document_templates = [
     {"id": 1, "name": "Трудовой договор", "doc_type": "contract", "category": "hr", "description": "Стандартный трудовой договор по ТК РУз", "fields": ["ФИО сотрудника", "Должность", "Оклад", "Дата начала", "Испытательный срок"], "icon": "📋"},
     {"id": 2, "name": "Приказ о приёме на работу", "doc_type": "order", "category": "hr", "description": "Приказ о зачислении сотрудника в штат", "fields": ["ФИО сотрудника", "Должность", "Отдел", "Оклад", "Дата приёма"], "icon": "📝"},
@@ -37,14 +22,28 @@ _document_templates = [
 ]
 
 
+def _doc_dict(d: Document) -> dict:
+    return {
+        "id": d.id, "title": d.title, "number": d.number,
+        "doc_type": d.type.value if d.type else "other",
+        "status": d.status.value if d.status else "draft",
+        "content": d.content, "file_path": d.file_path, "file_size": d.file_size,
+        "author_id": d.author_id, "author_name": d.author_name,
+        "department": d.department, "tags": d.tags,
+        "created_at": d.created_at.isoformat() if d.created_at else None,
+    }
+
+
+# ============ DOCUMENTS CRUD ============
 @router.get("/")
-async def get_documents(doc_type: str = None, status: str = None):
-    result = _documents
+async def get_documents(db: AsyncSession = Depends(get_db), doc_type: str = None, status: str = None, skip: int = 0, limit: int = 100):
+    q = select(Document)
     if doc_type:
-        result = [d for d in result if d["doc_type"] == doc_type]
+        q = q.where(Document.type == doc_type)
     if status:
-        result = [d for d in result if d["status"] == status]
-    return result
+        q = q.where(Document.status == status)
+    result = await db.execute(q.offset(skip).limit(limit))
+    return [_doc_dict(d) for d in result.scalars().all()]
 
 
 @router.get("/templates")
@@ -52,53 +51,77 @@ async def get_document_templates():
     return _document_templates
 
 
+@router.get("/stats/summary")
+async def get_document_stats(db: AsyncSession = Depends(get_db)):
+    docs = (await db.execute(select(Document))).scalars().all()
+    approval_steps = (await db.execute(select(ApprovalStep))).scalars().all()
+    status_counts = {}
+    type_counts = {}
+    for d in docs:
+        st = d.status.value if d.status else "draft"
+        tp = d.type.value if d.type else "other"
+        status_counts[st] = status_counts.get(st, 0) + 1
+        type_counts[tp] = type_counts.get(tp, 0) + 1
+    return {
+        "total": len(docs),
+        "by_status": status_counts,
+        "by_type": type_counts,
+        "pending_approvals": sum(1 for s in approval_steps if s.action and s.action.value == "pending"),
+        "templates_count": len(_document_templates),
+    }
+
+
 @router.get("/{doc_id}")
-async def get_document(doc_id: int):
-    for d in _documents:
-        if d["id"] == doc_id:
-            return {**d, "approval_steps": [s for s in _approval_steps if s["document_id"] == doc_id]}
-    raise HTTPException(status_code=404, detail="Document not found")
+async def get_document(doc_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Document).where(Document.id == doc_id))
+    d = result.scalars().first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Document not found")
+    steps_result = await db.execute(select(ApprovalStep).where(ApprovalStep.document_id == doc_id))
+    steps = [{"id": s.id, "document_id": s.document_id, "step_order": s.step_order, "approver_id": s.approver_id, "approver_name": s.approver_name, "action": s.action.value if s.action else "pending", "comment": s.comment, "acted_at": s.acted_at.isoformat() if s.acted_at else None} for s in steps_result.scalars().all()]
+    return {**_doc_dict(d), "approval_steps": steps}
 
 
-@router.post("/")
-async def create_document(data: dict):
-    new_id = max(d["id"] for d in _documents) + 1 if _documents else 1
-    doc = {"id": new_id, **data, "status": "draft", "created_at": datetime.now(timezone.utc).isoformat()}
-    _documents.append(doc)
-    return doc
+@router.post("/", status_code=201)
+async def create_document(data: dict, db: AsyncSession = Depends(get_db)):
+    doc = Document(
+        title=data.get("title", ""),
+        number=data.get("number"),
+        type=data.get("doc_type", "other"),
+        status="draft",
+        content=data.get("content"),
+        author_id=data.get("author_id"),
+        author_name=data.get("author_name"),
+        department=data.get("department"),
+        tags=data.get("tags"),
+    )
+    db.add(doc)
+    await db.commit()
+    await db.refresh(doc)
+    return _doc_dict(doc)
 
 
 @router.patch("/{doc_id}")
-async def update_document(doc_id: int, data: dict):
-    for d in _documents:
-        if d["id"] == doc_id:
-            d.update(data)
-            return d
-    raise HTTPException(status_code=404, detail="Document not found")
+async def update_document(doc_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Document).where(Document.id == doc_id))
+    d = result.scalars().first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Document not found")
+    allowed = {"title", "number", "type", "status", "content", "department", "tags"}
+    for k, v in data.items():
+        if k in allowed:
+            setattr(d, k, v)
+    await db.commit()
+    await db.refresh(d)
+    return _doc_dict(d)
 
 
 @router.delete("/{doc_id}")
-async def delete_document(doc_id: int):
-    global _documents, _approval_steps
-    before = len(_documents)
-    _documents = [d for d in _documents if d["id"] != doc_id]
-    if len(_documents) == before:
+async def delete_document(doc_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Document).where(Document.id == doc_id))
+    d = result.scalars().first()
+    if not d:
         raise HTTPException(status_code=404, detail="Document not found")
-    _approval_steps = [s for s in _approval_steps if s["document_id"] != doc_id]
+    await db.delete(d)
+    await db.commit()
     return {"detail": "Document deleted"}
-
-
-@router.get("/stats/summary")
-async def get_document_stats():
-    status_counts = {}
-    type_counts = {}
-    for d in _documents:
-        status_counts[d["status"]] = status_counts.get(d["status"], 0) + 1
-        type_counts[d["doc_type"]] = type_counts.get(d["doc_type"], 0) + 1
-    return {
-        "total": len(_documents),
-        "by_status": status_counts,
-        "by_type": type_counts,
-        "pending_approvals": sum(1 for s in _approval_steps if s["action"] == "pending"),
-        "templates_count": len(_document_templates),
-    }

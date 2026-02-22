@@ -3,11 +3,13 @@ import { Table, Tag, Button, Space, Input, Select, Modal, Form, Row, Col, messag
 import { PlusOutlined, SearchOutlined, ExportOutlined, EditOutlined, DeleteOutlined, ApartmentOutlined } from '@ant-design/icons'
 import { useChartOfAccounts, useCreateAccount, useUpdateAccount, useDeleteAccount } from '../../api/hooks'
 import { exportToCSV } from '../../utils/export'
+import { useTranslation } from 'react-i18next'
 
 const typeLabels: Record<string, string> = { asset: 'Актив', liability: 'Пассив', equity: 'Капитал', revenue: 'Доход', expense: 'Расход', contra_asset: 'Контр-актив' }
 const typeColors: Record<string, string> = { asset: 'blue', liability: 'red', equity: 'purple', revenue: 'green', expense: 'orange', contra_asset: 'cyan' }
 
 export default function ChartOfAccounts() {
+    const { t } = useTranslation()
     const { data: accounts = [], isLoading } = useChartOfAccounts()
     const createAccount = useCreateAccount()
     const updateAccount = useUpdateAccount()
@@ -38,23 +40,23 @@ export default function ChartOfAccounts() {
 
     const handleSubmit = async (values: any) => {
         try {
-            if (editRecord) { await updateAccount.mutateAsync({ id: editRecord.id, ...values }); message.success('Счёт обновлён') }
-            else { await createAccount.mutateAsync(values); message.success('Счёт создан') }
+            if (editRecord) { await updateAccount.mutateAsync({ id: editRecord.id, ...values }); message.success(t('common.saved')) }
+            else { await createAccount.mutateAsync(values); message.success(t('common.created_ok')) }
             setModalOpen(false); form.resetFields(); setEditRecord(null)
-        } catch { message.error('Ошибка') }
+        } catch { message.error(t('common.error')) }
     }
 
     const handleDelete = async (id: number) => {
-        try { await deleteAccount.mutateAsync(id); message.success('Счёт удалён') }
-        catch { message.error('Ошибка') }
+        try { await deleteAccount.mutateAsync(id); message.success(t('common.deleted_ok')) }
+        catch { message.error(t('common.error')) }
     }
 
     const handleExport = () => {
         exportToCSV(filtered, 'chart_of_accounts', [
             { key: 'code', title: 'Код' }, { key: 'name', title: 'Название' },
-            { key: 'group_code', title: 'Группа' }, { key: 'account_type', title: 'Тип' }, { key: 'balance', title: 'Баланс' },
+            { key: 'group_code', title: 'Группа' }, { key: 'account_type', title: t('common.type') }, { key: 'balance', title: 'Баланс' },
         ])
-        message.success(`Экспортировано ${filtered.length} записей`)
+        message.success(`${t('common.export')}: ${filtered.length}`)
     }
 
     /* Balance summaries */
@@ -67,15 +69,15 @@ export default function ChartOfAccounts() {
         { title: 'Группа', dataIndex: 'group_code', key: 'group', width: 80, render: (v: string, r: any) => v ? <Tooltip title={r.group_name}><Tag>{v}</Tag></Tooltip> : '—' },
         { title: 'Код', dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</span> },
         { title: 'Название', dataIndex: 'name', key: 'name', render: (v: string, r: any) => <span style={{ fontWeight: r.parent_id ? 400 : 700, paddingLeft: r.parent_id ? 12 : 0 }}>{v}</span> },
-        { title: 'Тип', dataIndex: 'account_type', key: 'account_type', width: 120, render: (v: string) => <Tag color={typeColors[v]}>{typeLabels[v] || v}</Tag> },
+        { title: t('common.type'), dataIndex: 'account_type', key: 'account_type', width: 120, render: (v: string) => <Tag color={typeColors[v]}>{typeLabels[v] || v}</Tag> },
         { title: 'Баланс', dataIndex: 'balance', key: 'balance', width: 160, render: (v: number) => <span style={{ fontWeight: 600, color: (v || 0) >= 0 ? '#52c41a' : '#ff4d4f' }}>{(v || 0).toLocaleString('ru-RU')} UZS</span>, sorter: (a: any, b: any) => (a.balance || 0) - (b.balance || 0) },
-        { title: 'Статус', dataIndex: 'is_active', key: 'is_active', width: 90, render: (v: boolean) => <Tag color={v !== false ? 'green' : 'default'}>{v !== false ? 'Активный' : 'Закрыт'}</Tag> },
+        { title: t('common.status'), dataIndex: 'is_active', key: 'is_active', width: 90, render: (v: boolean) => <Tag color={v !== false ? 'green' : 'default'}>{v !== false ? 'Активный' : 'Закрыт'}</Tag> },
         {
             title: '', key: 'actions', width: 100,
             render: (_: any, r: any) => (
                 <Space onClick={(e) => e.stopPropagation()}>
-                    <Tooltip title="Редактировать"><Button type="text" icon={<EditOutlined />} onClick={() => openEdit(r)} /></Tooltip>
-                    <Popconfirm title="Удалить счёт?" onConfirm={() => handleDelete(r.id)}><Button type="text" danger icon={<DeleteOutlined />} /></Popconfirm>
+                    <Tooltip title={t('common.edit')}><Button type="text" icon={<EditOutlined />} onClick={() => openEdit(r)} /></Tooltip>
+                    <Popconfirm title={t('common.confirm_delete')} onConfirm={() => handleDelete(r.id)}><Button type="text" danger icon={<DeleteOutlined />} /></Popconfirm>
                 </Space>
             ),
         },
@@ -86,35 +88,35 @@ export default function ChartOfAccounts() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>План счетов (НСБУ №21)</h1><p>Бухгалтерские счета — {filtered.length} из {accounts.length}</p></div>
-                <Space><Button icon={<ExportOutlined />} onClick={handleExport}>Экспорт</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Новый счёт</Button></Space>
+                <div><h1>{t('accounting.chart_title')}</h1><p>{t('accounting.chart_title')} — {filtered.length} / {accounts.length}</p></div>
+                <Space><Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>{t('common.create')}</Button></Space>
             </div>
 
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-                <Col xs={12} md={6}><Card size="small"><Statistic title="Активы (нетто)" value={totalAssets - totalContraAsset} suffix="UZS" valueStyle={{ fontSize: 14, color: '#22c55e' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
-                <Col xs={12} md={6}><Card size="small"><Statistic title="Обязательства" value={totalLiabilities} suffix="UZS" valueStyle={{ fontSize: 14, color: '#ef4444' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
-                <Col xs={12} md={6}><Card size="small"><Statistic title="Капитал" value={totalEquity} suffix="UZS" valueStyle={{ fontSize: 14, color: '#8b5cf6' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
-                <Col xs={12} md={6}><Card size="small"><Statistic title="Групп / Счетов" value={`${groups.length} / ${accounts.length}`} valueStyle={{ fontSize: 14 }} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title={t('accounting.net_assets')} value={totalAssets - totalContraAsset} suffix="UZS" valueStyle={{ fontSize: 14, color: '#22c55e' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title={t('accounting.liabilities')} value={totalLiabilities} suffix="UZS" valueStyle={{ fontSize: 14, color: '#ef4444' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title={t('accounting.accounts_by_type.equity')} value={totalEquity} suffix="UZS" valueStyle={{ fontSize: 14, color: '#8b5cf6' }} formatter={(v) => Number(v).toLocaleString('ru-RU')} /></Card></Col>
+                <Col xs={12} md={6}><Card size="small"><Statistic title={t('accounting.groups_accounts')} value={`${groups.length} / ${accounts.length}`} valueStyle={{ fontSize: 14 }} /></Card></Col>
             </Row>
 
             <Space style={{ marginBottom: 16 }} wrap>
-                <Input placeholder="Поиск по коду или названию..." prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
-                <Select placeholder="Тип счёта" style={{ width: 160 }} allowClear value={typeFilter} onChange={setTypeFilter} options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
-                <Select placeholder="Группа" style={{ width: 220 }} allowClear value={groupFilter} onChange={setGroupFilter} options={groups} showSearch optionFilterProp="label" />
+                <Input placeholder={t('accounting.search_code')} prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
+                <Select placeholder={t('accounting.account_type')} style={{ width: 160 }} allowClear value={typeFilter} onChange={setTypeFilter} options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
+                <Select placeholder={t('accounting.group')} style={{ width: 220 }} allowClear value={groupFilter} onChange={setGroupFilter} options={groups} showSearch optionFilterProp="label" />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 20, showTotal: t => `Всего: ${t}` }} size="small" />
+            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 20, showTotal: total => `${t('common.total')}: ${total}` }} size="small" />
 
             <Modal title={editRecord ? 'Редактировать счёт' : 'Новый счёт'} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createAccount.isPending || updateAccount.isPending}
-                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText="Отмена" width={520}>
+                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText={t('common.cancel')} width={520}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
-                        <Col span={8}><Form.Item name="code" label="Код счёта" rules={[{ required: true }]}><Input placeholder="1010" /></Form.Item></Col>
-                        <Col span={16}><Form.Item name="name" label="Название" rules={[{ required: true }]}><Input /></Form.Item></Col>
-                        <Col span={12}><Form.Item name="account_type" label="Тип" rules={[{ required: true }]}><Select options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} /></Form.Item></Col>
-                        <Col span={12}><Form.Item name="parent_id" label="Родительский счёт"><Select allowClear placeholder="— нет —" options={accounts.map((a: any) => ({ value: a.id, label: `${a.code} — ${a.name}` }))} showSearch optionFilterProp="label" /></Form.Item></Col>
-                        <Col span={24}><Form.Item name="description" label="Описание"><Input /></Form.Item></Col>
+                        <Col span={8}><Form.Item name="code" label={t('accounting.account_code')} rules={[{ required: true }]}><Input placeholder="1010" /></Form.Item></Col>
+                        <Col span={16}><Form.Item name="name" label={t('common.name')} rules={[{ required: true }]}><Input /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="account_type" label={t('common.type')} rules={[{ required: true }]}><Select options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="parent_id" label={t('accounting.parent_account')}><Select allowClear placeholder="—" options={accounts.map((a: any) => ({ value: a.id, label: `${a.code} — ${a.name}` }))} showSearch optionFilterProp="label" /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="description" label={t('common.description')}><Input /></Form.Item></Col>
                     </Row>
                 </Form>
             </Modal>

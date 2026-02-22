@@ -3,8 +3,10 @@ import { Table, Tag, Button, Space, Spin, Card, Row, Col, Statistic, message, In
 import { ClockCircleOutlined, CheckCircleOutlined, ExportOutlined, SearchOutlined } from '@ant-design/icons'
 import { useEmployees } from '../../api/hooks'
 import { exportToCSV } from '../../utils/export'
+import { useTranslation } from 'react-i18next'
 
 export default function Timesheet() {
+    const { t } = useTranslation()
     const { data: employees = [], isLoading } = useEmployees()
     const [search, setSearch] = useState('')
 
@@ -26,30 +28,30 @@ export default function Timesheet() {
     const handleExport = () => {
         exportToCSV(employees.map((e: any) => ({
             name: `${e.first_name} ${e.last_name}`, position: e.position,
-            status: e.status === 'active' ? 'На работе' : e.status === 'on_leave' ? 'В отпуске' : e.status,
+            status: e.status === 'active' ? t('timesheet.present') : e.status === 'on_leave' ? t('timesheet.on_vacation') : e.status,
             worked_days: e.status === 'active' ? workedDays : 0,
             worked_hours: e.status === 'active' ? workedDays * 8 : 0,
         })), 'timesheet', [
-            { key: 'name', title: 'Сотрудник' }, { key: 'position', title: 'Должность' },
-            { key: 'status', title: 'Статус' }, { key: 'worked_days', title: 'Отработано дней' },
-            { key: 'worked_hours', title: 'Часов' },
+            { key: 'name', title: t('payroll.employee') }, { key: 'position', title: t('employees.position') },
+            { key: 'status', title: t('common.status') }, { key: 'worked_days', title: t('timesheet.work_days') },
+            { key: 'worked_hours', title: t('timesheet.total_hours') },
         ])
-        message.success(`Экспортировано ${employees.length} записей`)
+        message.success(`${t('common.export')}: ${employees.length}`)
     }
 
     if (isLoading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
 
     const columns = [
-        { title: 'Сотрудник', key: 'name', render: (_: any, r: any) => <span style={{ fontWeight: 600 }}>{r.first_name} {r.last_name}</span> },
-        { title: 'Должность', dataIndex: 'position', key: 'position' },
-        { title: 'Статус', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'active' ? 'green' : s === 'on_leave' ? 'blue' : 'red'}>{s === 'active' ? 'На работе' : s === 'on_leave' ? 'В отпуске' : s}</Tag> },
-        { title: 'Отработано дней', key: 'days', render: (_: any, r: any) => r.status === 'active' ? <span style={{ fontWeight: 600 }}>{workedDays}</span> : <span style={{ color: '#64748b' }}>—</span> },
-        { title: 'Часов', key: 'hours', render: (_: any, r: any) => r.status === 'active' ? <span>{workedDays * 8}</span> : '—' },
+        { title: t('payroll.employee'), key: 'name', render: (_: any, r: any) => <span style={{ fontWeight: 600 }}>{r.first_name} {r.last_name}</span> },
+        { title: t('employees.position'), dataIndex: 'position', key: 'position' },
+        { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'active' ? 'green' : s === 'on_leave' ? 'blue' : 'red'}>{s === 'active' ? t('timesheet.present') : s === 'on_leave' ? t('timesheet.on_vacation') : s}</Tag> },
+        { title: t('timesheet.work_days'), key: 'days', render: (_: any, r: any) => r.status === 'active' ? <span style={{ fontWeight: 600 }}>{workedDays}</span> : <span style={{ color: '#64748b' }}>—</span> },
+        { title: t('timesheet.total_hours'), key: 'hours', render: (_: any, r: any) => r.status === 'active' ? <span>{workedDays * 8}</span> : '—' },
         {
             title: '', key: 'actions', width: 120,
             render: (_: any, r: any) => r.status === 'active' ? (
                 <Space>
-                    <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={() => message.success(`Отметка для ${r.first_name}`)}>Отметить</Button>
+                    <Button size="small" type="primary" icon={<CheckCircleOutlined />} onClick={() => message.success(`${r.first_name}`)}>{t('timesheet.present')}</Button>
                 </Space>
             ) : null,
         },
@@ -58,25 +60,24 @@ export default function Timesheet() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>Табель учёта</h1><p>Учёт рабочего времени — {today.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</p></div>
+                <div><h1>{t('timesheet.title')}</h1><p>{t('timesheet.subtitle')}</p></div>
                 <Space>
-                    <Button icon={<ExportOutlined />} onClick={handleExport}>Экспорт</Button>
-                    <Button type="primary" icon={<ClockCircleOutlined />} onClick={() => message.success('Приход зафиксирован')}>Отметить приход</Button>
+                    <Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button>
                 </Space>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-                <Input placeholder="Поиск по сотруднику..." prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
+                <Input placeholder={t('timesheet.search')} prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
             </div>
 
             <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col xs={12} lg={6}><Card bordered={false}><Statistic title="Рабочих дней" value={workedDays} suffix={`/ ${workDays.filter(d => !d.isWeekend).length}`} /></Card></Col>
-                <Col xs={12} lg={6}><Card bordered={false}><Statistic title="Сотрудников на работе" value={activeEmps.length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-                <Col xs={12} lg={6}><Card bordered={false}><Statistic title="Общие часы" value={activeEmps.length * workedDays * 8} suffix="ч" /></Card></Col>
-                <Col xs={12} lg={6}><Card bordered={false}><Statistic title="В отпуске" value={employees.filter((e: any) => e.status === 'on_leave').length} valueStyle={{ color: '#1890ff' }} /></Card></Col>
+                <Col xs={12} lg={6}><Card bordered={false}><Statistic title={t('timesheet.work_days')} value={workedDays} suffix={`/ ${workDays.filter(d => !d.isWeekend).length}`} /></Card></Col>
+                <Col xs={12} lg={6}><Card bordered={false}><Statistic title={t('timesheet.employees_at_work')} value={activeEmps.length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+                <Col xs={12} lg={6}><Card bordered={false}><Statistic title={t('timesheet.total_hours')} value={activeEmps.length * workedDays * 8} suffix={t('timesheet.hours_suffix')} /></Card></Col>
+                <Col xs={12} lg={6}><Card bordered={false}><Statistic title={t('timesheet.on_vacation')} value={employees.filter((e: any) => e.status === 'on_leave').length} valueStyle={{ color: '#1890ff' }} /></Card></Col>
             </Row>
 
-            <Table columns={columns} dataSource={filteredEmps} rowKey="id" pagination={{ pageSize: 10, showTotal: t => `Всего: ${t}` }} />
+            <Table columns={columns} dataSource={filteredEmps} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
         </div>
     )
 }
