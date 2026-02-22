@@ -109,15 +109,15 @@ export default function ContactsList() {
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
                         <Col span={12}><Form.Item name="contact_type" label={t('contacts.type')} initialValue="legal"><select style={{ width: '100%', padding: '6px 12px', borderRadius: 8, border: '1px solid #303030', background: 'transparent', color: '#e2e8f0' }}><option value="legal">{t('contacts.legal_entity')}</option><option value="individual">{t('contacts.individual')}</option></select></Form.Item></Col>
-                        <Col span={12}><Form.Item name="inn" label={t('settings.inn')}><Input prefix={<IdcardOutlined />} placeholder="9 цифр" /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="inn" label={t('settings.inn')}><Input prefix={<IdcardOutlined />} placeholder={t('contacts.9_digits', '9 цифр')} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="first_name" label={t('contacts.first_name')} rules={[{ required: true, message: t('contacts.enter_name') }]}><Input /></Form.Item></Col>
                         <Col span={12}><Form.Item name="last_name" label={t('contacts.last_name')} rules={[{ required: true, message: t('contacts.enter_name') }]}><Input /></Form.Item></Col>
                         <Col span={12}><Form.Item name="email" label="Email" rules={[{ type: 'email', message: t('contacts.invalid_email') }]}><Input prefix={<MailOutlined />} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="phone" label={t('settings.phone')}><Input prefix={<PhoneOutlined />} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="company" label={t('contacts.company')}><Input /></Form.Item></Col>
                         <Col span={12}><Form.Item name="position" label={t('contacts.position')}><Input /></Form.Item></Col>
-                        <Col span={24}><Form.Item name="company_name" label={t('contacts.full_org_name')}><Input placeholder="ООО «Название»" /></Form.Item></Col>
-                        <Col span={24}><Form.Item name="legal_address" label={t('settings.legal_address')}><Input placeholder="г. Ташкент, ..." /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="company_name" label={t('contacts.full_org_name')}><Input placeholder={t('contacts.org_placeholder', 'ООО «Название»')} /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="legal_address" label={t('settings.legal_address')}><Input placeholder={t('contacts.address_placeholder', 'г. Ташкент, ...')} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="bank_name" label={t('contacts.bank')}><Input prefix={<BankOutlined />} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="bank_account" label={t('contacts.bank_account')}><Input placeholder="20208..." /></Form.Item></Col>
                         <Col span={24}><Form.Item name="address" label={t('contacts.actual_address')}><Input /></Form.Item></Col>

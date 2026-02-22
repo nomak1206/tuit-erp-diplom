@@ -110,7 +110,7 @@ export default function WorkSchedules() {
                                         {/* offset for first day */}
                                         {Array.from({ length: (monthStart.day() + 6) % 7 }).map((_, i) => <div key={`pad-${i}`} />)}
                                         {calendarDays.map(cd => (
-                                            <div key={cd.day} title={cd.holidayName} style={{
+                                            <div key={cd.day} title={cd.holidayName ? t(cd.holidayName) : undefined} style={{
                                                 textAlign: 'center', padding: '8px 4px', borderRadius: 6,
                                                 background: cd.isToday ? '#6366f1' : cd.isHoliday ? '#fef2f2' : cd.isWeekend ? '#f8fafc' : '#f0fdf4',
                                                 color: cd.isToday ? '#fff' : cd.isHoliday ? '#dc2626' : cd.isWeekend ? '#94a3b8' : '#166534',

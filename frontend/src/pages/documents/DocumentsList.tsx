@@ -136,16 +136,16 @@ export default function DocumentsList() {
                             </Tooltip>,
                         ]}
                     >
-                        <p style={{ color: '#94a3b8', fontSize: 13, minHeight: 40 }}>{tpl.description || 'Нет описания'}</p>
+                        <p style={{ color: '#94a3b8', fontSize: 13, minHeight: 40 }}>{tpl.description || t('common.no_data', 'Нет описания')}</p>
                         <div style={{ marginTop: 8 }}>
                             <Tag>{typeLabels[tpl.doc_type] || tpl.doc_type}</Tag>
-                            {tpl.fields && <span style={{ color: '#64748b', fontSize: 12, marginLeft: 8 }}>{tpl.fields.length} полей</span>}
+                            {tpl.fields && <span style={{ color: '#64748b', fontSize: 12, marginLeft: 8 }}>{tpl.fields.length} {t('common.fields', 'полей')}</span>}
                         </div>
                     </Card>
                 </Col>
             ))}
             {(templates as any[]).length === 0 && (
-                <Col span={24}><div style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>Нет шаблонов</div></Col>
+                <Col span={24}><div style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>{t('documents.no_templates', 'Нет шаблонов')}</div></Col>
             )}
         </Row>
     )

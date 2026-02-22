@@ -9,10 +9,7 @@ const api = axios.create({
 
 // JWT request interceptor
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-    }
+    // We strictly use HttpOnly cookies now, so no Authorization header is needed.
     return config
 })
 
@@ -25,22 +22,19 @@ api.interceptors.response.use(
         const originalRequest = error.config
 
         if (status === 401 && !originalRequest._retry) {
-            // Token expired — try to refresh via cookie
             originalRequest._retry = true
             try {
-                // The refresh endpoint will automatically read the refresh_token cookie 
-                // and set a new access_token cookie
                 await axios.post('/api/auth/refresh', {}, { withCredentials: true })
-
-                // Retry the original request
                 return api(originalRequest)
             } catch {
-                // Refresh failed — cookies are likely expired/invalid
-                window.location.href = '/login'
+                if (window.location.pathname !== '/login') {
+                    window.location.href = '/login'
+                }
             }
         } else if (status === 401) {
-            // Already retried and failed again
-            window.location.href = '/login'
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login'
+            }
         } else if (status === 403) {
             message.error('Недостаточно прав для этого действия')
         } else if (status === 404) {

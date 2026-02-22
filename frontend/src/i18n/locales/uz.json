@@ -727,9 +727,9 @@
         "fill_rate": "To'ldirilganlik",
         "department": "Bo'lim",
         "position": "Lavozim",
-        "schedule": "Jadval",
-        "title": "HR — Umumiy ko'rinish",
-        "employees": "Xodimlar",
+        "schedule": "Jadval"
+    },
+    "hr": {
         "holidays": {
             "new_year": "Yangi yil",
             "womens_day": "Xalqaro xotin-qizlar kuni",
