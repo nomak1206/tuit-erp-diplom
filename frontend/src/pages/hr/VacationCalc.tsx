@@ -128,8 +128,8 @@ export default function VacationCalc() {
                 <Col xs={24} lg={10}>
                     <Card title={<><GiftOutlined /> {t('schedules.holidays')} {new Date().getFullYear()}</>} style={{ marginBottom: 16 }}>
                         {holidays.map((h: any, i: number) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f0f0f0' }}>
-                                <span>{h.name}</span>
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color-faint)' }}>
+                                <span>{t(h.name)}</span>
                                 <Tag color="red">{dayjs(h.date).format('DD.MM')}</Tag>
                             </div>
                         ))}
@@ -138,7 +138,7 @@ export default function VacationCalc() {
             </Row>
 
             <Card title={t('vacations.leave_history')} style={{ marginTop: 16 }}>
-                <Table dataSource={leaves} columns={leaveColumns} rowKey="id" pagination={false} size="small" />
+                <Table scroll={{ x: 'max-content' }} dataSource={leaves} columns={leaveColumns} rowKey="id" pagination={false} size="small" />
             </Card>
         </div>
     )

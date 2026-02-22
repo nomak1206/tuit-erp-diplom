@@ -10,19 +10,19 @@ export default function ProjectsList() {
     const { data: projectsData = [], isLoading } = useProjects()
 
     const statusMap: Record<string, { color: string; label: string }> = {
-        active: { color: 'blue', label: t('common.active', 'Активный') },
-        completed: { color: 'green', label: t('projects.completed', 'Завершён') },
-        on_hold: { color: 'orange', label: t('common.on_hold', 'Приостановлен') },
-        cancelled: { color: 'red', label: t('common.cancelled', 'Отменён') },
+        active: { color: 'blue', label: t('common.active') },
+        completed: { color: 'green', label: t('projects.completed') },
+        on_hold: { color: 'orange', label: t('common.on_hold') },
+        cancelled: { color: 'red', label: t('common.cancelled') },
     }
 
     const columns = [
-        { title: t('common.name', 'Название'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
-        { title: t('deals.client', 'Клиент'), dataIndex: 'client', key: 'client', render: (v: string) => <Tag color="blue">{v || '—'}</Tag> },
-        { title: t('common.status', 'Статус'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.label ?? s}</Tag> },
-        { title: t('projects.progress', 'Прогресс'), dataIndex: 'progress', key: 'progress', render: (v: number) => <Progress percent={v ?? 0} size="small" strokeColor="#6366f1" style={{ width: 120 }} /> },
-        { title: `${t('projects.budget', 'Бюджет')} (UZS)`, dataIndex: 'budget', key: 'budget', render: (v: number) => v ? v.toLocaleString('ru-RU') : '—' },
-        { title: t('projects.deadline', 'Дедлайн'), dataIndex: 'deadline', key: 'deadline', render: (v: string) => v ? new Date(v).toLocaleDateString('ru-RU') : '—' },
+        { title: t('common.name'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+        { title: t('deals.client'), dataIndex: 'client', key: 'client', render: (v: string) => <Tag color="blue">{v || '—'}</Tag> },
+        { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.label ?? s}</Tag> },
+        { title: t('projects.progress'), dataIndex: 'progress', key: 'progress', render: (v: number) => <Progress percent={v ?? 0} size="small" strokeColor="#6366f1" style={{ width: 120 }} /> },
+        { title: `${t('projects.budget')} (UZS)`, dataIndex: 'budget', key: 'budget', render: (v: number) => v ? v.toLocaleString('ru-RU') : '—' },
+        { title: t('projects.deadline'), dataIndex: 'deadline', key: 'deadline', render: (v: string) => v ? new Date(v).toLocaleDateString('ru-RU') : '—' },
     ]
 
     const filtered = search
@@ -43,7 +43,7 @@ export default function ProjectsList() {
                 <Button type="primary" icon={<PlusOutlined />}>{t('projects.new_project')}</Button>
             </Space>
             <Spin spinning={isLoading}>
-                <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10 }} />
+                <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10 }} />
             </Spin>
         </div>
     )

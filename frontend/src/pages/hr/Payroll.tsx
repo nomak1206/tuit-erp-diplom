@@ -19,7 +19,7 @@ export default function Payroll() {
         const start = period.startOf('month').format('YYYY-MM-DD')
         const end = period.endOf('month').format('YYYY-MM-DD')
         calcAll.mutate({ period_start: start, period_end: end }, {
-            onSuccess: (data) => message.success(`${data.count} — ${fmt(data.totals.net)}`),
+            onSuccess: (data: any) => message.success(`${data.count} — ${fmt(data.totals.net)}`),
             onError: () => message.error(t('common.error')),
         })
     }

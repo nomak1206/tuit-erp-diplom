@@ -100,7 +100,7 @@ export default function StaffingTable() {
                 ))}
             </Row>
 
-            <Table columns={columns} dataSource={enriched} rowKey="id" pagination={{ pageSize: 20 }} />
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={enriched} rowKey="id" pagination={{ pageSize: 20 }} />
 
             <Modal title={editRecord ? t('common.edit') : t('staffing.new_position')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}

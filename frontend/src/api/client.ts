@@ -4,6 +4,7 @@ import { message } from 'antd'
 const api = axios.create({
     baseURL: '/api',
     headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
 })
 
 // JWT request interceptor
@@ -21,29 +22,25 @@ api.interceptors.response.use(
     async (error) => {
         const status = error.response?.status
         const detail = error.response?.data?.detail
+        const originalRequest = error.config
 
-        if (status === 401) {
-            // Token expired — try to refresh automatically
-            const refreshToken = localStorage.getItem('refresh_token')
-            if (refreshToken && !error.config._retry) {
-                error.config._retry = true
-                try {
-                    const res = await axios.post('/api/auth/refresh', { refresh_token: refreshToken })
-                    const { access_token } = res.data
-                    localStorage.setItem('access_token', access_token)
-                    error.config.headers.Authorization = `Bearer ${access_token}`
-                    return api(error.config)
-                } catch {
-                    // Refresh failed — clear tokens and redirect to login
-                    localStorage.removeItem('access_token')
-                    localStorage.removeItem('refresh_token')
-                    window.location.href = '/login'
-                }
-            } else {
-                localStorage.removeItem('access_token')
-                localStorage.removeItem('refresh_token')
+        if (status === 401 && !originalRequest._retry) {
+            // Token expired — try to refresh via cookie
+            originalRequest._retry = true
+            try {
+                // The refresh endpoint will automatically read the refresh_token cookie 
+                // and set a new access_token cookie
+                await axios.post('/api/auth/refresh', {}, { withCredentials: true })
+
+                // Retry the original request
+                return api(originalRequest)
+            } catch {
+                // Refresh failed — cookies are likely expired/invalid
                 window.location.href = '/login'
             }
+        } else if (status === 401) {
+            // Already retried and failed again
+            window.location.href = '/login'
         } else if (status === 403) {
             message.error('Недостаточно прав для этого действия')
         } else if (status === 404) {

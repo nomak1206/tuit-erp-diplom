@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Result, Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import AppLayout from './components/layout/AppLayout'
 import Dashboard from './pages/Dashboard'
 import CrmDashboard from './pages/crm/CrmDashboard'
@@ -32,37 +33,50 @@ import AnalyticsDashboard from './pages/analytics/AnalyticsDashboard'
 import Settings from './pages/settings/Settings'
 import NotificationCenter from './pages/notifications/NotificationCenter'
 
+import { useState, useEffect } from 'react'
+import api from './api/client'
+
 // ─── Private Route Guard ──────────────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('access_token')
-  if (!token) return <Navigate to="/login" replace />
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    api.get('/auth/me')
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false))
+  }, [])
+
+  if (isAuthenticated === null) return <div>Loading...</div>
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+
   return <>{children}</>
 }
 
 // ─── Login Page (demo auto-login) ─────────────────────────────────────────────
 function LoginPage() {
   const nav = useNavigate()
-  if (localStorage.getItem('access_token')) return <Navigate to="/" replace />
+  const { t } = useTranslation()
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  useEffect(() => {
+    api.get('/auth/me')
+      .then(() => nav('/', { replace: true }))
+      .catch(() => setCheckingAuth(false))
+  }, [nav])
+
+  if (checkingAuth) return null
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
       <Result
         status="403"
-        title="Требуется авторизация"
-        subTitle="Войдите в систему, чтобы продолжить."
+        title={t('common.auth_required')}
+        subTitle={t('common.login_to_continue')}
         extra={
           <Button type="primary" size="large" onClick={() => {
-            fetch('/api/auth/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ username: 'admin', password: 'admin123' })
-            }).then(r => r.json()).then(d => {
-              if (d.access_token) {
-                localStorage.setItem('access_token', d.access_token)
-                if (d.refresh_token) localStorage.setItem('refresh_token', d.refresh_token)
-                nav('/')
-              }
-            })
-          }}>Войти как Admin</Button>
+            api.post('/auth/login', { username: 'admin_tashkent', password: 'admin123' })
+              .then(() => nav('/'))
+          }}>{t('common.login_as_admin')}</Button>
         }
       />
     </div>
@@ -72,12 +86,13 @@ function LoginPage() {
 // ─── 404 Page ─────────────────────────────────────────────────────────────────
 function NotFoundPage() {
   const nav = useNavigate()
+  const { t } = useTranslation()
   return (
     <Result
       status="404"
       title="404"
-      subTitle="Страница не найдена."
-      extra={<Button type="primary" onClick={() => nav('/')}>На главную</Button>}
+      subTitle={t('common.page_not_found')}
+      extra={<Button type="primary" onClick={() => nav('/')}>{t('common.back_to_home')}</Button>}
     />
   )
 }

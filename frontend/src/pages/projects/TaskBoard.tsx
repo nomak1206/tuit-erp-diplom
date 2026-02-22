@@ -5,10 +5,10 @@ import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useProjects } fr
 import { useTranslation } from 'react-i18next'
 
 const statusCols = [
-    { key: 'todo', tKey: 'projects.status.todo', defaultLabel: 'К выполнению', color: '#8884d8' },
-    { key: 'in_progress', tKey: 'projects.status.in_progress', defaultLabel: 'В работе', color: '#ffa940' },
-    { key: 'review', tKey: 'projects.status.review', defaultLabel: 'На проверке', color: '#36cfc9' },
-    { key: 'done', tKey: 'projects.status.done', defaultLabel: 'Готово', color: '#52c41a' },
+    { key: 'todo', tKey: 'projects.statuses.todo', defaultLabel: 'К выполнению', color: '#8884d8' },
+    { key: 'in_progress', tKey: 'projects.statuses.in_progress', defaultLabel: 'В работе', color: '#ffa940' },
+    { key: 'review', tKey: 'projects.statuses.review', defaultLabel: 'На проверке', color: '#36cfc9' },
+    { key: 'done', tKey: 'projects.statuses.done', defaultLabel: 'Готово', color: '#52c41a' },
 ]
 
 const priorityLabels: Record<string, string> = { low: 'projects.priority.low', medium: 'projects.priority.medium', high: 'projects.priority.high', critical: 'projects.priority.critical' }
@@ -56,7 +56,7 @@ export default function TaskBoard() {
             if (task && task.status !== targetStatus) {
                 try {
                     await updateTask.mutateAsync({ id: dragId, status: targetStatus })
-                    message.success(t('projects.task_moved', 'Задача перемещена') + ` "${t(statusCols.find(s => s.key === targetStatus)!.tKey)}"`)
+                    message.success(`${t('projects.task_moved')} "${t(statusCols.find(s => s.key === targetStatus)!.tKey)}"`)
                 } catch { message.error(t('common.error')) }
             }
             setDragId(null)
@@ -77,8 +77,8 @@ export default function TaskBoard() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>{t('projects.board_title')}</h1><p>Kanban — {filteredTasks.length} {t('projects.tasks_in', 'задач в')} {statusCols.length} {t('projects.columns', 'колонках')}</p></div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate()}>{t('projects.new_task', 'Новая задача')}</Button>
+                <div><h1>{t('projects.board_title')}</h1><p>Kanban — {filteredTasks.length} {t('projects.tasks_in')} {statusCols.length} {t('projects.columns')}</p></div>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate()}>{t('projects.new_task')}</Button>
             </div>
             <Space style={{ marginBottom: 16 }} wrap>
                 <Input placeholder={t('common.search')} prefix={<SearchOutlined />} style={{ width: 280 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
@@ -94,7 +94,7 @@ export default function TaskBoard() {
                                 <h4 style={{ color: col.color }}>{t(col.tKey, col.defaultLabel)}</h4>
                                 <Space size={4}>
                                     <Tag style={{ background: 'rgba(99,102,241,0.1)', border: 'none', color: '#94a3b8' }}>{colTasks.length}</Tag>
-                                    <Tooltip title={`${t('common.add', 'Добавить в')} "${t(col.tKey)}"`}>
+                                    <Tooltip title={`${t('common.add')} "${t(col.tKey)}"`}>
                                         <Button type="text" size="small" icon={<PlusOutlined />} onClick={() => openCreate(col.key)} style={{ color: col.color }} />
                                     </Tooltip>
                                 </Space>
@@ -115,16 +115,16 @@ export default function TaskBoard() {
                                     {task.due_date && <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>📅 {new Date(task.due_date).toLocaleDateString('ru-RU')}</div>}
                                 </div>
                             ))}
-                            {colTasks.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#475569', fontSize: 12, border: '1px dashed #2d2d4a', borderRadius: 8, margin: '8px 0' }}>{t('projects.drag_here', 'Перетащите задачу сюда')}</div>}
+                            {colTasks.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#475569', fontSize: 12, border: '1px dashed #2d2d4a', borderRadius: 8, margin: '8px 0' }}>{t('projects.drag_here')}</div>}
                         </div>
                     )
                 })}
             </div>
 
-            <Modal title={editRecord ? t('projects.edit_task', 'Редактировать задачу') : t('projects.new_task', 'Новая задача')} open={modalOpen}
+            <Modal title={editRecord ? t('projects.edit_task') : t('projects.new_task')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createTask.isPending || updateTask.isPending}
-                okText={editRecord ? t('common.save', 'Сохранить') : t('common.create', 'Создать')} cancelText={t('common.cancel')} width={560}>
+                okText={editRecord ? t('common.save') : t('common.create')} cancelText={t('common.cancel')} width={560}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={{ status: 'todo', priority: 'medium' }}>
                     <Row gutter={16}>
                         <Col span={24}><Form.Item name="title" label={t('common.name')} rules={[{ required: true }]}><Input /></Form.Item></Col>
@@ -154,7 +154,7 @@ export default function TaskBoard() {
                             <Descriptions.Item label={t('common.description')}>{selected.description || '—'}</Descriptions.Item>
                         </Descriptions>
                         <div style={{ marginTop: 16 }}>
-                            <h4><CommentOutlined /> {t('projects.quick_status', 'Быстрое изменение статуса')}</h4>
+                            <h4><CommentOutlined /> {t('projects.quick_status')}</h4>
                             <Space wrap>
                                 {statusCols.map(s => (
                                     <Button key={s.key} size="small" type={selected.status === s.key ? 'primary' : 'default'}

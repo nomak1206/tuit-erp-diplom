@@ -48,7 +48,7 @@ export default function ProductsList() {
 
     const handleExport = () => {
         exportToCSV(filtered.map((p: any) => ({ ...p, category: getCatName(p.category_id), margin: p.sell_price && p.cost_price ? ((p.sell_price - p.cost_price) / p.sell_price * 100).toFixed(1) + '%' : '—' })), 'products', [
-            { key: 'sku', title: t('warehouse.sku', 'Артикул') }, { key: 'name', title: t('common.name') },
+            { key: 'sku', title: t('warehouse.sku') }, { key: 'name', title: t('common.name') },
             { key: 'category', title: t('warehouse.category') }, { key: 'cost_price', title: t('warehouse.cost_price') },
             { key: 'sell_price', title: t('warehouse.sell_price') }, { key: 'quantity', title: t('warehouse.quantity') },
             { key: 'margin', title: t('warehouse.margin') },
@@ -81,20 +81,20 @@ export default function ProductsList() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>{t('warehouse.products_title')}</h1><p>{t('warehouse.nomenclature', 'Номенклатура')} — {filtered.length} {t('common.items', 'позиций')}</p></div>
+                <div><h1>{t('warehouse.products_title')}</h1><p>{t('warehouse.nomenclature')} — {filtered.length} {t('common.items')}</p></div>
                 <Space><Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>{t('warehouse.new_product')}</Button></Space>
             </div>
             <Space style={{ marginBottom: 16 }} wrap>
                 <Input placeholder={t('common.search')} prefix={<SearchOutlined />} style={{ width: 320 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
                 <Select placeholder={t('warehouse.category')} style={{ width: 200 }} allowClear value={catFilter} onChange={setCatFilter} options={categories.map((c: any) => ({ value: c.id, label: c.name }))} />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}`, showSizeChanger: true }}
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}`, showSizeChanger: true }}
                 onRow={(r) => ({ onClick: () => openDetail(r), style: { cursor: 'pointer' } })} />
 
             <Modal title={editRecord ? t('warehouse.edit_product') : t('warehouse.new_product')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createProduct.isPending || updateProduct.isPending}
-                okText={editRecord ? t('common.save', 'Сохранить') : t('common.create', 'Создать')} cancelText={t('common.cancel')} width={600}>
+                okText={editRecord ? t('common.save') : t('common.create')} cancelText={t('common.cancel')} width={600}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
                         <Col span={8}><Form.Item name="sku" label={t('warehouse.sku')}><Input placeholder="PRD-001" /></Form.Item></Col>
@@ -104,7 +104,7 @@ export default function ProductsList() {
                         <Col span={8}><Form.Item name="cost_price" label={t('warehouse.cost_price')}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                         <Col span={8}><Form.Item name="sell_price" label={t('warehouse.sell_price')}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                         <Col span={8}><Form.Item name="quantity" label={t('warehouse.quantity')}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
-                        <Col span={12}><Form.Item name="unit" label={t('warehouse.unit')}><Select options={[{ value: 'шт', label: t('warehouse.units.piece', 'Штук') }, { value: 'кг', label: t('warehouse.units.kg', 'Килограмм') }, { value: 'л', label: t('warehouse.units.liter', 'Литр') }, { value: 'м', label: t('warehouse.units.meter', 'Метр') }]} /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="unit" label={t('warehouse.unit')}><Select options={[{ value: 'шт', label: t('warehouse.units.piece') }, { value: 'кг', label: t('warehouse.units.kg') }, { value: 'л', label: t('warehouse.units.liter') }, { value: 'м', label: t('warehouse.units.meter') }]} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="min_quantity" label={t('warehouse.min_stock')}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
                     </Row>
                 </Form>

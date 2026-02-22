@@ -6,26 +6,6 @@ import { useTranslation } from 'react-i18next'
 
 const fmt = (v: number) => v.toLocaleString('ru-RU')
 
-const groupLabels: Record<string, string> = {
-    '01': '01 — Основные средства',
-    '02': '02 — Износ ОС',
-    '04': '04 — НМА',
-    '10': '10 — ТМЗ',
-    '28': '28 — Готовая продукция',
-    '31': '31 — Расходы будущих периодов',
-    '40': '40 — Дебиторская задолженность',
-    '50': '50 — Денежные средства',
-    '60': '60 — Кредиторская задолженность',
-    '64': '64 — Расчёты по налогам',
-    '67': '67 — Расчёты с персоналом',
-    '83': '83 — Собственный капитал',
-    '87': '87 — Нерасп. прибыль',
-    '90': '90 — Доходы основные',
-    '91': '91 — Прочие доходы',
-    '94': '94 — Расходы периода',
-    '99': '99 — Финансовый результат',
-}
-
 const typeColors: Record<string, string> = {
     asset: '#6366f1',
     liability: '#f97316',
@@ -35,19 +15,32 @@ const typeColors: Record<string, string> = {
     contra_asset: '#8b5cf6',
 }
 
-const typeLabels: Record<string, string> = {
-    asset: 'Актив',
-    liability: 'Пассив',
-    equity: 'Капитал',
-    revenue: 'Доход',
-    expense: 'Расход',
-    contra_asset: 'Контрактив',
-}
-
 export default function TrialBalance() {
     const { t } = useTranslation()
     const { data, isLoading } = useTrialBalance()
     const [groupFilter, setGroupFilter] = useState<string>('')
+
+    const typeLabels: Record<string, string> = { asset: t('accounting.accounts_by_type.asset'), liability: t('accounting.accounts_by_type.liability'), equity: t('accounting.accounts_by_type.equity'), revenue: t('accounting.accounts_by_type.revenue'), expense: t('accounting.accounts_by_type.expense'), contra_asset: t('accounting.accounts_by_type.contra') }
+
+    const groupLabels: Record<string, string> = {
+        '01': t('accounting.account_groups.01'),
+        '02': t('accounting.account_groups.02'),
+        '04': t('accounting.account_groups.04'),
+        '10': t('accounting.account_groups.10'),
+        '28': t('accounting.account_groups.28'),
+        '31': t('accounting.account_groups.31'),
+        '40': t('accounting.account_groups.40'),
+        '50': t('accounting.account_groups.50'),
+        '60': t('accounting.account_groups.60'),
+        '64': t('accounting.account_groups.64'),
+        '67': t('accounting.account_groups.67'),
+        '83': t('accounting.account_groups.83'),
+        '87': t('accounting.account_groups.87'),
+        '90': t('accounting.account_groups.90'),
+        '91': t('accounting.account_groups.91'),
+        '94': t('accounting.account_groups.94'),
+        '99': t('accounting.account_groups.99'),
+    }
 
     if (isLoading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
 
@@ -59,18 +52,18 @@ export default function TrialBalance() {
 
     const groupOptions = [...new Set(rows.map((r: any) => r.group_code))].sort().map((gc: any) => ({
         value: gc as string,
-        label: groupLabels[gc as string] || `Группа ${gc}`,
+        label: groupLabels[gc as string] ?? `${t('accounting.group')} ${gc}`,
     }))
 
     const columns = [
-        { title: 'Код', dataIndex: 'code', width: 80, render: (v: string) => <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{v}</span> },
-        { title: 'Наименование счёта', dataIndex: 'name', ellipsis: true },
+        { title: t('accounting.account_code'), dataIndex: 'code', width: 80, render: (v: string) => <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{v}</span> },
+        { title: t('accounting.account_name'), dataIndex: 'name', ellipsis: true },
         { title: t('common.type'), dataIndex: 'account_type', width: 100, render: (v: string) => <Tag color={typeColors[v] || '#94a3b8'}>{typeLabels[v] || v}</Tag> },
-        { title: 'Раздел', dataIndex: 'group_name', width: 180, render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v}</span> },
-        { title: 'Нач. сальдо', dataIndex: 'opening_balance', width: 140, align: 'right' as const, render: (v: number) => <span style={{ fontWeight: 500 }}>{fmt(v)}</span> },
-        { title: 'Обороты Дт', dataIndex: 'debit_turnover', width: 130, align: 'right' as const, render: (v: number) => v > 0 ? <span style={{ color: '#6366f1', fontWeight: 500 }}>{fmt(v)}</span> : <span style={{ color: '#475569' }}>—</span> },
-        { title: 'Обороты Кт', dataIndex: 'credit_turnover', width: 130, align: 'right' as const, render: (v: number) => v > 0 ? <span style={{ color: '#f97316', fontWeight: 500 }}>{fmt(v)}</span> : <span style={{ color: '#475569' }}>—</span> },
-        { title: 'Кон. сальдо', dataIndex: 'closing_balance', width: 140, align: 'right' as const, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 0 ? '#e2e8f0' : '#f43f5e' }}>{fmt(v)}</span> },
+        { title: t('accounting.section'), dataIndex: 'group_name', width: 180, render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v}</span> },
+        { title: t('accounting.opening_balance'), dataIndex: 'opening_balance', width: 140, align: 'right' as const, render: (v: number) => <span style={{ fontWeight: 500 }}>{fmt(v)}</span> },
+        { title: t('accounting.debit_turnover'), dataIndex: 'debit_turnover', width: 130, align: 'right' as const, render: (v: number) => v > 0 ? <span style={{ color: '#6366f1', fontWeight: 500 }}>{fmt(v)}</span> : <span style={{ color: '#475569' }}>—</span> },
+        { title: t('accounting.credit_turnover'), dataIndex: 'credit_turnover', width: 130, align: 'right' as const, render: (v: number) => v > 0 ? <span style={{ color: '#f97316', fontWeight: 500 }}>{fmt(v)}</span> : <span style={{ color: '#475569' }}>—</span> },
+        { title: t('accounting.closing_balance'), dataIndex: 'closing_balance', width: 140, align: 'right' as const, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 0 ? '#e2e8f0' : '#f43f5e' }}>{fmt(v)}</span> },
     ]
 
     return (
@@ -109,7 +102,7 @@ export default function TrialBalance() {
                     summary={() => (
                         <Table.Summary fixed>
                             <Table.Summary.Row style={{ background: 'rgba(99,102,241,0.1)', fontWeight: 700 }}>
-                                <Table.Summary.Cell index={0} colSpan={4}>ИТОГО</Table.Summary.Cell>
+                                <Table.Summary.Cell index={0} colSpan={4}>{t('accounting.row_total')}</Table.Summary.Cell>
                                 <Table.Summary.Cell index={4} align="right">{fmt(totalOpening)}</Table.Summary.Cell>
                                 <Table.Summary.Cell index={5} align="right" className="text-primary">{fmt(data?.total_debit || 0)}</Table.Summary.Cell>
                                 <Table.Summary.Cell index={6} align="right">{fmt(data?.total_credit || 0)}</Table.Summary.Cell>

@@ -12,13 +12,13 @@ const categoryColors: Record<string, string> = { hr: 'purple', accounting: 'blue
 
 export default function DocumentsList() {
     const { t } = useTranslation()
-    const typeLabels: Record<string, string> = { contract: t('documents.doc_types.contract', 'Договор'), invoice: t('documents.doc_types.invoice', 'Счёт'), act: t('documents.doc_types.act', 'Акт'), order: t('documents.doc_types.order', 'Приказ'), memo: t('documents.doc_types.memo', 'Служебная записка'), report: t('documents.doc_types.report', 'Отчёт'), payslip: t('documents.doc_types.payslip', 'Расчётный лист'), vacation_order: t('documents.doc_types.vacation_order', 'Приказ на отпуск'), timesheet: t('documents.doc_types.timesheet', 'Табель'), power_of_attorney: t('documents.doc_types.power_of_attorney', 'Доверенность'), other: t('documents.doc_types.other', 'Прочее') }
-    const statusLabels: Record<string, string> = { draft: t('warehouse.draft'), review: t('projects.statuses.review', 'На проверке'), approved: t('common.approved', 'Утверждён'), rejected: t('common.rejected', 'Отклонён'), archived: t('common.archived', 'Архив'), pending: t('common.pending', 'Ожидание') }
+    const typeLabels: Record<string, string> = { contract: t('documents.doc_types.contract'), invoice: t('documents.doc_types.invoice'), act: t('documents.doc_types.act'), order: t('documents.doc_types.order'), memo: t('documents.doc_types.memo'), report: t('documents.doc_types.report'), payslip: t('documents.doc_types.payslip'), vacation_order: t('documents.doc_types.vacation_order'), timesheet: t('documents.doc_types.timesheet'), power_of_attorney: t('documents.doc_types.power_of_attorney'), other: t('documents.doc_types.other') }
+    const statusLabels: Record<string, string> = { draft: t('warehouse.draft'), review: t('projects.statuses.review'), approved: t('common.approved'), rejected: t('common.rejected'), archived: t('common.archived'), pending: t('common.pending') }
     const categoryLabels: Record<string, string> = {
-        hr: t('documents.categories.hr', 'Кадры'),
-        accounting: t('documents.categories.accounting', 'Бухгалтерия'),
-        legal: t('documents.categories.legal', 'Юридический'),
-        internal: t('common.internal', 'Внутренний'),
+        hr: t('documents.categories.hr'),
+        accounting: t('documents.categories.accounting'),
+        legal: t('documents.categories.legal'),
+        internal: t('common.internal'),
     }
     const { data: documents = [], isLoading } = useDocuments()
     const { data: templates = [] } = useDocTemplates()
@@ -76,15 +76,15 @@ export default function DocumentsList() {
 
     const handleExport = () => {
         exportToCSV(filtered, 'documents', [
-            { key: 'number', title: 'Номер' }, { key: 'title', title: 'Название' },
+            { key: 'number', title: t('documents.doc_number') }, { key: 'title', title: t('common.name') },
             { key: 'doc_type', title: t('common.type') }, { key: 'status', title: t('common.status') },
         ])
         message.success(`${t('common.export')}: ${filtered.length}`)
     }
 
     const columns = [
-        { title: 'Номер', dataIndex: 'number', key: 'number', width: 130, render: (v: string, r: any) => <span style={{ fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v || '—'}</span> },
-        { title: 'Название', dataIndex: 'title', key: 'title', render: (v: string, r: any) => <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
+        { title: t('documents.doc_number'), dataIndex: 'number', key: 'number', width: 130, render: (v: string, r: any) => <span style={{ fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v || '—'}</span> },
+        { title: t('common.name'), dataIndex: 'title', key: 'title', render: (v: string, r: any) => <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
         { title: t('common.type'), dataIndex: 'doc_type', key: 'doc_type', render: (v: string) => <Tag color="blue">{typeLabels[v] || v}</Tag> },
         { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColors[s]}>{statusLabels[s] || s}</Tag> },
         { title: t('common.date'), dataIndex: 'created_at', key: 'date', render: (v: string) => v ? new Date(v).toLocaleDateString('ru-RU') : '—' },
@@ -114,10 +114,10 @@ export default function DocumentsList() {
                 </Space>
                 <Space>
                     <Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate()}>Новый документ</Button>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate()}>{t('documents.new_document')}</Button>
                 </Space>
             </div>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}`, showSizeChanger: true }}
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}`, showSizeChanger: true }}
                 onRow={(r) => ({ onClick: () => openDetail(r), style: { cursor: 'pointer' } })} />
         </div>
     )
@@ -132,7 +132,7 @@ export default function DocumentsList() {
                         extra={<Tag color={categoryColors[tpl.category] || 'default'}>{categoryLabels[tpl.category] || tpl.category}</Tag>}
                         actions={[
                             <Tooltip title={t('documents.create_doc')} key="create">
-                                <Button type="link" icon={<CopyOutlined />} onClick={() => openCreate(tpl)}>Использовать</Button>
+                                <Button type="link" icon={<CopyOutlined />} onClick={() => openCreate(tpl)}>{t('common.create', 'Использовать')}</Button>
                             </Tooltip>,
                         ]}
                     >
@@ -156,14 +156,14 @@ export default function DocumentsList() {
             </div>
 
             <Tabs defaultActiveKey="documents" items={[
-                { key: 'documents', label: <Badge count={documents.filter((d: any) => d.status === 'review').length} size="small" offset={[8, 0]}>Документы</Badge>, children: DocumentsTab },
-                { key: 'templates', label: `Шаблоны (${(templates as any[]).length})`, children: TemplatesTab },
+                { key: 'documents', label: <Badge count={documents.filter((d: any) => d.status === 'review').length} size="small" offset={[8, 0]}>{t('documents.title')}</Badge>, children: DocumentsTab },
+                { key: 'templates', label: `${t('documents.templates', 'Andozalar')} (${(templates as any[]).length})`, children: TemplatesTab },
             ]} />
 
-            <Modal title={editRecord ? 'Редактировать документ' : 'Новый документ'} open={modalOpen}
+            <Modal title={editRecord ? t('documents.edit_document', 'Редактировать документ') : t('documents.new_document')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createDocument.isPending || updateDocument.isPending}
-                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText={t('common.cancel')} width={560}>
+                okText={editRecord ? t('common.save') : t('common.create')} cancelText={t('common.cancel')} width={560}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={{ doc_type: 'contract', status: 'draft' }}>
                     <Row gutter={16}>
                         <Col span={8}><Form.Item name="number" label={t('documents.doc_number')} rules={[{ required: true }]}><Input placeholder="DOC-2026-001" /></Form.Item></Col>
@@ -178,12 +178,12 @@ export default function DocumentsList() {
             <Drawer title={selected?.title || ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={480}
                 extra={<Space>
                     <Button icon={<EditOutlined />} onClick={() => { setDrawerOpen(false); openEdit(selected) }}>{t('common.edit')}</Button>
-                    {selected?.status === 'draft' && <Button type="primary" icon={<SendOutlined />} onClick={() => handleStatusChange(selected.id, 'review')}>На проверку</Button>}
-                    {selected?.status === 'review' && <Button type="primary" icon={<CheckCircleOutlined />} style={{ background: '#52c41a' }} onClick={() => handleStatusChange(selected.id, 'approved')}>Утвердить</Button>}
+                    {selected?.status === 'draft' && <Button type="primary" icon={<SendOutlined />} onClick={() => handleStatusChange(selected.id, 'review')}>{t('documents.review_action')}</Button>}
+                    {selected?.status === 'review' && <Button type="primary" icon={<CheckCircleOutlined />} style={{ background: '#52c41a' }} onClick={() => handleStatusChange(selected.id, 'approved')}>{t('documents.approve_action')}</Button>}
                 </Space>}>
                 {selected && (
                     <div>
-                        <Steps current={statusStep[selected.status] ?? 0} size="small" style={{ marginBottom: 24 }} items={[{ title: t('warehouse.draft') }, { title: 'Проверка' }, { title: 'Утверждён' }]} />
+                        <Steps current={statusStep[selected.status] ?? 0} size="small" style={{ marginBottom: 24 }} items={[{ title: t('warehouse.draft') }, { title: t('documents.review_action') }, { title: t('common.approved') }]} />
                         <Descriptions column={1} bordered size="small">
                             <Descriptions.Item label={t('documents.doc_number')}>{selected.number || '—'}</Descriptions.Item>
                             <Descriptions.Item label={t('common.type')}><Tag color="blue">{typeLabels[selected.doc_type] || selected.doc_type}</Tag></Descriptions.Item>

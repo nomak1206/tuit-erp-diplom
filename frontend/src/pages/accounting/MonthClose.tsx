@@ -50,7 +50,7 @@ export default function MonthClose() {
                     <Select options={months} value={period} onChange={setPeriod} style={{ width: 260 }} size="large" />
                     {isClosed && <Alert type="warning" message={`${period} — ${t('common.completed')}`} showIcon style={{ marginTop: 16 }} />}
                     <Divider />
-                    <Table
+                    <Table scroll={{ x: 'max-content' }}
                         dataSource={closedMonths} rowKey="period" size="small" pagination={false}
                         columns={[
                             { title: t('accounting.period'), dataIndex: 'period', render: (v: string) => <Tag icon={<LockOutlined />} color="green">{months.find(m => m.value === v)?.label || v}</Tag> },

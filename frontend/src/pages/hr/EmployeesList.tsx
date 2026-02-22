@@ -51,12 +51,12 @@ export default function EmployeesList() {
             if (editRecord) { await updateEmployee.mutateAsync({ id: editRecord.id, ...values }); message.success(t('settings.profile_saved')) }
             else { await createEmployee.mutateAsync(values); message.success(t('settings.profile_saved')) }
             setModalOpen(false); form.resetFields(); setEditRecord(null)
-        } catch { message.error('Error') }
+        } catch { message.error(t('common.error')) }
     }
 
     const handleDelete = async (id: number) => {
         try { await deleteEmployee.mutateAsync(id); message.success(t('common.delete')); setDrawerOpen(false) }
-        catch { message.error('Error') }
+        catch { message.error(t('common.error')) }
     }
 
     const handleExport = () => {

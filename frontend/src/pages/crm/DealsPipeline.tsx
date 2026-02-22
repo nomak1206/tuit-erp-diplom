@@ -8,15 +8,6 @@ const stageOrder = ['new', 'negotiation', 'proposal', 'contract', 'won', 'lost']
 
 interface Deal { id: number; title: string; amount: number; stage: string; contact_name?: string; company?: string; expected_close?: string; probability?: number; description?: string }
 
-const stages = [
-    { key: 'new', label: 'Новые', color: '#8884d8' },
-    { key: 'negotiation', label: 'Переговоры', color: '#ffa940' },
-    { key: 'proposal', label: 'Предложение', color: '#36cfc9' },
-    { key: 'contract', label: 'Контракт', color: '#597ef7' },
-    { key: 'won', label: 'Выиграно', color: '#52c41a' },
-    { key: 'lost', label: 'Проиграно', color: '#ff4d4f' },
-]
-
 export default function DealsPipeline() {
     const { t } = useTranslation()
     const { data: deals = [], isLoading } = useDeals()
@@ -30,6 +21,15 @@ export default function DealsPipeline() {
     const [selected, setSelected] = useState<Deal | null>(null)
     const [dragId, setDragId] = useState<number | null>(null)
     const [form] = Form.useForm()
+
+    const stages = useMemo(() => [
+        { key: 'new', label: t('crm.deal_stages.new'), color: '#8884d8' },
+        { key: 'negotiation', label: t('crm.deal_stages.negotiation'), color: '#ffa940' },
+        { key: 'proposal', label: t('crm.deal_stages.proposal'), color: '#36cfc9' },
+        { key: 'contract', label: t('crm.deal_stages.contract'), color: '#597ef7' },
+        { key: 'won', label: t('crm.deal_stages.won'), color: '#52c41a' },
+        { key: 'lost', label: t('crm.deal_stages.lost'), color: '#ff4d4f' },
+    ], [t])
 
     const totalPipeline = deals.filter((d: Deal) => !['won', 'lost'].includes(d.stage)).reduce((s: number, d: Deal) => s + (d.amount || 0), 0)
 
@@ -58,7 +58,7 @@ export default function DealsPipeline() {
             if (deal && deal.stage !== targetStage) {
                 try {
                     await updateDeal.mutateAsync({ id: dragId, stage: targetStage })
-                    message.success(`Сделка перемещена в "${stages.find(s => s.key === targetStage)?.label}"`)
+                    message.success(t('deals.deal_moved', { stage: stages.find(s => s.key === targetStage)?.label }))
                 } catch { message.error(t('common.error')) }
             }
             setDragId(null)
@@ -77,10 +77,10 @@ export default function DealsPipeline() {
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                    <h1>Воронка сделок</h1>
-                    <p>Pipeline — {filteredDeals.length} сделок · Автоматизация и аналитика (Битрикс24)</p>
+                    <h1>{t('deals.title')}</h1>
+                    <p>{t('deals.pipeline_stats', { count: filteredDeals.length })}</p>
                 </div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Новая сделка</Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>{t('deals.new_deal')}</Button>
             </div>
             <div style={{ marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
                 <Input placeholder={t('common.search')} prefix={<SearchOutlined />} style={{ width: 360 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
@@ -92,11 +92,11 @@ export default function DealsPipeline() {
                     const avgDeal = won > 0 ? (deals.filter((d: Deal) => d.stage === 'won').reduce((s: number, d: Deal) => s + (d.amount || 0), 0) / won / 1e6).toFixed(2) : '0'
                     return (
                         <div style={{ display: 'flex', gap: 12, flex: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                            <Tag color="purple" style={{ fontSize: 13, padding: '4px 12px' }}>Воронка: {(totalPipeline / 1e6).toFixed(1)}M UZS</Tag>
-                            <Tag color="green" style={{ fontSize: 13, padding: '4px 12px' }}>Конверсия: {convRate}%</Tag>
-                            <Tag color="blue" style={{ fontSize: 13, padding: '4px 12px' }}>Ср. сделка: {avgDeal}M UZS</Tag>
-                            <Tag color="lime" style={{ fontSize: 13, padding: '4px 12px' }}>Выиграно: {won}</Tag>
-                            <Tag color="red" style={{ fontSize: 13, padding: '4px 12px' }}>Проиграно: {lost}</Tag>
+                            <Tag color="purple" style={{ fontSize: 13, padding: '4px 12px' }}>{t('deals.funnel')}: {(totalPipeline / 1e6).toFixed(1)}M UZS</Tag>
+                            <Tag color="green" style={{ fontSize: 13, padding: '4px 12px' }}>{t('deals.conversion')}: {convRate}%</Tag>
+                            <Tag color="blue" style={{ fontSize: 13, padding: '4px 12px' }}>{t('deals.avg_deal')}: {avgDeal}M UZS</Tag>
+                            <Tag color="lime" style={{ fontSize: 13, padding: '4px 12px' }}>{t('deals.won')}: {won}</Tag>
+                            <Tag color="red" style={{ fontSize: 13, padding: '4px 12px' }}>{t('deals.lost')}: {lost}</Tag>
                         </div>
                     )
                 })()}
@@ -128,16 +128,16 @@ export default function DealsPipeline() {
                                     {deal.company && <Tag style={{ fontSize: 10 }}>{deal.company}</Tag>}
                                 </div>
                             ))}
-                            {stageDeals.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#475569', fontSize: 12, border: '1px dashed #2d2d4a', borderRadius: 8, margin: '8px 0' }}>Перетащите сделку сюда</div>}
+                            {stageDeals.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#475569', fontSize: 12, border: '1px dashed #2d2d4a', borderRadius: 8, margin: '8px 0' }}>{t('deals.drag_deal_here')}</div>}
                         </div>
                     )
                 })}
             </div>
 
-            <Modal title={editRecord ? 'Редактировать сделку' : 'Новая сделка'} open={modalOpen}
+            <Modal title={editRecord ? t('deals.edit_deal') : t('deals.new_deal')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createDeal.isPending || updateDeal.isPending}
-                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText={t('common.cancel')} width={560}>
+                okText={editRecord ? t('deals.save_deal') : t('deals.create_deal')} cancelText={t('common.cancel')} width={560}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={{ stage: 'new' }}>
                     <Row gutter={16}>
                         <Col span={24}><Form.Item name="title" label={t('common.name')} rules={[{ required: true }]}><Input /></Form.Item></Col>

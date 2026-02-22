@@ -77,7 +77,7 @@ export default function Timesheet() {
                 <Col xs={12} lg={6}><Card bordered={false}><Statistic title={t('timesheet.on_vacation')} value={employees.filter((e: any) => e.status === 'on_leave').length} valueStyle={{ color: '#1890ff' }} /></Card></Col>
             </Row>
 
-            <Table columns={columns} dataSource={filteredEmps} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filteredEmps} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
         </div>
     )
 }

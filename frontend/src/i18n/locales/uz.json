@@ -43,7 +43,10 @@
         "light_theme": "Yorug' mavzu",
         "dark_theme": "Qorong'i mavzu",
         "new_notifications": "{{count}} ta yangi",
-        "notif_title": "Bildirishnomalar"
+        "notif_title": "Bildirishnomalar",
+        "help_text": "ERP System v2.0 — Korporativ korxonani boshqarish tizimi. \n\nQo'llab-quvvatlash: admin@erp.uz",
+        "logout_confirm": "Haqiqatan ham tizimdan chiqmoqchimisiz?",
+        "logout_success": "Siz tizimdan muvaffaqiyatli chiqdingiz"
     },
     "common": {
         "records": "zapislar",
@@ -74,11 +77,9 @@
         "all": "Barchasi",
         "total": "Jami",
         "actions": "Amallar",
-        "status": "Holat",
         "name": "Nomi",
         "date": "Sana",
         "amount": "Summa",
-        "type": "Turi",
         "description": "Tavsif",
         "yes": "Ha",
         "no": "Yo'q",
@@ -87,7 +88,6 @@
         "convert": "Konvertatsiya",
         "loading": "Yuklanmoqda...",
         "no_data": "Ma'lumot yo'q",
-        "records": "yozuv",
         "close": "Yopish",
         "back": "Orqaga",
         "details": "Tafsilotlar",
@@ -102,14 +102,21 @@
         "time_1h_ago": "1 soat oldin",
         "time_2h_ago": "2 soat oldin",
         "time_3h_ago": "3 soat oldin",
-        "active": "Faol",
-        "on_hold": "To'xtatilgan",
-        "cancelled": "Bekor qilingan",
         "approved": "Tasdiqlangan",
         "rejected": "Rad etilgan",
         "archived": "Arxiv",
         "pending": "Kutilmoqda",
-        "internal": "Ichki"
+        "internal": "Ichki",
+        "auth_required": "Avtorizatsiya talab qilinadi",
+        "login_to_continue": "Davom etish uchun tizimga kiring.",
+        "login_as_admin": "Admin sifatida kirish",
+        "page_not_found": "Sahifa topilmadi.",
+        "back_to_home": "Bosh sahifaga",
+        "status": "Holati",
+        "closed": "Yopilgan",
+        "completed": "Tugallangan",
+        "next": "Keyingisi",
+        "add": "Qo'shish"
     },
     "dashboard": {
         "title": "Boshqaruv paneli",
@@ -197,6 +204,7 @@
             "new": "Yangi",
             "contacted": "Bog'lanildi",
             "qualified": "Malakali",
+            "proposal": "Taklif",
             "converted": "Konvertatsiya qilingan",
             "lost": "Yo'qotilgan"
         },
@@ -207,7 +215,8 @@
             "contract": "Shartnoma",
             "won": "Yutilgan",
             "lost": "Yo'qotilgan"
-        }
+        },
+        "crm_leads": "CRM — Lidlar"
     },
     "contacts": {
         "title": "Kontaktlar",
@@ -252,7 +261,8 @@
             "cold_call": "Sovuq qo'ng'iroq",
             "social": "Ijtimoiy tarmoqlar",
             "exhibition": "Ko'rgazma",
-            "ads": "Reklama"
+            "ads": "Reklama",
+            "other": "Boshqa"
         }
     },
     "deals": {
@@ -262,7 +272,19 @@
         "deal_name": "Kelishuv nomi",
         "client": "Mijoz",
         "responsible": "Mas'ul",
-        "closing_date": "Yopilish sanasi"
+        "closing_date": "Yopilish sanasi",
+        "pipeline_stats": "Pipeline — {{count}} kelishuv · Avtomatlashtirish va analitika (Bitrix24)",
+        "drag_deal_here": "Kelishuvni bu yerga torting",
+        "deal_moved": "Kelishuv \"{{stage}}\" bosqichiga ko'chirildi",
+        "edit_deal": "Kelishuvni tahrirlash",
+        "funnel": "Voronka",
+        "conversion": "Konversiya",
+        "avg_deal": "O'rtacha kelishuv",
+        "won": "Yutilgan",
+        "lost": "Yo'qotilgan",
+        "save_deal": "Saqlash",
+        "create_deal": "Yaratish",
+        "deal_prefix": "Kelishuv "
     },
     "employees": {
         "title": "Xodimlar",
@@ -380,7 +402,36 @@
         "payroll_net": "To'lanadigan (netto)",
         "depreciation": "Amortizatsiya",
         "entries_created": "O'tkazmalar yaratildi",
-        "groups_accounts": "Guruhlar / Hisoblar"
+        "groups_accounts": "Guruhlar / Hisoblar",
+        "balance": "Balans",
+        "new_account": "Yangi hisob",
+        "select_account": "Hisobni tanlang",
+        "account_name": "Hisob nomi",
+        "section": "Bo'lim",
+        "opening_balance": "Boshlang'ich qoldiq",
+        "debit_turnover": "Debet aylanmasi",
+        "credit_turnover": "Kredit aylanmasi",
+        "closing_balance": "Oxirgi qoldiq",
+        "row_total": "Satr bo'yicha jami",
+        "account_groups": {
+            "01": "Asosiy vositalar",
+            "02": "Asosiy vositalarning eskirishi",
+            "04": "Nomoddiy aktivlar",
+            "10": "Materiallar",
+            "28": "Tayyor mahsulot",
+            "31": "Kelgusi davr xarajatlari",
+            "40": "Olinadigan schyotlar",
+            "50": "Kassa",
+            "60": "To'lanadigan schyotlar",
+            "64": "Soliqlar bo'yicha qarzlar",
+            "67": "Ish haqi bo'yicha qarzlar",
+            "83": "Ustav kapitali",
+            "87": "Taqsimlanmagan foyda",
+            "90": "Asosiy faoliyat daromadlari",
+            "91": "Asosiy vositalar sotishdan daromadlar",
+            "94": "Davr xarajatlari",
+            "99": "Yakuniy moliyaviy natija"
+        }
     },
     "warehouse": {
         "title": "Omborxona — Umumiy ko'rinish",
@@ -490,7 +541,8 @@
             "medium": "O'rta",
             "high": "Yuqori",
             "critical": "Juda muhim"
-        }
+        },
+        "edit_task": "Vazifani tahrirlash"
     },
     "documents": {
         "title": "Hujjatlar",
@@ -527,7 +579,8 @@
         "approve_action": "Tasdiqlash",
         "delete_doc": "Hujjatni o'chirish?",
         "search_docs": "Raqam yoki nom bo'yicha qidirish...",
-        "create_doc": "Hujjat yaratish"
+        "create_doc": "Hujjat yaratish",
+        "edit_document": "Hujjatni tahrirlash"
     },
     "analytics": {
         "title": "Analitika",
@@ -541,7 +594,27 @@
         "activity_label": "Faoliyat",
         "low_stock_items": "Omborda kam",
         "all_ok": "Hammasi yaxshi",
-        "positions": "poz."
+        "positions": "poz.",
+        "qualified": "Kvalifikatsiya qilingan",
+        "st_new": "Yangi",
+        "st_neg": "Muzokaralar",
+        "st_prop": "Taklif",
+        "st_contract": "Shartnoma",
+        "won_deals": "yutib olingan kelishuvlar bo'yicha",
+        "avg_check": "O'rtacha chek",
+        "avg_deal": "o'rtacha kelishuv",
+        "leads_to_deals": "lidlardan kelishuvlarga",
+        "fot_month": "IHF (oy)",
+        "fot_desc": "ish haqi fondi",
+        "sales_funnel_chart": "Savdo voronkasi (CRM)",
+        "module_activity": "Modullar faolligi",
+        "stage_amounts": "Sotuv bosqichlari bo'yicha summalar",
+        "fot_distribution": "IHF: Xarajatlar taqsimoti",
+        "to_pay": "To'lashga",
+        "ndfl": "JSHDS 12%",
+        "inps": "INPS 1%",
+        "esn": "YaSS 12%",
+        "mln": "mln"
     },
     "settings": {
         "title": "Sozlamalar",
@@ -653,48 +726,20 @@
         "vacancies": "Vakansiyalar",
         "fill_rate": "To'ldirilganlik",
         "department": "Bo'lim",
-        "position_count": "Stavkalar",
-        "occupied_count": "Band",
-        "salary_min": "Maosh (min)",
-        "salary_max": "Maosh (maks)",
-        "delete_position": "Pozitsiyani o'chirish?",
-        "new_position": "Yangi pozitsiya"
-    },
-    "notifications_page": {
-        "title": "Bildirishnomalar markazi",
-        "subtitle": "Bildirishnomalarni boshqarish",
-        "mark_all_read": "Barchasini o'qilgan deb belgilash",
-        "no_notifications": "Bildirishnomalar yo'q",
-        "unread": "O'qilmagan",
-        "total_notifications": "Jami bildirishnomalar",
-        "modules_with_events": "Voqeali modullar"
-    },
-    "taskboard": {
-        "search": "Vazifalarni qidirish...",
-        "project_filter": "Loyiha",
-        "delete_task": "Vazifani o'chirish?"
-    },
-    "hr": {
-        "schedule_5_day": "5 kunlik",
-        "schedule_6_day": "6 kunlik",
-        "schedule_shift": "Smenali",
-        "schedule_flex": "Moslashuvchan",
-        "production_calendar": "Ishlab chiqarish taqvimi",
-        "work_days_count": "ish kuni",
-        "work_day": "Ish kuni",
-        "weekend": "Dam olish kuni",
-        "holiday": "Bayram",
-        "today": "Bugun",
-        "schedules_tab": "Jadvallar",
-        "by_schedule": "Jadval bo'yicha",
-        "work_days": "Ish kunlari",
-        "hours": "Soatlar",
-        "h_per_day": "S/kun",
-        "h_per_week": "S/hafta",
-        "break_mins": "Tushlik",
-        "by_employees": "Xodimlar bo'yicha",
-        "employee": "Xodim",
         "position": "Lavozim",
-        "schedule": "Jadval"
+        "schedule": "Jadval",
+        "title": "HR — Umumiy ko'rinish",
+        "employees": "Xodimlar",
+        "holidays": {
+            "new_year": "Yangi yil",
+            "womens_day": "Xalqaro xotin-qizlar kuni",
+            "navruz": "Navro'z",
+            "memorial_day": "Xotira va qadrlash kuni",
+            "independence_day": "Mustaqillik kuni",
+            "teachers_day": "O'qituvchilar kuni",
+            "constitution_day": "Konstitutsiya kuni",
+            "ramadan_hayit": "Ramazon Hayiti",
+            "qurban_hayit": "Qurbon Hayiti"
+        }
     }
 }

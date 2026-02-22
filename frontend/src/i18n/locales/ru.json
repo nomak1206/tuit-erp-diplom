@@ -695,6 +695,17 @@
         "by_employees": "По сотрудникам",
         "employee": "Сотрудник",
         "position": "Должность",
-        "schedule": "График"
+        "schedule": "График",
+        "holidays": {
+            "new_year": "Новый год",
+            "womens_day": "Международный женский день",
+            "navruz": "Навруз",
+            "memorial_day": "День памяти и почестей",
+            "independence_day": "День независимости",
+            "teachers_day": "День учителя",
+            "constitution_day": "День Конституции",
+            "ramadan_hayit": "Рамазан Хайит",
+            "qurban_hayit": "Курбан Хайит"
+        }
     }
 }

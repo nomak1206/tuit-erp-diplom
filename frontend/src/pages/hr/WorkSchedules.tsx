@@ -22,13 +22,13 @@ export default function WorkSchedules() {
     }
 
     const scheduleCols = [
-        { title: t('common.name', 'Название'), dataIndex: 'name', key: 'name', render: (n: string, r: any) => <><strong>{n}</strong>{r.is_default && <Tag color="green" style={{ marginLeft: 8 }}>{t('common.default', 'По умолч.')}</Tag>}</> },
-        { title: t('common.type', 'Тип'), dataIndex: 'type', key: 'type', render: (typeKey: string) => <Tag color={scheduleTypes[typeKey]?.color || 'default'}>{t(scheduleTypes[typeKey]?.label || typeKey)}</Tag> },
-        { title: t('hr.work_days', 'Рабочие дни'), dataIndex: 'work_days', key: 'days', render: (days: number[]) => days.length > 0 ? days.map(d => <Tag key={d} style={{ marginBottom: 2 }}>{t(WEEKDAYS[d] || '')}</Tag>) : <Tag color="purple">{t('hr.by_schedule', 'По графику')}</Tag> },
-        { title: t('hr.hours', 'Часы'), key: 'time', render: (_: any, r: any) => `${r.start_time} – ${r.end_time}` },
-        { title: t('hr.h_per_day', 'Ч/день'), dataIndex: 'hours_per_day', key: 'hpd', render: (v: number) => `${v}ч` },
-        { title: t('hr.h_per_week', 'Ч/неделю'), dataIndex: 'hours_per_week', key: 'hpw', render: (v: number) => <strong>{v}ч</strong> },
-        { title: t('hr.break_mins', 'Обед'), dataIndex: 'break_minutes', key: 'break', render: (v: number) => `${v} ${t('common.min', 'мин')}` },
+        { title: t('common.name'), dataIndex: 'name', key: 'name', render: (n: string, r: any) => <><strong>{n}</strong>{r.is_default && <Tag color="green" style={{ marginLeft: 8 }}>{t('common.default')}</Tag>}</> },
+        { title: t('common.type'), dataIndex: 'type', key: 'type', render: (typeKey: string) => <Tag color={scheduleTypes[typeKey]?.color || 'default'}>{t(scheduleTypes[typeKey]?.label || typeKey)}</Tag> },
+        { title: t('hr.work_days'), dataIndex: 'work_days', key: 'days', render: (days: number[]) => days.length > 0 ? days.map(d => <Tag key={d} style={{ marginBottom: 2 }}>{t(WEEKDAYS[d] || '')}</Tag>) : <Tag color="purple">{t('hr.by_schedule')}</Tag> },
+        { title: t('hr.hours'), key: 'time', render: (_: any, r: any) => `${r.start_time} – ${r.end_time}` },
+        { title: t('hr.h_per_day'), dataIndex: 'hours_per_day', key: 'hpd', render: (v: number) => `${v}ч` },
+        { title: t('hr.h_per_week'), dataIndex: 'hours_per_week', key: 'hpw', render: (v: number) => <strong>{v}ч</strong> },
+        { title: t('hr.break_mins'), dataIndex: 'break_minutes', key: 'break', render: (v: number) => `${v} ${t('common.min')}` },
     ]
 
     // Production calendar for current month
@@ -71,7 +71,7 @@ export default function WorkSchedules() {
             <Tabs defaultActiveKey="schedules" items={[
                 {
                     key: 'schedules',
-                    label: <><ClockCircleOutlined /> {t('hr.schedules_tab', 'Графики')}</>,
+                    label: <><ClockCircleOutlined /> {t('hr.schedules_tab')}</>,
                     children: (
                         <>
                             <Table dataSource={bySchedule} columns={scheduleCols} rowKey="id" pagination={false}
@@ -90,7 +90,7 @@ export default function WorkSchedules() {
                                         <Card size="small" style={{ borderLeft: `3px solid ${scheduleTypes[s.type]?.color === 'blue' ? '#3b82f6' : scheduleTypes[s.type]?.color === 'orange' ? '#f97316' : scheduleTypes[s.type]?.color === 'purple' ? '#8b5cf6' : '#22c55e'}` }}>
                                             <div style={{ fontSize: 12, color: '#999' }}>{t(scheduleTypes[s.type]?.label || s.type)}</div>
                                             <div style={{ fontSize: 20, fontWeight: 700 }}>{s.employeeCount}</div>
-                                            <div style={{ fontSize: 12 }}>{t('dashboard.employees', 'сотрудников').toLowerCase()}</div>
+                                            <div style={{ fontSize: 12 }}>{t('dashboard.employees').toLowerCase()}</div>
                                         </Card>
                                     </Col>
                                 ))}
@@ -100,13 +100,13 @@ export default function WorkSchedules() {
                 },
                 {
                     key: 'calendar',
-                    label: <><CalendarOutlined /> {t('hr.production_calendar', 'Производственный календарь')}</>,
+                    label: <><CalendarOutlined /> {t('hr.production_calendar')}</>,
                     children: (
                         <Row gutter={[16, 16]}>
                             <Col xs={24} lg={16}>
-                                <Card title={`${today.format('MMMM YYYY')} — ${t('hr.production_calendar', 'Производственный календарь')}`} extra={<Tag color="blue">{workDaysInMonth} {t('hr.work_days_count', 'раб. дней')}</Tag>}>
+                                <Card title={`${today.format('MMMM YYYY')} — ${t('hr.production_calendar')}`} extra={<Tag color="blue">{workDaysInMonth} {t('hr.work_days_count')}</Tag>}>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
-                                        {WEEKDAYS.map(wKey => <div key={wKey} style={{ textAlign: 'center', fontWeight: 700, padding: '6px 0', color: wKey.includes('sat') || wKey.includes('sun') ? '#f87171' : '#333' }}>{t(wKey)}</div>)}
+                                        {WEEKDAYS.map(wKey => <div key={wKey} style={{ textAlign: 'center', fontWeight: 700, padding: '6px 0', color: wKey.includes('sat') || wKey.includes('sun') ? '#f87171' : 'var(--text-main)' }}>{t(wKey)}</div>)}
                                         {/* offset for first day */}
                                         {Array.from({ length: (monthStart.day() + 6) % 7 }).map((_, i) => <div key={`pad-${i}`} />)}
                                         {calendarDays.map(cd => (
@@ -123,10 +123,10 @@ export default function WorkSchedules() {
                                         ))}
                                     </div>
                                     <div style={{ marginTop: 12, display: 'flex', gap: 16, fontSize: 12, color: '#666' }}>
-                                        <span><Badge color="#f0fdf4" /> {t('hr.work_day', 'Рабочий')}</span>
-                                        <span><Badge color="#f8fafc" /> {t('hr.weekend', 'Выходной')}</span>
-                                        <span><Badge color="#fef2f2" /> {t('hr.holiday', 'Праздник')}</span>
-                                        <span><Badge color="#6366f1" /> {t('hr.today', 'Сегодня')}</span>
+                                        <span><Badge color="#f0fdf4" /> {t('hr.work_day')}</span>
+                                        <span><Badge color="#f8fafc" /> {t('hr.weekend')}</span>
+                                        <span><Badge color="#fef2f2" /> {t('hr.holiday')}</span>
+                                        <span><Badge color="#6366f1" /> {t('hr.today')}</span>
                                     </div>
                                 </Card>
                             </Col>
@@ -134,7 +134,7 @@ export default function WorkSchedules() {
                                 <Card title={t('schedules.holidays')}>
                                     <Timeline items={holidays.map((h: any) => ({
                                         color: dayjs(h.date).isBefore(today) ? 'gray' : 'red',
-                                        children: <><Tag color="red">{dayjs(h.date).format('DD.MM')}</Tag> {h.name}</>,
+                                        children: <><Tag color="red">{dayjs(h.date).format('DD.MM')}</Tag> {t(h.name)}</>,
                                     }))} />
                                 </Card>
                             </Col>
@@ -143,7 +143,7 @@ export default function WorkSchedules() {
                 },
                 {
                     key: 'employees',
-                    label: <><TeamOutlined /> {t('hr.by_employees', 'По сотрудникам')}</>,
+                    label: <><TeamOutlined /> {t('hr.by_employees')}</>,
                     children: (
                         <Table
                             dataSource={employees}
@@ -151,11 +151,11 @@ export default function WorkSchedules() {
                             pagination={false}
                             size="small"
                             columns={[
-                                { title: t('common.number', '№'), dataIndex: 'employee_number', key: 'num', width: 90 },
-                                { title: t('hr.employee', 'Сотрудник'), key: 'name', render: (_: any, r: any) => `${r.last_name} ${r.first_name} ${r.middle_name}` },
-                                { title: t('hr.position', 'Должность'), dataIndex: 'position', key: 'pos' },
-                                { title: t('hr.schedule', 'График'), dataIndex: 'schedule_type', key: 'sched', render: (tKey: string) => <Tag color={scheduleTypes[tKey || 'five_day']?.color}>{t(scheduleTypes[tKey || 'five_day']?.label || tKey)}</Tag> },
-                                { title: t('common.status', 'Статус'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'active' ? 'green' : 'orange'}>{s === 'active' ? t('common.active', 'Активен') : s}</Tag> },
+                                { title: t('common.number'), dataIndex: 'employee_number', key: 'num', width: 90 },
+                                { title: t('hr.employee'), key: 'name', render: (_: any, r: any) => `${r.last_name} ${r.first_name} ${r.middle_name}` },
+                                { title: t('hr.position'), dataIndex: 'position', key: 'pos' },
+                                { title: t('hr.schedule'), dataIndex: 'schedule_type', key: 'sched', render: (tKey: string) => <Tag color={scheduleTypes[tKey || 'five_day']?.color}>{t(scheduleTypes[tKey || 'five_day']?.label || tKey)}</Tag> },
+                                { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'active' ? 'green' : 'orange'}>{s === 'active' ? t('common.active') : s}</Tag> },
                             ]}
                         />
                     ),

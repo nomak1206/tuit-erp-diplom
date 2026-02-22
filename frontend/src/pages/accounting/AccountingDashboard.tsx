@@ -10,8 +10,8 @@ const fmt = (v: number) => v.toLocaleString('ru-RU')
 
 export default function AccountingDashboard() {
     const { t } = useTranslation()
-    const typeLabels: Record<string, string> = { asset: t('accounting.accounts_by_type.asset', 'Активы'), liability: t('accounting.accounts_by_type.liability', 'Пассивы'), equity: t('accounting.accounts_by_type.equity', 'Капитал'), revenue: t('accounting.accounts_by_type.revenue', 'Доходы'), expense: t('accounting.accounts_by_type.expense', 'Расходы'), contra_asset: t('accounting.accounts_by_type.contra', 'Контр-активы') }
-    const invoiceStatusLabels: Record<string, string> = { draft: t('warehouse.draft'), sent: t('accounting.invoice_statuses.sent', 'Отправлен'), paid: t('accounting.invoice_statuses.paid', 'Оплачен'), overdue: t('accounting.invoice_statuses.overdue', 'Просрочен'), cancelled: t('accounting.invoice_statuses.cancelled', 'Отменён') }
+    const typeLabels: Record<string, string> = { asset: t('accounting.accounts_by_type.asset'), liability: t('accounting.accounts_by_type.liability'), equity: t('accounting.accounts_by_type.equity'), revenue: t('accounting.accounts_by_type.revenue'), expense: t('accounting.accounts_by_type.expense'), contra_asset: t('accounting.accounts_by_type.contra') }
+    const invoiceStatusLabels: Record<string, string> = { draft: t('warehouse.draft'), sent: t('accounting.invoice_statuses.sent'), paid: t('accounting.invoice_statuses.paid'), overdue: t('accounting.invoice_statuses.overdue'), cancelled: t('accounting.invoice_statuses.cancelled') }
     const navigate = useNavigate()
     const { data: accounts = [], isLoading: al } = useChartOfAccounts()
     const { data: journal = [], isLoading: jl } = useJournalEntries()
@@ -52,7 +52,7 @@ export default function AccountingDashboard() {
             </Row>
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24} lg={12}>
-                    <Card title={t('accounting.accounts_by_type')} extra={<Button type="link" onClick={() => navigate('/accounting/chart')}>{t('accounting.chart_link')}</Button>}>
+                    <Card title={t('accounting.accounts_by_type.title')} extra={<Button type="link" onClick={() => navigate('/accounting/chart')}>{t('accounting.chart_link')}</Button>}>
                         <ResponsiveContainer width="100%" height={260}>
                             <PieChart><Pie data={accountsByType} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, value }: any) => `${name}: ${value}`}>
                                 {accountsByType.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}

@@ -10,7 +10,7 @@ const statusStep: Record<string, number> = { draft: 0, sent: 1, paid: 2 }
 
 export default function Invoices() {
     const { t } = useTranslation()
-    const statusLabels: Record<string, string> = { draft: t('warehouse.draft'), sent: t('accounting.invoice_statuses.sent', 'Отправлен'), paid: t('accounting.invoice_statuses.paid', 'Оплачен'), overdue: t('accounting.invoice_statuses.overdue', 'Просрочен'), cancelled: t('accounting.invoice_statuses.cancelled', 'Отменён') }
+    const statusLabels: Record<string, string> = { draft: t('warehouse.draft'), sent: t('accounting.invoice_statuses.sent'), paid: t('accounting.invoice_statuses.paid'), overdue: t('accounting.invoice_statuses.overdue'), cancelled: t('accounting.invoice_statuses.cancelled') }
     const { data: invoices = [], isLoading } = useInvoices()
     const createInvoice = useCreateInvoice()
     const updateInvoice = useUpdateInvoice()
@@ -50,13 +50,13 @@ export default function Invoices() {
     }
 
     const handleStatusChange = async (id: number, status: string) => {
-        try { await updateInvoice.mutateAsync({ id, status }); message.success(`Статус изменён на "${statusLabels[status]}"`) }
+        try { await updateInvoice.mutateAsync({ id, status }); message.success(t('common.saved')) }
         catch { message.error(t('common.error')) }
     }
 
     const handleExport = () => {
         exportToCSV(filtered, 'invoices', [
-            { key: 'number', title: 'Номер' }, { key: 'client_name', title: 'Клиент' },
+            { key: 'number', title: t('accounting.invoice_number') }, { key: 'client_name', title: t('accounting.client_name') },
             { key: 'total_amount', title: t('common.amount') }, { key: 'status', title: t('common.status') },
         ])
         message.success(`${t('common.export')}: ${filtered.length}`)
@@ -66,8 +66,8 @@ export default function Invoices() {
     const paidAmount = filtered.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + (i.total_amount || 0), 0)
 
     const columns = [
-        { title: 'Номер', dataIndex: 'number', key: 'number', width: 120, render: (v: string, r: any) => <span style={{ fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
-        { title: 'Клиент', dataIndex: 'client_name', key: 'client_name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v || '—'}</span> },
+        { title: t('accounting.invoice_number'), dataIndex: 'number', key: 'number', width: 120, render: (v: string, r: any) => <span style={{ fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
+        { title: t('accounting.client_name'), dataIndex: 'client_name', key: 'client_name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v || '—'}</span> },
         { title: t('common.amount'), dataIndex: 'total_amount', key: 'total_amount', render: (v: number) => <span style={{ fontWeight: 700, color: '#818cf8' }}>{(v || 0).toLocaleString('ru-RU')} UZS</span>, sorter: (a: any, b: any) => (a.total_amount || 0) - (b.total_amount || 0) },
         { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColors[s]}>{statusLabels[s] || s}</Tag> },
         { title: t('common.date'), dataIndex: 'issue_date', key: 'issue_date', render: (v: string) => v ? new Date(v).toLocaleDateString('ru-RU') : '—' },
@@ -90,20 +90,20 @@ export default function Invoices() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>{t('accounting.invoices_title')}</h1><p>Всего: <strong>{totalAmount.toLocaleString('ru-RU')} UZS</strong> | Оплачено: <strong style={{ color: '#52c41a' }}>{paidAmount.toLocaleString('ru-RU')} UZS</strong></p></div>
-                <Space><Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Новый счёт</Button></Space>
+                <div><h1>{t('accounting.invoices_title')}</h1><p>{t('common.total')}: <strong>{totalAmount.toLocaleString('ru-RU')} UZS</strong> | {t('accounting.invoice_statuses.paid')}: <strong style={{ color: '#52c41a' }}>{paidAmount.toLocaleString('ru-RU')} UZS</strong></p></div>
+                <Space><Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button><Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>{t('accounting.new_invoice')}</Button></Space>
             </div>
             <Space style={{ marginBottom: 16 }} wrap>
                 <Input placeholder={t('accounting.search_number')} prefix={<SearchOutlined />} style={{ width: 300 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
                 <Select placeholder={t('common.status')} style={{ width: 160 }} allowClear value={statusFilter} onChange={setStatusFilter} options={Object.entries(statusLabels).map(([v, l]) => ({ value: v, label: l }))} />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }}
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }}
                 onRow={(r) => ({ onClick: () => openDetail(r), style: { cursor: 'pointer' } })} />
 
-            <Modal title={editRecord ? 'Редактировать счёт' : 'Новый счёт'} open={modalOpen}
+            <Modal title={editRecord ? t('common.edit') : t('accounting.new_invoice')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createInvoice.isPending || updateInvoice.isPending}
-                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText={t('common.cancel')} width={560}>
+                okText={editRecord ? t('common.save') : t('common.create')} cancelText={t('common.cancel')} width={560}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit} initialValues={{ status: 'draft' }}>
                     <Row gutter={16}>
                         <Col span={8}><Form.Item name="number" label={t('accounting.invoice_number')} rules={[{ required: true }]}><Input placeholder="INV-2026-001" /></Form.Item></Col>
@@ -120,12 +120,12 @@ export default function Invoices() {
             <Drawer title={selected?.number || ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={480}
                 extra={<Space>
                     <Button icon={<EditOutlined />} onClick={() => { setDrawerOpen(false); openEdit(selected) }}>{t('common.edit')}</Button>
-                    {selected?.status === 'draft' && <Button type="primary" icon={<SendOutlined />} onClick={() => { handleStatusChange(selected.id, 'sent'); setSelected({ ...selected, status: 'sent' }) }}>Отправить</Button>}
-                    {selected?.status === 'sent' && <Button type="primary" icon={<CheckCircleOutlined />} style={{ background: '#52c41a' }} onClick={() => { handleStatusChange(selected.id, 'paid'); setSelected({ ...selected, status: 'paid' }) }}>Оплачен</Button>}
+                    {selected?.status === 'draft' && <Button type="primary" icon={<SendOutlined />} onClick={() => { handleStatusChange(selected.id, 'sent'); setSelected({ ...selected, status: 'sent' }) }}>{t('accounting.invoice_statuses.sent')}</Button>}
+                    {selected?.status === 'sent' && <Button type="primary" icon={<CheckCircleOutlined />} style={{ background: '#52c41a' }} onClick={() => { handleStatusChange(selected.id, 'paid'); setSelected({ ...selected, status: 'paid' }) }}>{t('accounting.invoice_statuses.paid')}</Button>}
                 </Space>}>
                 {selected && (
                     <div>
-                        <Steps current={statusStep[selected.status] ?? 0} size="small" style={{ marginBottom: 24 }} items={[{ title: t('warehouse.draft') }, { title: 'Отправлен' }, { title: 'Оплачен' }]} />
+                        <Steps current={statusStep[selected.status] ?? 0} size="small" style={{ marginBottom: 24 }} items={[{ title: t('warehouse.draft') }, { title: t('accounting.invoice_statuses.sent') }, { title: t('accounting.invoice_statuses.paid') }]} />
                         <Descriptions column={1} bordered size="small">
                             <Descriptions.Item label={t('accounting.invoice_number')}>{selected.number}</Descriptions.Item>
                             <Descriptions.Item label={t('accounting.client_name')}>{selected.client_name || '—'}</Descriptions.Item>

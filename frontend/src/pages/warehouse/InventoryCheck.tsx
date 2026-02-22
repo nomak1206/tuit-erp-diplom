@@ -63,7 +63,7 @@ export default function InventoryCheck() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>{t('warehouse.inventory_title')}</h1><p>{t('warehouse.inventory_desc', 'Сверка фактических остатков')}</p></div>
+                <div><h1>{t('warehouse.inventory_title')}</h1><p>{t('warehouse.inventory_desc')}</p></div>
                 <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>{t('warehouse.new_inventory')}</Button>
             </div>
 
@@ -74,13 +74,13 @@ export default function InventoryCheck() {
             </Row>
 
             <Card title={t('warehouse.inventory_documents')}>
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                     dataSource={inventories}
                     rowKey="id"
                     columns={[
-                        { title: t('common.number', '№'), dataIndex: 'id', width: 60, render: (v: number) => `ИНВ-${String(v).padStart(3, '0')}` },
+                        { title: t('common.number'), dataIndex: 'id', width: 60, render: (v: number) => `INV-${String(v).padStart(3, '0')}` },
                         { title: t('common.date'), dataIndex: 'date', render: (v: string) => new Date(v).toLocaleDateString('ru-RU') },
-                        { title: t('warehouse.warehouse'), dataIndex: 'warehouse_id', render: (v: number) => warehouses.find((w: any) => w.id === v)?.name || `Склад ${v}` },
+                        { title: t('warehouse.warehouse'), dataIndex: 'warehouse_id', render: (v: number) => warehouses.find((w: any) => w.id === v)?.name || `Ombor ${v}` },
                         { title: t('common.status'), dataIndex: 'status', render: (v: string) => <Tag color={v === 'completed' ? 'green' : 'orange'} icon={v === 'completed' ? <CheckCircleOutlined /> : undefined}>{v === 'completed' ? t('warehouse.completed') : t('warehouse.draft')}</Tag> },
                         { title: t('warehouse.items_count'), key: 'items', render: (_: any, r: any) => r.items?.length || 0 },
                         { title: t('warehouse.discrepancies'), key: 'disc', render: (_: any, r: any) => { const d = r.items?.filter((i: any) => i.diff !== 0).length || 0; return d > 0 ? <Tag color="orange">{d}</Tag> : <Tag color="green">0</Tag> } },
@@ -104,7 +104,7 @@ export default function InventoryCheck() {
                 </Form>
                 <Divider />
                 <Alert type="info" message={t('warehouse.inventory_hint')} showIcon style={{ marginBottom: 16 }} />
-                <Table
+                <Table scroll={{ x: 'max-content' }}
                     dataSource={items}
                     rowKey="product_id"
                     size="small"
@@ -120,7 +120,7 @@ export default function InventoryCheck() {
             </Modal>
 
             {/* View document drawer */}
-            <Modal title={`${t('warehouse.inventory_title')} ИНВ-${String(viewDoc?.id).padStart(3, '0')}`} open={!!viewDoc} onCancel={() => setViewDoc(null)} footer={null} width={700}>
+            <Modal title={`${t('warehouse.inventory_title')} INV-${String(viewDoc?.id).padStart(3, '0')}`} open={!!viewDoc} onCancel={() => setViewDoc(null)} footer={null} width={700}>
                 {viewDoc && (
                     <>
                         <Descriptions column={3} bordered size="small" style={{ marginBottom: 16 }}>
@@ -129,7 +129,7 @@ export default function InventoryCheck() {
                             <Descriptions.Item label={t('common.status')}><Tag color="green">{viewDoc.status === 'completed' ? t('warehouse.completed') : viewDoc.status}</Tag></Descriptions.Item>
                             <Descriptions.Item label={t('warehouse.commission')} span={3}>{viewDoc.commission}</Descriptions.Item>
                         </Descriptions>
-                        <Table
+                        <Table scroll={{ x: 'max-content' }}
                             dataSource={viewDoc.items || []}
                             rowKey="product_id"
                             size="small"

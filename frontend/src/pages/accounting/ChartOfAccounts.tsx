@@ -5,11 +5,11 @@ import { useChartOfAccounts, useCreateAccount, useUpdateAccount, useDeleteAccoun
 import { exportToCSV } from '../../utils/export'
 import { useTranslation } from 'react-i18next'
 
-const typeLabels: Record<string, string> = { asset: 'Актив', liability: 'Пассив', equity: 'Капитал', revenue: 'Доход', expense: 'Расход', contra_asset: 'Контр-актив' }
 const typeColors: Record<string, string> = { asset: 'blue', liability: 'red', equity: 'purple', revenue: 'green', expense: 'orange', contra_asset: 'cyan' }
 
 export default function ChartOfAccounts() {
     const { t } = useTranslation()
+    const typeLabels: Record<string, string> = { asset: t('accounting.accounts_by_type.asset'), liability: t('accounting.accounts_by_type.liability'), equity: t('accounting.accounts_by_type.equity'), revenue: t('accounting.accounts_by_type.revenue'), expense: t('accounting.accounts_by_type.expense'), contra_asset: t('accounting.accounts_by_type.contra') }
     const { data: accounts = [], isLoading } = useChartOfAccounts()
     const createAccount = useCreateAccount()
     const updateAccount = useUpdateAccount()
@@ -53,8 +53,8 @@ export default function ChartOfAccounts() {
 
     const handleExport = () => {
         exportToCSV(filtered, 'chart_of_accounts', [
-            { key: 'code', title: 'Код' }, { key: 'name', title: 'Название' },
-            { key: 'group_code', title: 'Группа' }, { key: 'account_type', title: t('common.type') }, { key: 'balance', title: 'Баланс' },
+            { key: 'code', title: t('accounting.account_code') }, { key: 'name', title: t('common.name') },
+            { key: 'group_code', title: t('accounting.group') }, { key: 'account_type', title: t('common.type') }, { key: 'balance', title: t('accounting.balance') },
         ])
         message.success(`${t('common.export')}: ${filtered.length}`)
     }
@@ -66,12 +66,12 @@ export default function ChartOfAccounts() {
     const totalEquity = accounts.filter((a: any) => a.account_type === 'equity').reduce((s: number, a: any) => s + (a.balance || 0), 0)
 
     const columns: any[] = [
-        { title: 'Группа', dataIndex: 'group_code', key: 'group', width: 80, render: (v: string, r: any) => v ? <Tooltip title={r.group_name}><Tag>{v}</Tag></Tooltip> : '—' },
-        { title: 'Код', dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</span> },
-        { title: 'Название', dataIndex: 'name', key: 'name', render: (v: string, r: any) => <span style={{ fontWeight: r.parent_id ? 400 : 700, paddingLeft: r.parent_id ? 12 : 0 }}>{v}</span> },
+        { title: t('accounting.group'), dataIndex: 'group_code', key: 'group', width: 80, render: (v: string, r: any) => v ? <Tooltip title={r.group_name}><Tag>{v}</Tag></Tooltip> : '—' },
+        { title: t('accounting.account_code'), dataIndex: 'code', key: 'code', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{v}</span> },
+        { title: t('common.name'), dataIndex: 'name', key: 'name', render: (v: string, r: any) => <span style={{ fontWeight: r.parent_id ? 400 : 700, paddingLeft: r.parent_id ? 12 : 0 }}>{v}</span> },
         { title: t('common.type'), dataIndex: 'account_type', key: 'account_type', width: 120, render: (v: string) => <Tag color={typeColors[v]}>{typeLabels[v] || v}</Tag> },
-        { title: 'Баланс', dataIndex: 'balance', key: 'balance', width: 160, render: (v: number) => <span style={{ fontWeight: 600, color: (v || 0) >= 0 ? '#52c41a' : '#ff4d4f' }}>{(v || 0).toLocaleString('ru-RU')} UZS</span>, sorter: (a: any, b: any) => (a.balance || 0) - (b.balance || 0) },
-        { title: t('common.status'), dataIndex: 'is_active', key: 'is_active', width: 90, render: (v: boolean) => <Tag color={v !== false ? 'green' : 'default'}>{v !== false ? 'Активный' : 'Закрыт'}</Tag> },
+        { title: t('accounting.balance'), dataIndex: 'balance', key: 'balance', width: 160, render: (v: number) => <span style={{ fontWeight: 600, color: (v || 0) >= 0 ? '#52c41a' : '#ff4d4f' }}>{(v || 0).toLocaleString('ru-RU')} UZS</span>, sorter: (a: any, b: any) => (a.balance || 0) - (b.balance || 0) },
+        { title: t('common.status'), dataIndex: 'is_active', key: 'is_active', width: 90, render: (v: boolean) => <Tag color={v !== false ? 'green' : 'default'}>{v !== false ? t('common.active') : t('common.closed')}</Tag> },
         {
             title: '', key: 'actions', width: 100,
             render: (_: any, r: any) => (
@@ -104,12 +104,12 @@ export default function ChartOfAccounts() {
                 <Select placeholder={t('accounting.account_type')} style={{ width: 160 }} allowClear value={typeFilter} onChange={setTypeFilter} options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
                 <Select placeholder={t('accounting.group')} style={{ width: 220 }} allowClear value={groupFilter} onChange={setGroupFilter} options={groups} showSearch optionFilterProp="label" />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 20, showTotal: total => `${t('common.total')}: ${total}` }} size="small" />
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 20, showTotal: total => `${t('common.total')}: ${total}` }} size="small" />
 
-            <Modal title={editRecord ? 'Редактировать счёт' : 'Новый счёт'} open={modalOpen}
+            <Modal title={editRecord ? t('common.edit') : t('accounting.new_account')} open={modalOpen}
                 onCancel={() => { setModalOpen(false); form.resetFields(); setEditRecord(null) }}
                 onOk={() => form.submit()} confirmLoading={createAccount.isPending || updateAccount.isPending}
-                okText={editRecord ? 'Сохранить' : 'Создать'} cancelText={t('common.cancel')} width={520}>
+                okText={editRecord ? t('common.save') : t('common.create')} cancelText={t('common.cancel')} width={520}>
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
                         <Col span={8}><Form.Item name="code" label={t('accounting.account_code')} rules={[{ required: true }]}><Input placeholder="1010" /></Form.Item></Col>

@@ -55,6 +55,30 @@ app.include_router(documents.router)
 app.include_router(analytics.router)
 
 
+# ---------- Exception Handlers ----------
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
+
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(request, exc: IntegrityError):
+    # This specifically catches ForeignKey RESTRICT deletions, e.g. trying to delete
+    # a Product that still has StockMovements referencing it.
+    return JSONResponse(
+        status_code=400,
+        content={"detail": "Операция отклонена: запись используется в других связанных таблицах системы."},
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc: Exception):
+    import logging
+    logging.error(f"Unhandled server error: {exc}")
+    # Don't expose internal server paths or exact DB driver bugs to the user
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Внутренняя ошибка сервера. Обратитесь к администратору."},
+    )
+
+
 @app.get("/")
 async def root():
     return {

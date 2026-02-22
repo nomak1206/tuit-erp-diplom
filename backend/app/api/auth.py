@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -9,7 +9,7 @@ from app.core.security import (
     create_access_token, create_refresh_token, decode_token,
     get_current_user,
 )
-from app.schemas.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse, UpdateProfileRequest
+from app.schemas.schemas import LoginRequest, RegisterRequest, UserResponse, UpdateProfileRequest
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -77,8 +77,8 @@ async def ensure_default_users(db: AsyncSession):
 
 
 # ============ LOGIN ============
-@router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+@router.post("/login")
+async def login(data: LoginRequest, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     await ensure_default_users(db)
 
     user = await _get_user_by_username(db, data.username)
@@ -109,10 +109,28 @@ async def login(data: LoginRequest, request: Request, db: AsyncSession = Depends
         "role": user.role.value if hasattr(user.role, 'value') else str(user.role),
         "full_name": user.full_name,
     }
-    return TokenResponse(
-        access_token=create_access_token(token_data),
-        refresh_token=create_refresh_token(token_data),
+    
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False, # Set to True in production with HTTPS
+        samesite="lax",
+        max_age=30 * 60 # 30 mins
     )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60 # 7 days
+    )
+    
+    return {"message": "Login successful", "user": _user_to_response(user)}
 
 
 # ============ REGISTER ============
@@ -147,9 +165,12 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 # ============ REFRESH TOKEN ============
-@router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(body: dict, db: AsyncSession = Depends(get_db)):
-    token = body.get("refresh_token", "")
+@router.post("/refresh")
+async def refresh_token(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
+    token = request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Отсутствует refresh token в куки")
+        
     payload = decode_token(token)
     if payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Недействительный refresh token")
@@ -165,10 +186,25 @@ async def refresh_token(body: dict, db: AsyncSession = Depends(get_db)):
         "role": user.role.value if hasattr(user.role, 'value') else str(user.role),
         "full_name": user.full_name,
     }
-    return TokenResponse(
-        access_token=create_access_token(token_data),
-        refresh_token=create_refresh_token(token_data),
+    
+    access_token = create_access_token(token_data)
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=30 * 60
     )
+    
+    return {"message": "Token refreshed"}
+
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return {"message": "Logged out successfully"}
 
 
 # ============ GET PROFILE ============

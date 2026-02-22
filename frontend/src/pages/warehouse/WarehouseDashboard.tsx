@@ -104,7 +104,7 @@ export default function WarehouseDashboard() {
                             <Tag color="red">C: {abcCounts.C} (5%)</Tag>
                         </Space>
                     }>
-                        <Table columns={stockColumns} dataSource={abcData} rowKey="id" size="small" pagination={{ pageSize: 10 }} />
+                        <Table scroll={{ x: 'max-content' }} columns={stockColumns} dataSource={abcData} rowKey="id" size="small" pagination={{ pageSize: 10 }} />
                     </Card>
                 </Col>
             </Row>

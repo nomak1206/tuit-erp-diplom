@@ -5,12 +5,14 @@ import { useLeads, useCreateLead, useUpdateLead, useDeleteLead, useCreateDeal } 
 import { exportToCSV } from '../../utils/export'
 import { useTranslation } from 'react-i18next'
 
-const statusLabels: Record<string, string> = { new: 'Новый', contacted: 'Контакт', qualified: 'Квалифицирован', proposal: 'Предложение', converted: 'Конвертирован', lost: 'Потерян' }
 const statusColors: Record<string, string> = { new: 'blue', contacted: 'cyan', qualified: 'green', proposal: 'orange', converted: 'purple', lost: 'red' }
-const sourceLabels: Record<string, string> = { website: 'Сайт', referral: 'Рекомендация', social: 'Соц. сети', cold_call: 'Холодный звонок', advertisement: 'Реклама', other: 'Другое' }
 
 export default function LeadsList() {
     const { t } = useTranslation()
+
+    const statusLabels: Record<string, string> = { new: t('crm.lead_statuses.new'), contacted: t('crm.lead_statuses.contacted'), qualified: t('crm.lead_statuses.qualified'), proposal: t('crm.lead_statuses.proposal'), converted: t('crm.lead_statuses.converted'), lost: t('crm.lead_statuses.lost') }
+    const sourceLabels: Record<string, string> = { website: t('leads.sources.website'), referral: t('leads.sources.referral'), social: t('leads.sources.social'), cold_call: t('leads.sources.cold_call'), advertisement: t('leads.sources.ads'), other: t('leads.sources.other') }
+
     const { data: leads = [], isLoading } = useLeads()
     const createLead = useCreateLead()
     const updateLead = useUpdateLead()
@@ -52,7 +54,7 @@ export default function LeadsList() {
 
     const handleConvert = async (lead: any) => {
         try {
-            await createDeal.mutateAsync({ title: `Сделка: ${lead.title}`, amount: lead.budget || 0, stage: 'new', contact_id: lead.contact_id })
+            await createDeal.mutateAsync({ title: `${t('deals.deal_prefix')}: ${lead.title}`, amount: lead.budget || 0, stage: 'new', contact_id: lead.contact_id })
             await updateLead.mutateAsync({ id: lead.id, status: 'converted' })
             message.success(t('common.saved'))
         } catch { message.error(t('common.error')) }
@@ -60,20 +62,20 @@ export default function LeadsList() {
 
     const handleExport = () => {
         exportToCSV(filtered, 'leads', [
-            { key: 'title', title: 'Название' }, { key: 'company', title: 'Компания' },
-            { key: 'status', title: t('common.status') }, { key: 'source', title: 'Источник' },
-            { key: 'budget', title: 'Бюджет' }, { key: 'score', title: 'Скоринг' },
+            { key: 'title', title: t('common.name') }, { key: 'company', title: t('contacts.company') },
+            { key: 'status', title: t('common.status') }, { key: 'source', title: t('leads.source') },
+            { key: 'budget', title: t('projects.budget') }, { key: 'score', title: t('leads.score') },
         ])
         message.success(`${t('common.export')}: ${filtered.length}`)
     }
 
     const columns = [
-        { title: 'Лид', dataIndex: 'title', key: 'title', render: (v: string, r: any) => <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
-        { title: 'Компания', dataIndex: 'company', key: 'company', render: (v: string) => v ? <Tag color="blue">{v}</Tag> : '—' },
+        { title: t('crm.crm_leads'), dataIndex: 'title', key: 'title', render: (v: string, r: any) => <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{v}</span> },
+        { title: t('contacts.company'), dataIndex: 'company', key: 'company', render: (v: string) => v ? <Tag color="blue">{v}</Tag> : '—' },
         { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColors[s]}>{statusLabels[s] || s}</Tag> },
-        { title: 'Источник', dataIndex: 'source', key: 'source', render: (s: string) => sourceLabels[s] || s },
-        { title: 'Бюджет', dataIndex: 'budget', key: 'budget', render: (v: number) => v ? `${v.toLocaleString('ru-RU')} UZS` : '—', sorter: (a: any, b: any) => (a.budget || 0) - (b.budget || 0) },
-        { title: 'Скоринг', dataIndex: 'score', key: 'score', render: (v: number) => <Progress percent={v || 0} size="small" strokeColor={v > 70 ? '#52c41a' : v > 40 ? '#fa8c16' : '#ff4d4f'} /> },
+        { title: t('leads.source'), dataIndex: 'source', key: 'source', render: (s: string) => sourceLabels[s] || s },
+        { title: t('projects.budget'), dataIndex: 'budget', key: 'budget', render: (v: number) => v ? `${v.toLocaleString('ru-RU')} UZS` : '—', sorter: (a: any, b: any) => (a.budget || 0) - (b.budget || 0) },
+        { title: t('leads.score'), dataIndex: 'score', key: 'score', render: (v: number) => <Progress percent={v || 0} size="small" strokeColor={v > 70 ? '#52c41a' : v > 40 ? '#fa8c16' : '#ff4d4f'} /> },
         {
             title: '', key: 'actions', width: 160,
             render: (_: any, r: any) => (

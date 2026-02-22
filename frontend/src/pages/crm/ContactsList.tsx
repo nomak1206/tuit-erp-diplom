@@ -55,9 +55,9 @@ export default function ContactsList() {
 
     const handleExport = () => {
         exportToCSV(filtered, 'contacts', [
-            { key: 'first_name', title: 'Имя' }, { key: 'last_name', title: 'Фамилия' },
-            { key: 'email', title: 'Email' }, { key: 'phone', title: 'Телефон' },
-            { key: 'company', title: 'Компания' }, { key: 'position', title: 'Должность' },
+            { key: 'first_name', title: t('contacts.first_name') }, { key: 'last_name', title: t('contacts.last_name') },
+            { key: 'email', title: 'Email' }, { key: 'phone', title: t('settings.phone') },
+            { key: 'company', title: t('contacts.company') }, { key: 'position', title: t('contacts.position') },
         ])
         message.success(`${t('common.export')}: ${filtered.length}`)
     }
@@ -75,7 +75,7 @@ export default function ContactsList() {
         { title: 'Email', dataIndex: 'email', key: 'email', render: (v: string) => v ? <Space><MailOutlined />{v}</Space> : '—' },
         { title: t('contacts.phone'), dataIndex: 'phone', key: 'phone', render: (v: string) => v ? <Space><PhoneOutlined />{v}</Space> : '—' },
         { title: t('contacts.company'), dataIndex: 'company', key: 'company', render: (v: string) => v ? <Tag color="blue">{v}</Tag> : '—' },
-        { title: 'ИНН', dataIndex: 'inn', key: 'inn', width: 120, render: (v: string) => v ? <Tag icon={<IdcardOutlined />} color="purple">{v}</Tag> : '—' },
+        { title: t('settings.inn'), dataIndex: 'inn', key: 'inn', width: 120, render: (v: string) => v ? <Tag icon={<IdcardOutlined />} color="purple">{v}</Tag> : '—' },
         { title: t('contacts.position'), dataIndex: 'position', key: 'position' },
         {
             title: '', key: 'actions', width: 120,
@@ -116,10 +116,10 @@ export default function ContactsList() {
                         <Col span={12}><Form.Item name="phone" label={t('settings.phone')}><Input prefix={<PhoneOutlined />} /></Form.Item></Col>
                         <Col span={12}><Form.Item name="company" label={t('contacts.company')}><Input /></Form.Item></Col>
                         <Col span={12}><Form.Item name="position" label={t('contacts.position')}><Input /></Form.Item></Col>
-                        <Col span={24}><Form.Item name="company_name" label={t('contacts.full_org_name')}><Input placeholder='ООО «Название»' /></Form.Item></Col>
-                        <Col span={24}><Form.Item name="legal_address" label={t('settings.legal_address')}><Input placeholder='г. Ташкент, ...' /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="company_name" label={t('contacts.full_org_name')}><Input placeholder="ООО «Название»" /></Form.Item></Col>
+                        <Col span={24}><Form.Item name="legal_address" label={t('settings.legal_address')}><Input placeholder="г. Ташкент, ..." /></Form.Item></Col>
                         <Col span={12}><Form.Item name="bank_name" label={t('contacts.bank')}><Input prefix={<BankOutlined />} /></Form.Item></Col>
-                        <Col span={12}><Form.Item name="bank_account" label={t('contacts.bank_account')}><Input placeholder='20208...' /></Form.Item></Col>
+                        <Col span={12}><Form.Item name="bank_account" label={t('contacts.bank_account')}><Input placeholder="20208..." /></Form.Item></Col>
                         <Col span={24}><Form.Item name="address" label={t('contacts.actual_address')}><Input /></Form.Item></Col>
                         <Col span={24}><Form.Item name="notes" label={t('contacts.notes')}><Input.TextArea rows={2} /></Form.Item></Col>
                     </Row>
@@ -135,7 +135,7 @@ export default function ContactsList() {
                 </Space>}>
                 {selected && (
                     <Descriptions column={1} bordered size="small">
-                        <Descriptions.Item label={t('common.type')}>{selected.contact_type === 'legal' ? <Tag icon={<BankOutlined />} color="blue">Юридическое лицо</Tag> : <Tag icon={<UserOutlined />} color="cyan">Физическое лицо</Tag>}</Descriptions.Item>
+                        <Descriptions.Item label={t('common.type')}>{selected.contact_type === 'legal' ? <Tag icon={<BankOutlined />} color="blue">{t('contacts.legal_entity')}</Tag> : <Tag icon={<UserOutlined />} color="cyan">{t('contacts.individual')}</Tag>}</Descriptions.Item>
                         <Descriptions.Item label={t('contacts.first_name')}>{selected.first_name} {selected.last_name}</Descriptions.Item>
                         <Descriptions.Item label="Email">{selected.email || '—'}</Descriptions.Item>
                         <Descriptions.Item label={t('settings.phone')}>{selected.phone || '—'}</Descriptions.Item>

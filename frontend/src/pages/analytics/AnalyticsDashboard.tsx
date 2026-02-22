@@ -21,23 +21,23 @@ export default function AnalyticsDashboard() {
 
     /* CRM conversion funnel */
     const funnelData = [
-        { stage: t('dashboard.modules.contacts', 'Контакты'), count: contacts.length },
-        { stage: t('dashboard.modules.leads', 'Лиды'), count: leads.length },
-        { stage: t('analytics.qualified', 'Квалиф.'), count: leads.filter((l: any) => l.status === 'qualified' || l.status === 'converted').length },
-        { stage: t('dashboard.modules.deals', 'Сделки'), count: deals.length },
-        { stage: t('dashboard.won', 'Выиграно'), count: deals.filter((d: any) => d.stage === 'won').length },
+        { stage: t('dashboard.modules.contacts'), count: contacts.length },
+        { stage: t('dashboard.modules.leads'), count: leads.length },
+        { stage: t('analytics.qualified'), count: leads.filter((l: any) => l.status === 'qualified' || l.status === 'converted').length },
+        { stage: t('dashboard.modules.deals'), count: deals.length },
+        { stage: t('dashboard.won'), count: deals.filter((d: any) => d.stage === 'won').length },
     ]
 
     /* Module radar */
     const radarData = [
         { module: 'CRM', score: contacts.length + leads.length + deals.length },
         { module: 'HR', score: employees.length },
-        { module: t('dashboard.warehouse_label', 'Склад'), score: products.length },
-        { module: t('dashboard.projects_label', 'Проекты'), score: projects.length },
+        { module: t('dashboard.warehouse_label'), score: products.length },
+        { module: t('dashboard.projects_label'), score: projects.length },
     ].map(d => ({ ...d, score: Math.min(d.score * 10, 100) }))
 
     /* Deal amounts by stage */
-    const stageLabels: Record<string, string> = { new: t('analytics.st_new', 'Новые'), negotiation: t('analytics.st_neg', 'Перегов.'), proposal: t('analytics.st_prop', 'Предлож.'), contract: t('analytics.st_contract', 'Контракт'), won: t('dashboard.won', 'Выиграно'), lost: t('dashboard.lost', 'Проиграно') }
+    const stageLabels: Record<string, string> = { new: t('analytics.st_new'), negotiation: t('analytics.st_neg'), proposal: t('analytics.st_prop'), contract: t('analytics.st_contract'), won: t('dashboard.won'), lost: t('dashboard.lost') }
     const stageAmounts = ['new', 'negotiation', 'proposal', 'contract', 'won', 'lost'].map(s => ({
         stage: stageLabels[s],
         amount: deals.filter((d: any) => d.stage === s).reduce((sum: number, d: any) => sum + (d.amount || 0), 0),
@@ -52,10 +52,10 @@ export default function AnalyticsDashboard() {
     const totalNetSalary = totalSalary - totalNdfl - totalInps
 
     const payrollPieData = [
-        { name: t('analytics.to_pay', 'К выплате'), value: totalNetSalary },
-        { name: t('analytics.ndfl', 'НДФЛ 12%'), value: totalNdfl },
-        { name: t('analytics.inps', 'ИНПС 1%'), value: totalInps },
-        { name: t('analytics.esn', 'ЕСН 12%'), value: totalEsn },
+        { name: t('analytics.to_pay'), value: totalNetSalary },
+        { name: t('analytics.ndfl'), value: totalNdfl },
+        { name: t('analytics.inps'), value: totalInps },
+        { name: t('analytics.esn'), value: totalEsn },
     ]
 
     /* Warehouse */
@@ -74,31 +74,31 @@ export default function AnalyticsDashboard() {
 
             <div className="stats-grid">
                 <div className="kpi-card purple stagger-item">
-                    <div className="kpi-value">{(totalWon / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
-                    <div className="kpi-label">{t('dashboard.revenue', 'Выручка')}</div>
-                    <div className="kpi-change up"><DollarOutlined /> {t('analytics.won_deals', 'по выигранным сделкам')}</div>
+                    <div className="kpi-value">{(totalWon / 1e6).toFixed(1)} {t('analytics.mln')}</div>
+                    <div className="kpi-label">{t('dashboard.revenue')}</div>
+                    <div className="kpi-change up"><DollarOutlined /> {t('analytics.won_deals')}</div>
                 </div>
                 <div className="kpi-card blue stagger-item">
-                    <div className="kpi-value">{(avgDeal / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
-                    <div className="kpi-label">{t('analytics.avg_check', 'Средний чек')}</div>
-                    <div className="kpi-change up"><RiseOutlined /> {t('analytics.avg_deal', 'средняя сделка')}</div>
+                    <div className="kpi-value">{(avgDeal / 1e6).toFixed(1)} {t('analytics.mln')}</div>
+                    <div className="kpi-label">{t('analytics.avg_check')}</div>
+                    <div className="kpi-change up"><RiseOutlined /> {t('analytics.avg_deal')}</div>
                 </div>
                 <div className="kpi-card green stagger-item">
                     <div className="kpi-value">{convRate}%</div>
-                    <div className="kpi-label">{t('crm.conversion', 'Конверсия')}</div>
-                    <div className="kpi-change up"><TeamOutlined /> {t('analytics.leads_to_deals', 'лидов в сделки')}</div>
+                    <div className="kpi-label">{t('crm.conversion')}</div>
+                    <div className="kpi-change up"><TeamOutlined /> {t('analytics.leads_to_deals')}</div>
                 </div>
                 <div className="kpi-card orange stagger-item">
-                    <div className="kpi-value">{(totalSalary / 1e6).toFixed(1)} {t('analytics.mln', 'млн')}</div>
-                    <div className="kpi-label">{t('analytics.fot_month', 'ФОТ (месяц)')}</div>
-                    <div className="kpi-change up"><WalletOutlined /> {t('analytics.fot_desc', 'фонд оплаты труда')}</div>
+                    <div className="kpi-value">{(totalSalary / 1e6).toFixed(1)} {t('analytics.mln')}</div>
+                    <div className="kpi-label">{t('analytics.fot_month')}</div>
+                    <div className="kpi-change up"><WalletOutlined /> {t('analytics.fot_desc')}</div>
                 </div>
             </div>
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} lg={14}>
                     <div className="chart-container">
-                        <h3>📈 {t('analytics.sales_funnel_chart', 'Воронка продаж (CRM)')}</h3>
+                        <h3>📈 {t('analytics.sales_funnel_chart')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={funnelData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" />
@@ -112,7 +112,7 @@ export default function AnalyticsDashboard() {
                 </Col>
                 <Col xs={24} lg={10}>
                     <div className="chart-container">
-                        <h3>🎯 {t('analytics.module_activity', 'Активность модулей')}</h3>
+                        <h3>🎯 {t('analytics.module_activity')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <RadarChart data={radarData}>
                                 <PolarGrid stroke="#2d2d4a" />
@@ -128,7 +128,7 @@ export default function AnalyticsDashboard() {
             <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
                 <Col xs={24} lg={14}>
                     <div className="chart-container">
-                        <h3>💰 {t('analytics.stage_amounts', 'Суммы по стадиям сделок')}</h3>
+                        <h3>💰 {t('analytics.stage_amounts')}</h3>
                         <ResponsiveContainer width="100%" height={280}>
                             <BarChart data={stageAmounts}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#2d2d4a" />
@@ -143,7 +143,7 @@ export default function AnalyticsDashboard() {
                 </Col>
                 <Col xs={24} lg={10}>
                     <div className="chart-container">
-                        <h3>👥 {t('analytics.fot_distribution', 'ФОТ: Распределение затрат')}</h3>
+                        <h3>👥 {t('analytics.fot_distribution')}</h3>
                         <ResponsiveContainer width="100%" height={220}>
                             <PieChart><Pie data={payrollPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value" label={({ name, value }: any) => `${name}: ${(value / 1e6).toFixed(1)}M`}>
                                 {payrollPieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}

@@ -46,7 +46,7 @@ export default function StockMovements() {
 
     const handleExport = () => {
         exportToCSV(filtered.map((m: any) => ({ ...m, product: getProductName(m.product_id), warehouse: getWhName(m.warehouse_id) })), 'stock_movements', [
-            { key: 'reference', title: t('warehouse.reference', 'Номер') }, { key: 'movement_type', title: t('common.type') },
+            { key: 'reference', title: t('warehouse.reference') }, { key: 'movement_type', title: t('common.type') },
             { key: 'product', title: t('warehouse.product_name') }, { key: 'quantity', title: t('warehouse.quantity') },
             { key: 'unit_price', title: t('warehouse.price') }, { key: 'total_amount', title: t('common.amount') },
             { key: 'warehouse', title: t('warehouse.warehouse') },
@@ -78,14 +78,14 @@ export default function StockMovements() {
     return (
         <div className="fade-in">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div><h1>{t('warehouse.movements_title', 'Движения товаров')}</h1><p>{t('warehouse.operations', 'Складские операции')} — {filtered.length} {t('common.records', 'записей')}</p></div>
+                <div><h1>{t('warehouse.movements_title')}</h1><p>{t('warehouse.operations')} — {filtered.length} {t('common.records')}</p></div>
                 <Space><Button icon={<ExportOutlined />} onClick={handleExport}>{t('common.export')}</Button><Button type="primary" icon={<PlusOutlined />} onClick={() => { form.resetFields(); setModalOpen(true) }}>{t('warehouse.new_movement')}</Button></Space>
             </div>
             <Space style={{ marginBottom: 16 }} wrap>
                 <Input placeholder={t('common.search')} prefix={<SearchOutlined />} style={{ width: 300 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
                 <Select placeholder={t('common.type')} style={{ width: 160 }} allowClear value={typeFilter} onChange={setTypeFilter} options={['in', 'out', 'transfer'].map(v => ({ value: v, label: t(`warehouse.movement_${v}`) }))} />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
 
             <Modal title={t('warehouse.new_movement')} open={modalOpen} onCancel={() => { setModalOpen(false); form.resetFields() }}
                 onOk={() => form.submit()} confirmLoading={createMovement.isPending}

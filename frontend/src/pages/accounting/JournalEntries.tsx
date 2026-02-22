@@ -75,7 +75,7 @@ export default function JournalEntries() {
             <Space style={{ marginBottom: 16 }}>
                 <Input placeholder={t('accounting.search_desc')} prefix={<SearchOutlined />} style={{ width: 300 }} value={search} onChange={e => setSearch(e.target.value)} allowClear />
             </Space>
-            <Table columns={columns} dataSource={filtered} rowKey="id" loading={isLoading} pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
+            <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={filtered} rowKey="id" loading={isLoading} pagination={{ pageSize: 10, showTotal: total => `${t('common.total')}: ${total}` }} />
 
             <Modal title={t('accounting.new_entry')} open={modalOpen} onCancel={() => { setModalOpen(false); form.resetFields() }} onOk={() => form.submit()} confirmLoading={createEntry.isPending} okText={t('common.create')} cancelText={t('common.cancel')} width={600}>
                 <Form form={form} layout="vertical" onFinish={handleCreate}>
@@ -91,7 +91,7 @@ export default function JournalEntries() {
                                 {fields.map((field, idx) => (
                                     <Row gutter={8} key={field.key} style={{ marginBottom: 8 }}>
                                         <Col span={10}>
-                                            <Form.Item {...field} name={[field.name, 'account_id']} rules={[{ required: true, message: 'Выберите счёт' }]} style={{ marginBottom: 0 }}>
+                                            <Form.Item {...field} name={[field.name, 'account_id']} rules={[{ required: true, message: t('accounting.select_account') }]} style={{ marginBottom: 0 }}>
                                                 <Select placeholder={t('accounting.account')} options={accounts.map((a: any) => ({ value: a.id, label: `${a.code} ${a.name}` }))} />
                                             </Form.Item>
                                         </Col>
