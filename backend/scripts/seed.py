@@ -31,8 +31,8 @@ async def seed_data():
                 full_name="Алишер Усманов",  # Localized name
                 role=UserRole.ADMIN,
                 phone="+998901234567",
-                position="Генеральный Директор",
-                department="Администрация",
+                position="Bosh direktor",
+                department="Ma'muriyat",
                 is_superuser=True
             )
             session.add(admin_user)
@@ -48,11 +48,11 @@ async def seed_data():
                 email=manager_email,
                 username="manager_tashkent",
                 hashed_password=hash_password("manager123"),
-                full_name="Дурдона Шомуродова",
+                full_name="Durdona Shomurodova",
                 role=UserRole.MANAGER,
                 phone="+998939876543",
-                position="Руководитель отдела продаж",
-                department="Продажи"
+                position="Sotuv bo'limi boshlig'i",
+                department="Sotuvlar"
             )
             session.add(manager_user)
             await session.commit()
@@ -65,18 +65,18 @@ async def seed_data():
         
         if not hr_dept:
             hr_dept = Department(
-                name="Отдел Кадров Ташкент",
+                name="Toshkent Kadrlar bo'limi",
                 code=hr_dept_code,
                 head_id=admin_user.id,
-                description="Центральный отдел кадров"
+                description="Markaziy Kadrlar bo'limi"
             )
             session.add(hr_dept)
             
             sales_dept = Department(
-                name="Отдел Продаж (Юнусабад)",
+                name="Sotuv bo'limi (Yunusobod)",
                 code="SALES-01",
                 head_id=manager_user.id,
-                description="Отдел активных продаж в Ташкенте"
+                description="Toshkent shahridagi faol sotuvlar bo'limi"
             )
             session.add(sales_dept)
             await session.commit()
@@ -94,18 +94,18 @@ async def seed_data():
             
             emp1 = Employee(
                 employee_number="EMP-001",
-                first_name="Сардор",
-                last_name="Абдуллаев",
-                middle_name="Улугбекович",
+                first_name="Sardor",
+                last_name="Abdullayev",
+                middle_name="Ulug'bek o'g'li",
                 email="sardor@tashkent.erp",
                 phone="+998971112233",
                 birth_date=date(1990, 5, 15),
                 hire_date=date(2023, 1, 10),
                 department_id=sales_dept.id if sales_dept else None,
-                position="Менеджер по работе с клиентами",
+                position="Mijozlar bilan ishlash menejeri",
                 salary=8000000.0, # UZS
                 status=EmployeeStatus.ACTIVE,
-                address="г. Ташкент, Мирзо-Улугбекский район, ул. Паркентская, 10",
+                address="Toshkent sh., Mirzo-Ulug'bek tumani, Parkent ko'chasi, 10",
                 passport_data="AA1234567",
                 inn="123456789",
                 user_id=manager_user.id
@@ -130,25 +130,25 @@ async def seed_data():
         
         if not contact:
             contact = Contact(
-                first_name="Тимур",
-                last_name="Каримов",
+                first_name="Timur",
+                last_name="Karimov",
                 email="timur.k@it-company.uz",
                 phone="+998909998877",
-                company="ООО 'Tashkent Tech Solutions'",
-                position="Директор",
-                address="г. Ташкент, Шайхантахурский район, ул. Навои",
-                notes="Потенциальный VIP клиент"
+                company="MChJ 'Tashkent Tech Solutions'",
+                position="Direktor",
+                address="Toshkent sh., Shayxontohur tumani, Navoiy ko'chasi",
+                notes="Potensial VIP mijoz"
             )
             session.add(contact)
             await session.commit()
             print("Created Contact: Тимур Каримов")
 
             lead = Lead(
-                title="Внедрение ERP Системы - Tashkent Tech",
-                contact_name="Тимур Каримов",
+                title="ERP Tizimini joriy etish - Tashkent Tech",
+                contact_name="Timur Karimov",
                 email="timur.k@it-company.uz",
                 phone="+998909998877",
-                company="ООО 'Tashkent Tech Solutions'",
+                company="MChJ 'Tashkent Tech Solutions'",
                 source=LeadSource.REFERRAL,
                 status=LeadStatus.QUALIFIED,
                 score=85,
@@ -160,7 +160,7 @@ async def seed_data():
             print("Created Lead: Внедрение ERP Системы")
 
             deal = Deal(
-                title="Поставка оборудования и ERP (Учтепа)",
+                title="Uskunalar va ERP yetkazib berish (Uchtepa)",
                 contact_id=contact.id,
                 lead_id=lead.id,
                 stage=DealStage.NEGOTIATION,
@@ -168,7 +168,7 @@ async def seed_data():
                 currency="UZS",
                 probability=70,
                 expected_close_date=date.today() + timedelta(days=14),
-                description="Ожидается подтверждение контракта от коммерческого директора",
+                description="Tijorat direktoridan shartnoma tasdiqlanishi kutilmoqda",
                 assigned_to=manager_user.id
             )
             session.add(deal)

@@ -69,7 +69,7 @@ export default function Dashboard() {
         id: `deal-${d.id}`, icon: <RiseOutlined style={{ color: '#6366f1' }} />,
         title: `${t('dashboard.deal_prefix')}: ${d.title || d.name || '—'}`,
         desc: `${(d.amount || 0).toLocaleString('ru-RU')} UZS`,
-        tag: d.stage === 'won' ? <Tag color="green">{t('dashboard.won')}</Tag> : d.stage === 'lost' ? <Tag color="red">{t('dashboard.lost')}</Tag> : <Tag color="blue">{d.stage}</Tag>,
+        tag: d.stage === 'won' ? <Tag color="green">{t('dashboard.won')}</Tag> : d.stage === 'lost' ? <Tag color="red">{t('dashboard.lost')}</Tag> : <Tag color="blue">{t(`crm.deal_stages.${d.stage}`, d.stage) as string}</Tag>,
     }))
 
     invoices.filter((i: any) => i.status === 'sent' || i.status === 'overdue').slice(0, 2).forEach((inv: any) => activityFeed.push({

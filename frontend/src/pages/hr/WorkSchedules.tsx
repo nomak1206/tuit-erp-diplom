@@ -22,13 +22,13 @@ export default function WorkSchedules() {
     }
 
     const scheduleCols = [
-        { title: t('common.name'), dataIndex: 'name', key: 'name', render: (n: string, r: any) => <><strong>{n}</strong>{r.is_default && <Tag color="green" style={{ marginLeft: 8 }}>{t('common.default')}</Tag>}</> },
-        { title: t('common.type'), dataIndex: 'type', key: 'type', render: (typeKey: string) => <Tag color={scheduleTypes[typeKey]?.color || 'default'}>{t(scheduleTypes[typeKey]?.label || typeKey)}</Tag> },
-        { title: t('hr.work_days'), dataIndex: 'work_days', key: 'days', render: (days: number[]) => days.length > 0 ? days.map(d => <Tag key={d} style={{ marginBottom: 2 }}>{t(WEEKDAYS[d] || '')}</Tag>) : <Tag color="purple">{t('hr.by_schedule')}</Tag> },
-        { title: t('hr.hours'), key: 'time', render: (_: any, r: any) => `${r.start_time} – ${r.end_time}` },
-        { title: t('hr.h_per_day'), dataIndex: 'hours_per_day', key: 'hpd', render: (v: number) => `${v}ч` },
-        { title: t('hr.h_per_week'), dataIndex: 'hours_per_week', key: 'hpw', render: (v: number) => <strong>{v}ч</strong> },
-        { title: t('hr.break_mins'), dataIndex: 'break_minutes', key: 'break', render: (v: number) => `${v} ${t('common.min')}` },
+        { title: t('common.name', 'Nomi'), dataIndex: 'name', key: 'name', render: (n: string, r: any) => <><strong>{n}</strong>{r.is_default && <Tag color="green" style={{ marginLeft: 8 }}>{t('common.default')}</Tag>}</> },
+        { title: t('common.type', 'Turi'), dataIndex: 'type', key: 'type', render: (typeKey: string) => <Tag color={scheduleTypes[typeKey]?.color || 'default'}>{t(scheduleTypes[typeKey]?.label || typeKey)}</Tag> },
+        { title: t('hr.work_days', 'Ish kunlari'), dataIndex: 'work_days', key: 'days', render: (days: number[]) => days.length > 0 ? days.map(d => <Tag key={d} style={{ marginBottom: 2 }}>{t(WEEKDAYS[d] || '')}</Tag>) : <Tag color="purple">{t('hr.by_schedule')}</Tag> },
+        { title: t('hr.hours', 'Soatlar'), key: 'time', render: (_: any, r: any) => `${r.start_time} – ${r.end_time}` },
+        { title: t('hr.h_per_day', 'S/kun'), dataIndex: 'hours_per_day', key: 'hpd', render: (v: number) => `${v}${t('common.h', 's')}` },
+        { title: t('hr.h_per_week', 'S/hafta'), dataIndex: 'hours_per_week', key: 'hpw', render: (v: number) => <strong>{v}{t('common.h', 's')}</strong> },
+        { title: t('hr.break_mins', 'Tushlik'), dataIndex: 'break_minutes', key: 'break', render: (v: number) => `${v} ${t('common.min')}` },
     ]
 
     // Production calendar for current month
@@ -100,7 +100,7 @@ export default function WorkSchedules() {
                 },
                 {
                     key: 'calendar',
-                    label: <><CalendarOutlined /> {t('hr.production_calendar')}</>,
+                    label: <><CalendarOutlined /> {t('hr.production_calendar', 'Ishlab chiqarish taqvim')}</>,
                     children: (
                         <Row gutter={[16, 16]}>
                             <Col xs={24} lg={16}>
@@ -143,7 +143,7 @@ export default function WorkSchedules() {
                 },
                 {
                     key: 'employees',
-                    label: <><TeamOutlined /> {t('hr.by_employees')}</>,
+                    label: <><TeamOutlined /> {t('hr.by_employees', 'Xodimlar bo\'yicha')}</>,
                     children: (
                         <Table
                             dataSource={employees}

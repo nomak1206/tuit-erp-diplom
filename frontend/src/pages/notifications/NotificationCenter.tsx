@@ -88,9 +88,9 @@ export default function NotificationCenter() {
             <div className="page-header"><h1><BellOutlined /> {t('notifications_page.title')}</h1><p>{t('notifications_page.subtitle')}</p></div>
 
             <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-                <Col xs={8}><Card><Statistic title={t('notifications_page.unread')} value={unreadCount} prefix={<Badge dot={unreadCount > 0}><BellOutlined style={{ color: '#6366f1' }} /></Badge>} valueStyle={{ color: unreadCount > 0 ? '#f97316' : '#22c55e' }} /></Card></Col>
-                <Col xs={8}><Card><Statistic title={t('notifications_page.total_notifications')} value={notifications.length} prefix={<InfoCircleOutlined style={{ color: '#8b5cf6' }} />} /></Card></Col>
-                <Col xs={8}><Card><Statistic title={t('notifications_page.modules_with_events')} value={new Set(notifications.map(n => n.module)).size} prefix={<SettingOutlined style={{ color: '#06b6d4' }} />} /></Card></Col>
+                <Col xs={8}><Card><Statistic title={t('notifications_page.unread', 'O\'qilmagan')} value={unreadCount} prefix={<Badge dot={unreadCount > 0}><BellOutlined style={{ color: '#6366f1' }} /></Badge>} valueStyle={{ color: unreadCount > 0 ? '#f97316' : '#22c55e' }} /></Card></Col>
+                <Col xs={8}><Card><Statistic title={t('notifications_page.total_notifications', 'Barcha xabarlar')} value={notifications.length} prefix={<InfoCircleOutlined style={{ color: '#8b5cf6' }} />} /></Card></Col>
+                <Col xs={8}><Card><Statistic title={t('notifications_page.modules_with_events', 'Voqeali modullar')} value={new Set(notifications.map(n => n.module)).size} prefix={<SettingOutlined style={{ color: '#06b6d4' }} />} /></Card></Col>
             </Row>
 
             <Card title={<Space><BellOutlined /> {t('layout.notifications')} <Tag color="blue">{unreadCount}</Tag></Space>} extra={
@@ -99,7 +99,7 @@ export default function NotificationCenter() {
                 </Space>
             }>
                 <Tabs activeKey={tab} onChange={setTab} items={[
-                    { key: 'all', label: `${t('common.all')} (${notifications.filter(n => showRead || !n.read).length})` },
+                    { key: 'all', label: `${t('common.all_notifications', 'Barchasi')} (${notifications.filter(n => showRead || !n.read).length})` },
                     { key: 'accounting', label: <Space><DollarOutlined />{t('layout.accounting')}</Space> },
                     { key: 'hr', label: <Space><TeamOutlined />HR</Space> },
                     { key: 'warehouse', label: <Space><InboxOutlined />{t('layout.warehouse')}</Space> },
