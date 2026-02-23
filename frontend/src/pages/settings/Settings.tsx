@@ -33,7 +33,7 @@ export default function Settings() {
                 <Card bordered={false}>
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
                         <Avatar size={80} style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', fontSize: 32 }} icon={<UserOutlined />} />
-                        <h3 style={{ margin: '12px 0 4px' }}>{user?.full_name || t('layout.admin')}</h3>
+                        <h3 style={{ margin: '12px 0 4px' }}>{user?.full_name ? t(user.full_name) : t('layout.admin')}</h3>
                         <p style={{ color: '#64748b' }}>{user?.email || 'admin@tashkent.erp'}</p>
                     </div>
                     <Form form={profileForm} layout="vertical" onFinish={handleProfileSave} initialValues={{ full_name: user?.full_name || t('layout.admin'), email: user?.email || 'admin@erp.uz', phone: '+998 90 123 45 67', language: i18n.language }}>

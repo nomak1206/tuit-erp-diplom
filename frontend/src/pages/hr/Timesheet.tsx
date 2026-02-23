@@ -42,8 +42,8 @@ export default function Timesheet() {
     if (isLoading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
 
     const columns = [
-        { title: t('payroll.employee'), key: 'name', render: (_: any, r: any) => <span style={{ fontWeight: 600 }}>{r.first_name} {r.last_name}</span> },
-        { title: t('employees.position'), dataIndex: 'position', key: 'position' },
+        { title: t('payroll.employee'), key: 'name', render: (_: any, r: any) => <span style={{ fontWeight: 600 }}>{t(r.first_name)} {t(r.last_name)}</span> },
+        { title: t('employees.position'), dataIndex: 'position', key: 'position', render: (v: string) => t(v) },
         { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'active' ? 'green' : s === 'on_leave' ? 'blue' : 'red'}>{s === 'active' ? t('timesheet.present') : s === 'on_leave' ? t('timesheet.on_vacation') : s}</Tag> },
         { title: t('timesheet.work_days'), key: 'days', render: (_: any, r: any) => r.status === 'active' ? <span style={{ fontWeight: 600 }}>{workedDays}</span> : <span style={{ color: '#64748b' }}>—</span> },
         { title: t('timesheet.total_hours'), key: 'hours', render: (_: any, r: any) => r.status === 'active' ? <span>{workedDays * 8}</span> : '—' },

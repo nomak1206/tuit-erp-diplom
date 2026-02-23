@@ -33,6 +33,38 @@ export const useContacts = () =>
         queryFn: () => api.get('/crm/contacts').then(r => r.data),
     })
 
+export const useUserActivities = (userId?: number) =>
+    useQuery({
+        queryKey: ['users', 'activities', userId],
+        queryFn: () => api.get(`/users/${userId}/activities`).then(r => r.data),
+        enabled: !!userId,
+    })
+
+// ==================== Notifications ====================
+
+export const useNotifications = () =>
+    useQuery({
+        queryKey: ['notifications'],
+        queryFn: () => api.get('/notifications/').then(r => r.data),
+        refetchInterval: 30000, // auto refetch every 30s
+    })
+
+export const useMarkNotificationRead = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: number) => api.put(`/notifications/${id}/read`).then(r => r.data),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    })
+}
+
+export const useMarkAllNotificationsRead = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: () => api.put('/notifications/read-all').then(r => r.data),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    })
+}
+
 export const useContact = (id: number) =>
     useQuery({
         queryKey: ['crm', 'contacts', id],

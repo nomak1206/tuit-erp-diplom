@@ -40,6 +40,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import type { MenuProps } from 'antd'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useTranslation } from 'react-i18next'
+import { useNotifications, useMarkNotificationRead } from '../../api/hooks'
+import dayjs from 'dayjs'
 
 const { Sider, Header, Content } = Layout
 
@@ -65,13 +67,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return () => window.removeEventListener('resize', handleResize)
     }, [])
 
-    const notifications = [
-        { id: 1, title: t('crm.new_lead_title', 'Новый лид создан'), description: t('crm.new_lead_desc', 'Компания "TechStart" добавлена'), time: t('common.time_5m_ago', '5 мин назад'), read: false, link: '/crm/leads' },
-        { id: 2, title: t('accounting.invoice_paid_title', 'Счёт оплачен'), description: t('accounting.invoice_paid_desc', 'Счёт INV-2026-042 оплачен'), time: t('common.time_15m_ago', '15 мин назад'), read: false, link: '/accounting/invoices' },
-        { id: 3, title: t('projects.task_done_title', 'Задача завершена'), description: t('projects.task_done_desc', 'Разработка API модуля'), time: t('common.time_1h_ago', '1 час назад'), read: true, link: '/projects/board' },
-        { id: 4, title: t('warehouse.low_stock'), description: t('warehouse.low_stock_desc', 'Товар "Монитор 27" — мин. запас'), time: t('common.time_2h_ago', '2 часа назад'), read: false, link: '/warehouse/products' },
-        { id: 5, title: t('documents.doc_review_title', 'Документ на согласовании'), description: t('documents.doc_review_desc', 'Договор DOC-2026-015'), time: t('common.time_3h_ago', '3 часа назад'), read: true, link: '/documents' },
-    ]
+    const { data: notifications = [] } = useNotifications()
+    const markRead = useMarkNotificationRead()
 
     const searchRoutes = [
         { path: '/', label: t('dashboard.title', 'Дашборд'), icon: '📊' },
@@ -104,7 +101,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         { path: '/settings', label: t('settings.title', 'Настройки'), icon: '⚙️' },
     ]
 
-    const unreadCount = notifications.filter(n => !n.read).length
+    const unreadCount = notifications.filter((n: any) => !n.is_read).length
 
     const menuItems: MenuProps['items'] = [
         { key: '/', icon: <DashboardOutlined />, label: t('layout.dashboard') },
@@ -282,20 +279,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </Content>
             </Layout>
 
-            {/* Notifications Drawer */}
             <Drawer title={<Space><BellOutlined /> {t('layout.notif_title')} <Tag color="blue">{t('layout.new_notifications', { count: unreadCount })}</Tag></Space>}
                 open={notifDrawer} onClose={() => setNotifDrawer(false)} width={400}>
                 <List
                     dataSource={notifications}
-                    renderItem={(item) => (
+                    renderItem={(item: any) => (
                         <List.Item
-                            style={{ cursor: 'pointer', background: item.read ? 'transparent' : 'rgba(99,102,241,0.05)', borderRadius: 8, padding: '12px 16px', marginBottom: 4 }}
-                            onClick={() => { navigate(item.link); setNotifDrawer(false) }}
+                            style={{ cursor: 'pointer', background: item.is_read ? 'transparent' : 'rgba(99,102,241,0.05)', borderRadius: 8, padding: '12px 16px', marginBottom: 4 }}
+                            onClick={() => {
+                                if (!item.is_read) markRead.mutate(item.id);
+                                if (item.link) navigate(item.link);
+                                setNotifDrawer(false)
+                            }}
                         >
                             <List.Item.Meta
-                                avatar={<Badge dot={!item.read}><InfoCircleOutlined style={{ fontSize: 20, color: item.read ? '#64748b' : '#6366f1' }} /></Badge>}
-                                title={<span style={{ fontWeight: item.read ? 400 : 600 }}>{item.title}</span>}
-                                description={<><div style={{ color: '#94a3b8' }}>{item.description}</div><div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>{item.time}</div></>}
+                                avatar={<Badge dot={!item.is_read}><InfoCircleOutlined style={{ fontSize: 20, color: item.is_read ? '#64748b' : '#6366f1' }} /></Badge>}
+                                title={<span style={{ fontWeight: item.is_read ? 400 : 600 }}>{t(item.title)}</span>}
+                                description={<><div style={{ color: '#94a3b8' }}>{t(item.description)}</div><div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>{dayjs(item.created_at).format('DD.MM.YYYY HH:mm')}</div></>}
                             />
                         </List.Item>
                     )}

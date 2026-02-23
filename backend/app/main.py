@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from app.config import get_settings
-from app.api import auth, crm, accounting, hr, warehouse, projects, documents, analytics
+from app.api import auth, crm, accounting, hr, warehouse, projects, documents, analytics, notifications
 
 settings = get_settings()
 
@@ -53,6 +53,7 @@ app.include_router(warehouse.router)
 app.include_router(projects.router)
 app.include_router(documents.router)
 app.include_router(analytics.router)
+app.include_router(notifications.router, prefix="/api")
 
 
 # ---------- Exception Handlers ----------

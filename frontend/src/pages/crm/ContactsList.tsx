@@ -67,7 +67,7 @@ export default function ContactsList() {
             title: t('contacts.title'), key: 'name',
             render: (_: any, r: any) => (
                 <Space><UserOutlined style={{ color: '#6366f1' }} />
-                    <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{r.first_name} {r.last_name}</span>
+                    <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{t(r.first_name)} {t(r.last_name)}</span>
                 </Space>
             ), sorter: (a: any, b: any) => (a.first_name || '').localeCompare(b.first_name || ''),
         },
@@ -76,7 +76,7 @@ export default function ContactsList() {
         { title: t('contacts.phone'), dataIndex: 'phone', key: 'phone', render: (v: string) => v ? <Space><PhoneOutlined />{v}</Space> : '—' },
         { title: t('contacts.company'), dataIndex: 'company', key: 'company', render: (v: string) => v ? <Tag color="blue">{v}</Tag> : '—' },
         { title: t('settings.inn'), dataIndex: 'inn', key: 'inn', width: 120, render: (v: string) => v ? <Tag icon={<IdcardOutlined />} color="purple">{v}</Tag> : '—' },
-        { title: t('contacts.position'), dataIndex: 'position', key: 'position' },
+        { title: t('contacts.position'), dataIndex: 'position', key: 'position', render: (v: string) => v ? t(v) : '—' },
         {
             title: '', key: 'actions', width: 120,
             render: (_: any, r: any) => (
@@ -126,7 +126,7 @@ export default function ContactsList() {
                 </Form>
             </Modal>
 
-            <Drawer title={selected ? `${selected.first_name} ${selected.last_name}` : ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={450}
+            <Drawer title={selected ? `${t(selected.first_name)} ${t(selected.last_name)}` : ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={450}
                 extra={<Space>
                     <Button icon={<EditOutlined />} onClick={() => { setDrawerOpen(false); openEdit(selected) }}>{t('common.edit')}</Button>
                     <Popconfirm title={t('common.confirm_delete')} onConfirm={() => { handleDelete(selected?.id); setDrawerOpen(false) }}>
@@ -136,7 +136,7 @@ export default function ContactsList() {
                 {selected && (
                     <Descriptions column={1} bordered size="small">
                         <Descriptions.Item label={t('common.type')}>{selected.contact_type === 'legal' ? <Tag icon={<BankOutlined />} color="blue">{t('contacts.legal_entity')}</Tag> : <Tag icon={<UserOutlined />} color="cyan">{t('contacts.individual')}</Tag>}</Descriptions.Item>
-                        <Descriptions.Item label={t('contacts.first_name')}>{selected.first_name} {selected.last_name}</Descriptions.Item>
+                        <Descriptions.Item label={t('contacts.first_name')}>{t(selected.first_name)} {t(selected.last_name)}</Descriptions.Item>
                         <Descriptions.Item label="Email">{selected.email || '—'}</Descriptions.Item>
                         <Descriptions.Item label={t('settings.phone')}>{selected.phone || '—'}</Descriptions.Item>
                         <Descriptions.Item label={t('contacts.company')}>{selected.company || '—'}</Descriptions.Item>

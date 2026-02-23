@@ -11,6 +11,7 @@ from app.models.hr import Department, Employee, Timesheet, PayrollEntry, Leave, 
 from app.models.warehouse import Category, Product, Warehouse, StockMovement, InventoryCheck, MovementType, UnitOfMeasure
 from app.models.project import Project, Task, TaskComment, ProjectStatus, TaskStatus, TaskPriority
 from app.models.document import Document, DocumentVersion, ApprovalStep, DocumentType, DocumentStatus, ApprovalAction
+from app.models.notification import Notification
 
 __all__ = [
     # User
@@ -33,4 +34,6 @@ __all__ = [
     # Documents
     "Document", "DocumentVersion", "ApprovalStep",
     "DocumentType", "DocumentStatus", "ApprovalAction",
+    # Notification
+    "Notification",
 ]

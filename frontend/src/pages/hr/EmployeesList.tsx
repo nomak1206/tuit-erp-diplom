@@ -74,12 +74,12 @@ export default function EmployeesList() {
             title: t('employees.title'), key: 'name',
             render: (_: any, r: any) => (
                 <Space><Avatar style={{ background: '#6366f1' }} icon={<UserOutlined />} size="small" />
-                    <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{r.first_name} {r.last_name}</span>
+                    <span style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => openDetail(r)}>{t(r.first_name)} {t(r.last_name)}</span>
                 </Space>
             ),
         },
-        { title: t('employees.position'), dataIndex: 'position', key: 'position' },
-        { title: t('employees.department'), dataIndex: 'department_id', key: 'department_id', render: (v: number) => v ? <Tag color="blue">{getDeptName(v)}</Tag> : '—' },
+        { title: t('employees.position'), dataIndex: 'position', key: 'position', render: (v: string) => t(v) },
+        { title: t('employees.department'), dataIndex: 'department_id', key: 'department_id', render: (v: number) => v ? <Tag color="blue">{t(getDeptName(v))}</Tag> : '—' },
         { title: 'Email', dataIndex: 'email', key: 'email' },
         { title: t('employees.salary'), dataIndex: 'salary', key: 'salary', render: (v: number) => v ? <span style={{ fontWeight: 600 }}>{v.toLocaleString('ru-RU')} UZS</span> : '—', sorter: (a: any, b: any) => (a.salary || 0) - (b.salary || 0) },
         { title: t('common.status'), dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColors[s]}>{statusLabels[s] || s}</Tag> },
@@ -132,7 +132,7 @@ export default function EmployeesList() {
                 </Form>
             </Modal>
 
-            <Drawer title={selected ? `${selected.first_name} ${selected.last_name}` : ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={460}
+            <Drawer title={selected ? `${t(selected.first_name)} ${t(selected.last_name)}` : ''} open={drawerOpen} onClose={() => setDrawerOpen(false)} width={460}
                 extra={<Space>
                     <Button icon={<EditOutlined />} onClick={() => { setDrawerOpen(false); openEdit(selected) }}>{t('common.edit')}</Button>
                     <Popconfirm title={t('common.confirm_delete')} onConfirm={() => selected && handleDelete(selected.id)}>
