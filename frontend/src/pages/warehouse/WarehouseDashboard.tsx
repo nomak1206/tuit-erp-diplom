@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#22c55e', '#06b6d4']
-const fmt = (v: number) => v.toLocaleString('ru-RU')
+const fmt = (v: number) => (v || 0).toLocaleString('ru-RU')
 
 export default function WarehouseDashboard() {
     const { t } = useTranslation()
@@ -20,14 +20,14 @@ export default function WarehouseDashboard() {
     /* ABC analysis computed from products */
     const abcData = useMemo(() => {
         const sorted = [...products].sort((a: any, b: any) => {
-            const aVal = (a.sell_price || 0) * (a.quantity || 0)
-            const bVal = (b.sell_price || 0) * (b.quantity || 0)
+            const aVal = (a.selling_price || 0) * (a.quantity || 1)
+            const bVal = (b.selling_price || 0) * (b.quantity || 1)
             return bVal - aVal
         })
-        const total = sorted.reduce((s: number, p: any) => s + (p.sell_price || 0) * (p.quantity || 0), 0)
+        const total = sorted.reduce((s: number, p: any) => s + (p.selling_price || 0) * (p.quantity || 1), 0)
         let cum = 0
         return sorted.map((p: any) => {
-            const val = (p.sell_price || 0) * (p.quantity || 0)
+            const val = (p.selling_price || 0) * (p.quantity || 1)
             cum += val
             const pct = total > 0 ? (cum / total) * 100 : 0
             const abc = pct <= 80 ? 'A' : pct <= 95 ? 'B' : 'C'
@@ -37,11 +37,17 @@ export default function WarehouseDashboard() {
 
     if (pl || ml) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
 
-    const totalValue = products.reduce((s: number, p: any) => s + (p.sell_price || 0) * (p.quantity || 0), 0)
-    const lowStock = products.filter((p: any) => (p.quantity || 0) <= (p.min_quantity || 5)).length
+    const totalValue = products.reduce((s: number, p: any) => s + (p.selling_price || 0) * (p.quantity || 1), 0)
+    const lowStock = products.filter((p: any) => (p.quantity || 0) <= (p.min_stock || 5)).length
 
     const byCategory = categories.map((c: any) => ({ name: c.name, value: products.filter((p: any) => p.category_id === c.id).length })).filter((d: any) => d.value > 0)
-    const moveTypes = Object.entries(movements.reduce((acc: any, m: any) => { acc[m.movement_type] = (acc[m.movement_type] || 0) + 1; return acc }, {})).map(([name, value]) => ({ name, value }))
+
+    // Fix undefined values for movement types mapping
+    const moveTypes = Object.entries(movements.reduce((acc: any, m: any) => {
+        const _type = m.type || 'unknown'
+        acc[_type] = (acc[_type] || 0) + 1;
+        return acc
+    }, {})).map(([name, value]) => ({ name, value }))
 
     const kpis = [
         { title: t('warehouse.total_products'), value: products.length, icon: <ShoppingOutlined />, color: '#6366f1', path: '/warehouse/products' },
@@ -55,8 +61,8 @@ export default function WarehouseDashboard() {
 
     const stockColumns = [
         { title: t('warehouse.product_name'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
-        { title: t('warehouse.quantity'), dataIndex: 'quantity', key: 'qty', width: 100, align: 'center' as const, render: (v: number, r: any) => <span style={{ color: v <= (r.min_quantity || 5) ? '#f43f5e' : '#e2e8f0', fontWeight: 600 }}>{v}</span> },
-        { title: t('warehouse.sell_price'), dataIndex: 'sell_price', key: 'sp', width: 140, align: 'right' as const, render: (v: number) => `${fmt(v)} UZS` },
+        { title: t('warehouse.quantity'), dataIndex: 'quantity', key: 'qty', width: 100, align: 'center' as const, render: (v: number, r: any) => <span style={{ color: (v || 0) <= (r.min_stock || 5) ? '#f43f5e' : '#e2e8f0', fontWeight: 600 }}>{v || 0}</span> },
+        { title: t('warehouse.sell_price'), dataIndex: 'selling_price', key: 'sp', width: 140, align: 'right' as const, render: (v: number) => `${fmt(v || 0)} UZS` },
         { title: t('warehouse.stock_value'), key: 'val', width: 150, align: 'right' as const, render: (_: any, r: any) => <span style={{ fontWeight: 500 }}>{fmt(r.stock_value)}</span> },
         { title: 'ABC', key: 'abc', width: 70, align: 'center' as const, render: (_: any, r: any) => <Tag color={abcColors[r.abc]} style={{ fontWeight: 700 }}>{r.abc}</Tag> },
         { title: t('warehouse.cum_share'), key: 'cum', width: 150, render: (_: any, r: any) => <Progress percent={Math.round(r.cum_pct)} size="small" strokeColor={abcColors[r.abc]} /> },
@@ -123,4 +129,3 @@ export default function WarehouseDashboard() {
         </div>
     )
 }
-

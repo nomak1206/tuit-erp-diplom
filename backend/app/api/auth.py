@@ -41,11 +41,10 @@ async def _get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
 
 # ---------- Seed default admin on startup ----------
 async def ensure_default_users(db: AsyncSession):
-    """Create default admin/manager accounts if the users table is empty."""
-    result = await db.execute(select(User).limit(1))
-    if result.scalars().first():
-        return  # Already seeded
-
+    """Create default admin/manager accounts if they do not exist."""
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+    existing_users = {u.username for u in result.scalars().all()}
+    
     defaults = [
         User(
             email="admin@erp.local",
@@ -71,8 +70,10 @@ async def ensure_default_users(db: AsyncSession):
             is_active=True,
         ),
     ]
+
     for u in defaults:
-        db.add(u)
+        if u.username not in existing_users:
+            db.add(u)
     await db.commit()
 
 

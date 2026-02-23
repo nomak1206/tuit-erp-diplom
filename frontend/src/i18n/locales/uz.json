@@ -49,6 +49,7 @@
         "logout_success": "Siz tizimdan muvaffaqiyatli chiqdingiz"
     },
     "common": {
+        "all_notifications": "Barchasi",
         "records": "zapislar",
         "items": "pozitsiyalar",
         "number": "№",
@@ -174,8 +175,8 @@
         "dayoff": "Dam olish"
     },
     "crm": {
-        "title": "CRM — Umumiy ko'rinish",
         "subtitle": "Mijozlar bilan munosabatlarni boshqarish",
+        "crm_leads": "Lid nomi",
         "new_lead_title": "Yangi lid yaratildi",
         "new_lead_desc": "\"TechStart\" kompaniyasi qo'shildi",
         "contacts": "Kontaktlar",
@@ -215,8 +216,7 @@
             "contract": "Shartnoma",
             "won": "Yutilgan",
             "lost": "Yo'qotilgan"
-        },
-        "crm_leads": "CRM — Lidlar"
+        }
     },
     "contacts": {
         "title": "Kontaktlar",
@@ -273,7 +273,7 @@
         "client": "Mijoz",
         "responsible": "Mas'ul",
         "closing_date": "Yopilish sanasi",
-        "pipeline_stats": "Pipeline — {{count}} kelishuv · Avtomatlashtirish va analitika (Bitrix24)",
+        "pipeline_stats": "Faol kelishuvlar: {{count}}",
         "drag_deal_here": "Kelishuvni bu yerga torting",
         "deal_moved": "Kelishuv \"{{stage}}\" bosqichiga ko'chirildi",
         "edit_deal": "Kelishuvni tahrirlash",
@@ -354,7 +354,7 @@
         "journal_title": "O'tkazmalar jurnali",
         "invoices_title": "Hisob-fakturalar",
         "month_close_title": "Oyni yopish",
-        "trial_balance_title": "Aylanma-balans qaydnomasi",
+        "trial_balance_title": "Aylanma qayd",
         "new_entry": "Yangi o'tkazma",
         "new_invoice": "Yangi hisob-faktura",
         "debit": "Debet",
@@ -390,7 +390,7 @@
         "total_debit": "Umumiy debet aylanmasi",
         "total_credit": "Umumiy kredit aylanmasi",
         "check_sum": "Nazorat summasi",
-        "balanced": "Balans to'g'ri",
+        "balanced": "Balans mos",
         "balance_error": "Balans xatosi",
         "accounts_count": "Qaydnomadagi hisoblar",
         "balance_warning": "Diqqat! Debet va kredit aylanmalari mos kelmaydi.",
@@ -411,8 +411,8 @@
         "opening_balance": "Boshlang'ich qoldiq",
         "debit_turnover": "Debet aylanmasi",
         "credit_turnover": "Kredit aylanmasi",
-        "closing_balance": "Oxirgi qoldiq",
-        "row_total": "Satr bo'yicha jami",
+        "closing_balance": "Yakuniy qoldiq",
+        "row_total": "Jami",
         "account_groups": {
             "01": "Asosiy vositalar",
             "02": "Asosiy vositalarning eskirishi",
@@ -435,8 +435,15 @@
     },
     "warehouse": {
         "title": "Omborxona — Umumiy ko'rinish",
+        "low_stock_title": "Kam qoldiq",
+        "low_stock_desc": "Mahsulot omborda tugamoqda",
+        "movement_incoming": "Kirim",
+        "movement_outgoing": "Chiqim",
+        "movement_transfer": "Ko'chirish",
+        "movement_write_off": "Hisobdan chiqarish",
+        "movement_return": "Qaytarish",
+        "movement_undefined": "Noma'lum",
         "subtitle": "Ombor va tovarlarni boshqarish",
-        "low_stock_desc": "Tovar \"Monitor 27\" — min. zaxira",
         "total_products": "Tovarlar",
         "total_value": "Ombor qiymati",
         "low_stock": "Kam qoldiq",
@@ -485,7 +492,6 @@
         "draft": "Qoralama",
         "movement_in": "Kirim",
         "movement_out": "Chiqim",
-        "movement_transfer": "Ko'chirish",
         "operations": "Ombor operatsiyalari",
         "nomenclature": "Nomenklatura",
         "units": {
@@ -504,6 +510,8 @@
     },
     "projects": {
         "title": "Loyihalar — Umumiy ko'rinish",
+        "new_task_title": "Yangi vazifa",
+        "new_task_desc": "Sizga yangi vazifa tayinlandi",
         "subtitle": "Loyiha va vazifalarni boshqarish",
         "task_done_title": "Vazifa yakunlandi",
         "task_done_desc": "API modulini ishlab chiqish",
@@ -540,12 +548,15 @@
             "low": "Past",
             "medium": "O'rta",
             "high": "Yuqori",
+            "urgent": "Shoshilinch",
             "critical": "Juda muhim"
         },
         "edit_task": "Vazifani tahrirlash"
     },
     "documents": {
         "title": "Hujjatlar",
+        "document_signed": "Hujjat imzolandi",
+        "contract_approved": "Shartnoma muvaffaqiyatli tasdiqlandi",
         "subtitle": "Tashkilot hujjatlarini boshqarish",
         "doc_review_title": "Hujjat tekshiruvda",
         "doc_review_desc": "DOC-2026-015 shartnomasi",
@@ -580,16 +591,17 @@
         "delete_doc": "Hujjatni o'chirish?",
         "search_docs": "Raqam yoki nom bo'yicha qidirish...",
         "create_doc": "Hujjat yaratish",
-        "edit_document": "Hujjatni tahrirlash"
+        "edit_document": "Hujjatni tahrirlash",
+        "templates": "Andozalar"
     },
     "analytics": {
         "title": "Analitika",
-        "subtitle": "Biznes-analitika va hisobotlar",
+        "subtitle": "Biznes tahlil va hisobotlar",
         "sales_analytics": "Savdo analitikasi",
         "revenue_dynamics": "Daromad dinamikasi",
         "top_clients": "Top mijozlar",
         "conversion_chart": "Konversiya voronkasi",
-        "count_label": "Miqdor",
+        "count_label": "Soni",
         "amount_label": "Summa (UZS)",
         "activity_label": "Faoliyat",
         "low_stock_items": "Omborda kam",
@@ -688,9 +700,10 @@
         "net_pay": "To'lanadigan (net)",
         "sum_suffix": "so'm",
         "run_payroll": "Hisoblash",
-        "ndfl": "JSHDS",
-        "inps": "INPS",
-        "calculate": "Ish haqini hisoblash",
+        "ndfl": "Daromad solig'i",
+        "inps": "ShJBPT",
+        "calculate": "Maoshni hisoblash",
+        "calculated_success": "Ish haqi muvaffaqiyatli hisoblandi",
         "period": "Davr",
         "employee": "Xodim",
         "gross_salary": "Hisoblangan",
@@ -757,6 +770,9 @@
         "delete_task": "Vazifani o'chirish?"
     },
     "hr": {
+        "title": "HR va Kadrlar — Umumiy ko'rinish",
+        "vacation_request_title": "Ta'til uchun ariza",
+        "vacation_request_desc": "Xodimdan yangi ta'til arizasi",
         "schedule_5_day": "5 kunlik",
         "schedule_6_day": "6 kunlik",
         "schedule_shift": "Smenali",

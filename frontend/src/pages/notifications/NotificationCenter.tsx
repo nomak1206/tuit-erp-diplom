@@ -27,12 +27,14 @@ export default function NotificationCenter() {
     const [tab, setTab] = useState('all')
 
     const getIcon = (type: string, module: string) => {
+        const m = (module || '').toLowerCase()
         if (type === 'success') return <CheckCircleOutlined style={{ color: '#22c55e' }} />
-        if (module === 'CRM') return <TeamOutlined style={{ color: '#8b5cf6' }} />
-        if (module === 'Buxgalteriya' || module === 'accounting') return <DollarOutlined style={{ color: '#f97316' }} />
-        if (module === 'HR') return <CalendarOutlined style={{ color: '#6366f1' }} />
-        if (module === 'Omborxona' || module === 'warehouse') return <InboxOutlined style={{ color: '#f43f5e' }} />
-        if (module === 'Hujjatlar' || module === 'documents') return <FileTextOutlined style={{ color: '#06b6d4' }} />
+        if (m === 'crm') return <TeamOutlined style={{ color: '#8b5cf6' }} />
+        if (m.includes('accounting') || m.includes('buxgalteriya')) return <DollarOutlined style={{ color: '#f97316' }} />
+        if (m === 'hr') return <CalendarOutlined style={{ color: '#6366f1' }} />
+        if (m.includes('warehouse') || m.includes('ombor')) return <InboxOutlined style={{ color: '#f43f5e' }} />
+        if (m.includes('document') || m.includes('hujjat')) return <FileTextOutlined style={{ color: '#06b6d4' }} />
+        if (m.includes('project')) return <InfoCircleOutlined style={{ color: '#10b981' }} />
         return <InfoCircleOutlined style={{ color: '#6366f1' }} />
     }
 
@@ -44,7 +46,16 @@ export default function NotificationCenter() {
 
     const unreadCount = notifications.filter((n: any) => !n.is_read).length
 
-    const moduleLabel = (m: string) => m === 'accounting' ? t('layout.accounting') : m === 'hr' ? t('layout.hr') : m === 'warehouse' ? t('layout.warehouse') : m
+    const moduleLabel = (m: string) => {
+        const lower = (m || '').toLowerCase()
+        if (lower === 'accounting') return t('layout.accounting')
+        if (lower === 'hr') return 'HR'
+        if (lower === 'warehouse') return t('layout.warehouse')
+        if (lower === 'crm') return 'CRM'
+        if (lower === 'projects') return t('layout.projects', 'Проекты')
+        if (lower === 'documents') return t('layout.documents', 'Документы')
+        return m
+    }
 
     return (
         <div className="fade-in">
@@ -63,9 +74,12 @@ export default function NotificationCenter() {
             }>
                 <Tabs activeKey={tab} onChange={setTab} items={[
                     { key: 'all', label: `${t('common.all_notifications', 'Barchasi')} (${notifications.filter((n: any) => showRead || !n.is_read).length})` },
+                    { key: 'crm', label: <Space><TeamOutlined />CRM</Space> },
                     { key: 'accounting', label: <Space><DollarOutlined />{t('layout.accounting')}</Space> },
-                    { key: 'hr', label: <Space><TeamOutlined />HR</Space> },
+                    { key: 'hr', label: <Space><CalendarOutlined />HR</Space> },
                     { key: 'warehouse', label: <Space><InboxOutlined />{t('layout.warehouse')}</Space> },
+                    { key: 'projects', label: <Space><InfoCircleOutlined />{t('layout.projects', 'Проекты')}</Space> },
+                    { key: 'documents', label: <Space><FileTextOutlined />{t('layout.documents', 'Документы')}</Space> },
                 ]} />
 
                 {filtered.length === 0 ? (
