@@ -1,0 +1,990 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.0.2, pluggy-1.6.0
+rootdir: C:\diplom\backend
+configfile: pytest.ini
+plugins: anyio-4.12.1, asyncio-0.23.5
+asyncio: mode=Mode.AUTO
+collected 14 items
+
+tests\test_api.py ...                                                    [ 21%]
+tests\test_auth.py F.                                                    [ 35%]
+tests\test_basic.py ...                                                  [ 57%]
+tests\test_crm.py FF                                                     [ 71%]
+tests\test_finance.py FF                                                 [ 85%]
+tests\test_hr.py FF                                                      [100%]
+
+================================== FAILURES ===================================
+_______________________________ test_auth_flow ________________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_auth_flow(async_client: AsyncClient):
+        # Test User Login
+        response = await async_client.post(
+            "/api/auth/login",
+            data={"username": "admin", "password": "admin123"},
+            headers={"Content-Type": "application/x-www-form-urlencoded"}
+        )
+>       assert response.status_code == 200
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_auth.py:12: AssertionError
+________________________ test_create_and_convert_lead _________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_create_and_convert_lead(async_client: AsyncClient):
+        # Setup - sign in as manager
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+
+tests\test_crm.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F888103F30>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+___________________________ test_contact_validation ___________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_contact_validation(async_client: AsyncClient):
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+
+tests\test_crm.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F8881CF330>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+__________________________ test_warehouse_movements ___________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_warehouse_movements(async_client: AsyncClient):
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+
+tests\test_finance.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F8881CDD70>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+_____________________ test_accounting_invoice_validation ______________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_accounting_invoice_validation(async_client: AsyncClient):
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+
+tests\test_finance.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F8881CFDB0>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+__________________________ test_payroll_calculation ___________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_payroll_calculation(async_client: AsyncClient):
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "admin", "password": "admin123"}
+        )
+
+tests\test_hr.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F8882A0F30>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+___________________________ test_vacation_creation ____________________________
+
+async_client = <httpx.AsyncClient object at 0x000001F88811C500>
+
+    @pytest.mark.asyncio
+    async def test_vacation_creation(async_client: AsyncClient):
+>       login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+
+tests\test_hr.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\httpx\_client.py:1892: in post
+    return await self.request(
+venv\Lib\site-packages\httpx\_client.py:1574: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+venv\Lib\site-packages\httpx\_client.py:1661: in send
+    response = await self._send_handling_auth(
+venv\Lib\site-packages\httpx\_client.py:1689: in _send_handling_auth
+    response = await self._send_handling_redirects(
+venv\Lib\site-packages\httpx\_client.py:1726: in _send_handling_redirects
+    response = await self._send_single_request(request)
+venv\Lib\site-packages\httpx\_client.py:1763: in _send_single_request
+    response = await transport.handle_async_request(request)
+venv\Lib\site-packages\httpx\_transports\asgi.py:164: in handle_async_request
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:187: in __call__
+    raise exc
+venv\Lib\site-packages\starlette\middleware\errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:174: in __call__
+    raise exc
+venv\Lib\site-packages\prometheus_fastapi_instrumentator\middleware.py:172: in __call__
+    await self.app(scope, receive, send_wrapper)
+venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:735: in app
+    await route.handle(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:288: in handle
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+venv\Lib\site-packages\starlette\_exception_handler.py:62: in wrapped_app
+    raise exc
+venv\Lib\site-packages\starlette\_exception_handler.py:51: in wrapped_app
+    await app(scope, receive, sender)
+venv\Lib\site-packages\starlette\routing.py:73: in app
+    response = await f(request)
+venv\Lib\site-packages\fastapi\routing.py:301: in app
+    raw_response = await run_endpoint_function(
+venv\Lib\site-packages\fastapi\routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+app\api\auth.py:83: in login
+    await ensure_default_users(db)
+app\api\auth.py:45: in ensure_default_users
+    result = await db.execute(select(User).where(User.username.in_(["admin", "manager"])))
+venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py:461: in execute
+    result = await greenlet_spawn(
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:201: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2362: in execute
+    return self._execute_internal(
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2237: in _execute_internal
+    conn = self._connection_for_bind(bind)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:2106: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+<string>:2: in _connection_for_bind
+    ???
+venv\Lib\site-packages\sqlalchemy\orm\state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+venv\Lib\site-packages\sqlalchemy\orm\session.py:1189: in _connection_for_bind
+    conn = bind.connect()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3278: in connect
+    return self._connection_cls(self)
+venv\Lib\site-packages\sqlalchemy\engine\base.py:146: in __init__
+    self._dbapi_connection = engine.raw_connection()
+venv\Lib\site-packages\sqlalchemy\engine\base.py:3302: in raw_connection
+    return self.pool.connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:449: in connect
+    return _ConnectionFairy._checkout(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:1263: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:712: in checkout
+    rec = pool._do_get()
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:179: in _do_get
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\impl.py:177: in _do_get
+    return self._create_connection()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:390: in _create_connection
+    return _ConnectionRecord(self)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:674: in __init__
+    self.__connect()
+venv\Lib\site-packages\sqlalchemy\pool\base.py:900: in __connect
+    with util.safe_reraise():
+venv\Lib\site-packages\sqlalchemy\util\langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+venv\Lib\site-packages\sqlalchemy\pool\base.py:896: in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+venv\Lib\site-packages\sqlalchemy\engine\create.py:643: in connect
+    return dialect.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\engine\default.py:621: in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+venv\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py:953: in connect
+    await_only(creator_fn(*arg, **kw)),
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:132: in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py:196: in greenlet_spawn
+    value = await result
+venv\Lib\site-packages\asyncpg\connection.py:2329: in connect
+    return await connect_utils._connect(
+venv\Lib\site-packages\asyncpg\connect_utils.py:1017: in _connect
+    raise last_error or exceptions.TargetServerAttributeNotMatched(
+venv\Lib\site-packages\asyncpg\connect_utils.py:991: in _connect
+    conn = await _connect_addr(
+venv\Lib\site-packages\asyncpg\connect_utils.py:828: in _connect_addr
+    return await __connect_addr(params, True, *args)
+venv\Lib\site-packages\asyncpg\connect_utils.py:873: in __connect_addr
+    tr, pr = await connector
+venv\Lib\site-packages\asyncpg\connect_utils.py:744: in _create_ssl_connection
+    tr, pr = await loop.create_connection(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1137: in create_connection
+    raise exceptions[0]
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1107: in create_connection
+    sock = await self._connect_sock(
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py:1010: in _connect_sock
+    await self.sock_connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\proactor_events.py:729: in sock_connect
+    return await self._proactor.connect(sock, address)
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:803: in _poll
+    value = callback(transferred, key, ov)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+trans = 0, key = 0, ov = <_overlapped.Overlapped object at 0x000001F8882A0570>
+
+    def finish_connect(trans, key, ov):
+>       ov.getresult()
+E       ConnectionRefusedError: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+
+C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py:599: ConnectionRefusedError
+------------------------------ Captured log call ------------------------------
+ERROR    root:main.py:75 Unhandled server error: [WinError 1225] ╙фрыхээ√щ ъюья№■ЄхЁ юЄъыюэшы ¤Єю ёхЄхтюх яюфъы■ўхэшх
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:291: 17 warnings
+  C:\diplom\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+venv\Lib\site-packages\_pytest\config\__init__.py:1396
+  C:\diplom\backend\venv\Lib\site-packages\_pytest\config\__init__.py:1396: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_auth.py::test_auth_flow - assert 422 == 200
+FAILED tests/test_crm.py::test_create_and_convert_lead - ConnectionRefusedErr...
+FAILED tests/test_crm.py::test_contact_validation - ConnectionRefusedError: [...
+FAILED tests/test_finance.py::test_warehouse_movements - ConnectionRefusedErr...
+FAILED tests/test_finance.py::test_accounting_invoice_validation - Connection...
+FAILED tests/test_hr.py::test_payroll_calculation - ConnectionRefusedError: [...
+FAILED tests/test_hr.py::test_vacation_creation - ConnectionRefusedError: [Wi...
+================== 7 failed, 7 passed, 18 warnings in 28.40s ==================

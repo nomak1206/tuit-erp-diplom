@@ -46,6 +46,6 @@ async def test_accounting_invoice_validation(async_client: AsyncClient):
     resp = await async_client.post(
         "/api/accounting/invoices", 
         json=invoice_data,
-        cookies=finance_cookies
+        cookies=dict(login_resp.cookies)
     )
     assert resp.status_code == 422

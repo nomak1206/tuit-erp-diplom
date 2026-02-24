@@ -1,0 +1,1635 @@
+﻿[1m============================= test session starts ==============================[0m
+platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0
+rootdir: /app
+configfile: pytest.ini
+plugins: asyncio-1.3.0, anyio-4.12.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=session, asyncio_default_test_loop_scope=function
+[1mcollecting ... [0m[1m
+collected 14 items                                                             [0m
+
+tests/test_api.py [32m.[0m[32m.[0m[32m.[0m[33m                                                    [ 21%][0m
+tests/test_auth.py [31mF[0m[32m.[0m[31m                                                    [ 35%][0m
+tests/test_basic.py [32m.[0m[32m.[0m[32m.[0m[31m                                                  [ 57%][0m
+tests/test_crm.py [31mF[0m[31mF[0m[31m                                                     [ 71%][0m
+tests/test_finance.py [31mF[0m[31mF[0m[31m                                                 [ 85%][0m
+tests/test_hr.py [31mF[0m[31mF[0m[31m                                                      [100%][0m
+
+=================================== FAILURES ===================================
+[31m[1m________________________________ test_auth_flow ________________________________[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_auth_flow[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+        [90m# Test User Login[39;49;00m[90m[39;49;00m
+        response = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            data={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33madmin123[39;49;00m[33m"[39;49;00m},[90m[39;49;00m
+            headers={[33m"[39;49;00m[33mContent-Type[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mapplication/x-www-form-urlencoded[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+>       [94massert[39;49;00m response.status_code == [94m200[39;49;00m[90m[39;49;00m
+[1m[31mE       assert 422 == 200[0m
+[1m[31mE        +  where 422 = <Response [422 Unprocessable Entity]>.status_code[0m
+
+[1m[31mtests/test_auth.py[0m:12: AssertionError
+[31m[1m_________________________ test_create_and_convert_lead _________________________[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_create_and_convert_lead[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+        [90m# Setup - sign in as manager[39;49;00m[90m[39;49;00m
+        login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+        [94massert[39;49;00m login_resp.status_code == [94m200[39;49;00m[90m[39;49;00m
+        crm_cookies = [96mdict[39;49;00m(login_resp.cookies)[90m[39;49;00m
+        [94massert[39;49;00m login_resp.status_code == [94m200[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [90m# 1. Create a Lead[39;49;00m[90m[39;49;00m
+        lead_data = {[90m[39;49;00m
+            [33m"[39;49;00m[33mtitle[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mTest Lead Conversion[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            [33m"[39;49;00m[33mfirst_name[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mJohn[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            [33m"[39;49;00m[33mlast_name[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mTest[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            [33m"[39;49;00m[33mphone[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33m+998900000000[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            [33m"[39;49;00m[33mstatus[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mnew[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            [33m"[39;49;00m[33msource[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mwebsite[39;49;00m[33m"[39;49;00m[90m[39;49;00m
+        }[90m[39;49;00m
+    [90m[39;49;00m
+        create_resp = [94mawait[39;49;00m async_client.post([33m"[39;49;00m[33m/api/crm/leads/[39;49;00m[33m"[39;49;00m, json=lead_data, cookies=crm_cookies)[90m[39;49;00m
+>       [94massert[39;49;00m create_resp.status_code == [94m200[39;49;00m[90m[39;49;00m
+[1m[31mE       assert 307 == 200[0m
+[1m[31mE        +  where 307 = <Response [307 Temporary Redirect]>.status_code[0m
+
+[1m[31mtests/test_crm.py[0m:26: AssertionError
+[31m[1m___________________________ test_contact_validation ____________________________[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_contact_validation[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+>       login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+
+[1m[31mtests/test_crm.py[0m:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1892: in post
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.request([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1574: in request
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.send(request, auth=auth, follow_redirects=follow_redirects)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1661: in send
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_auth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1689: in _send_handling_auth
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_redirects([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1726: in _send_handling_redirects
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_single_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1763: in _send_single_request
+    [0mresponse = [94mawait[39;49;00m transport.handle_async_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py[0m:164: in handle_async_request
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/applications.py[0m:1054: in __call__
+    [0m[94mawait[39;49;00m [96msuper[39;49;00m().[92m__call__[39;49;00m(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/applications.py[0m:113: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:187: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:165: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, _send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:174: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:172: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send_wrapper)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py[0m:85: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py[0m:62: in __call__
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions([96mself[39;49;00m.app, conn)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:715: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:735: in app
+    [0m[94mawait[39;49;00m route.handle(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:288: in handle
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:76: in app
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions(app, request)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:73: in app
+    [0mresponse = [94mawait[39;49;00m f(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:301: in app
+    [0mraw_response = [94mawait[39;49;00m run_endpoint_function([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:212: in run_endpoint_function
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m dependant.call(**values)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:83: in login
+    [0m[94mawait[39;49;00m ensure_default_users(db)[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:45: in ensure_default_users
+    [0mresult = [94mawait[39;49;00m db.execute(select(User).where(User.username.in_([[33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m])))[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py[0m:461: in execute
+    [0mresult = [94mawait[39;49;00m greenlet_spawn([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:201: in greenlet_spawn
+    [0mresult = context.throw(*sys.exc_info())[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2362: in execute
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._execute_internal([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2247: in _execute_internal
+    [0mresult: Result[Any] = compile_state_cls.orm_execute_statement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py[0m:305: in orm_execute_statement
+    [0mresult = conn.execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1418: in execute
+    [0m[94mreturn[39;49;00m meth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py[0m:515: in _execute_on_connection
+    [0m[94mreturn[39;49;00m connection._execute_clauseelement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1640: in _execute_clauseelement
+    [0mret = [96mself[39;49;00m._execute_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1846: in _execute_context
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._exec_single_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1986: in _exec_single_context
+    [0m[96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:2358: in _handle_dbapi_exception
+    [0m[94mraise[39;49;00m exc_info[[94m1[39;49;00m].with_traceback(exc_info[[94m2[39;49;00m])[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: in _exec_single_context
+    [0m[96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:786: in _handle_exception
+    [0m[94mraise[39;49;00m error[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:835: in _start_transaction
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._transaction.start()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/transaction.py[0m:146: in start
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._connection.execute(query)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/connection.py[0m:350: in execute
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._protocol.query(query, timeout)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+[1m[31mE   RuntimeError: Task <Task pending name='Task-37' coro=<test_contact_validation() running at /app/tests/test_crm.py:63> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181]> got Future <Future pending cb=[Protocol._on_waiter_completed()]> attached to a different loop[0m
+
+[1m[31masyncpg/protocol/protocol.pyx[0m:374: RuntimeError
+------------------------------ Captured log call -------------------------------
+[1m[31mERROR   [0m root:main.py:75 Unhandled server error: Task <Task pending name='Task-37' coro=<test_contact_validation() running at /app/tests/test_crm.py:63> cb=[_run_until_complete_cb() at /usr/local/lib/python3.12/asyncio/base_events.py:181]> got Future <Future pending cb=[Protocol._on_waiter_completed()]> attached to a different loop
+[31m[1m___________________________ test_warehouse_movements ___________________________[0m
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+
+    [0m[94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92m_start_transaction[39;49;00m([96mself[39;49;00m):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m.isolation_level == [33m"[39;49;00m[33mautocommit[39;49;00m[33m"[39;49;00m:[90m[39;49;00m
+            [94mreturn[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [96mself[39;49;00m._connection.transaction([90m[39;49;00m
+                isolation=[96mself[39;49;00m.isolation_level,[90m[39;49;00m
+                readonly=[96mself[39;49;00m.readonly,[90m[39;49;00m
+                deferrable=[96mself[39;49;00m.deferrable,[90m[39;49;00m
+            )[90m[39;49;00m
+>           [94mawait[39;49;00m [96mself[39;49;00m._transaction.start()[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:835: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/transaction.py[0m:146: in start
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._connection.execute(query)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/connection.py[0m:350: in execute
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._protocol.query(query, timeout)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31masyncpg/protocol/protocol.pyx[0m:359: in query
+    [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+[1m[31mE   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress[0m
+
+[1m[31masyncpg/protocol/protocol.pyx[0m:744: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+self = <sqlalchemy.engine.base.Connection object at 0x74173ae93620>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x74173d3b3800>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x74173ae91880>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x74173bc0e1b0>
+parameters = [('admin', 'manager')]
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_exec_single_context[39;49;00m([90m[39;49;00m
+        [96mself[39;49;00m,[90m[39;49;00m
+        dialect: Dialect,[90m[39;49;00m
+        context: ExecutionContext,[90m[39;49;00m
+        statement: Union[[96mstr[39;49;00m, Compiled],[90m[39;49;00m
+        parameters: Optional[_AnyMultiExecuteParams],[90m[39;49;00m
+    ) -> CursorResult[Any]:[90m[39;49;00m
+    [90m    [39;49;00m[33m"""continue the _execute_context() method for a single DBAPI[39;49;00m
+    [33m    cursor.execute() or cursor.executemany() call.[39;49;00m
+    [33m[39;49;00m
+    [33m    """[39;49;00m[90m[39;49;00m
+        [94mif[39;49;00m dialect.bind_typing [95mis[39;49;00m BindTyping.SETINPUTSIZES:[90m[39;49;00m
+            generic_setinputsizes = context._prepare_set_input_sizes()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m generic_setinputsizes:[90m[39;49;00m
+                [94mtry[39;49;00m:[90m[39;49;00m
+                    dialect.do_set_input_sizes([90m[39;49;00m
+                        context.cursor, generic_setinputsizes, context[90m[39;49;00m
+                    )[90m[39;49;00m
+                [94mexcept[39;49;00m [96mBaseException[39;49;00m [94mas[39;49;00m e:[90m[39;49;00m
+                    [96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+                        e, [96mstr[39;49;00m(statement), parameters, [94mNone[39;49;00m, context[90m[39;49;00m
+                    )[90m[39;49;00m
+    [90m[39;49;00m
+        cursor, str_statement, parameters = ([90m[39;49;00m
+            context.cursor,[90m[39;49;00m
+            context.statement,[90m[39;49;00m
+            context.parameters,[90m[39;49;00m
+        )[90m[39;49;00m
+    [90m[39;49;00m
+        effective_parameters: Optional[_AnyExecuteParams][90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m context.executemany:[90m[39;49;00m
+            effective_parameters = parameters[[94m0[39;49;00m][90m[39;49;00m
+        [94melse[39;49;00m:[90m[39;49;00m
+            effective_parameters = parameters[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._has_events [95mor[39;49;00m [96mself[39;49;00m.engine._has_events:[90m[39;49;00m
+            [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dispatch.before_cursor_execute:[90m[39;49;00m
+                str_statement, effective_parameters = fn([90m[39;49;00m
+                    [96mself[39;49;00m,[90m[39;49;00m
+                    cursor,[90m[39;49;00m
+                    str_statement,[90m[39;49;00m
+                    effective_parameters,[90m[39;49;00m
+                    context,[90m[39;49;00m
+                    context.executemany,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._echo:[90m[39;49;00m
+            [96mself[39;49;00m._log_info(str_statement)[90m[39;49;00m
+    [90m[39;49;00m
+            stats = context._get_cache_stats()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m [95mnot[39;49;00m [96mself[39;49;00m.engine.hide_parameters:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [39;49;00m[33m%r[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                    sql_util._repr_params([90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        batches=[94m10[39;49;00m,[90m[39;49;00m
+                        ismulti=context.executemany,[90m[39;49;00m
+                    ),[90m[39;49;00m
+                )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [SQL parameters hidden due to hide_parameters=True][39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        evt_handled: [96mbool[39;49;00m = [94mFalse[39;49;00m[90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [94mif[39;49;00m context.execute_style [95mis[39;49;00m ExecuteStyle.EXECUTEMANY:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreMultiExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_executemany:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_executemany([90m[39;49;00m
+                        cursor,[90m[39;49;00m
+                        str_statement,[90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        context,[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melif[39;49;00m [95mnot[39;49;00m effective_parameters [95mand[39;49;00m context.no_parameters:[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute_no_params:[90m[39;49;00m
+                        [94mif[39;49;00m fn(cursor, str_statement, context):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_execute_no_params([90m[39;49;00m
+                        cursor, str_statement, context[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreSingleExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+>                   [96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+                        cursor, str_statement, effective_parameters, context[90m[39;49;00m
+                    )[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_warehouse_movements[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+>       login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+
+[1m[31mtests/test_finance.py[0m:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1892: in post
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.request([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1574: in request
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.send(request, auth=auth, follow_redirects=follow_redirects)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1661: in send
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_auth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1689: in _send_handling_auth
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_redirects([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1726: in _send_handling_redirects
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_single_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1763: in _send_single_request
+    [0mresponse = [94mawait[39;49;00m transport.handle_async_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py[0m:164: in handle_async_request
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/applications.py[0m:1054: in __call__
+    [0m[94mawait[39;49;00m [96msuper[39;49;00m().[92m__call__[39;49;00m(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/applications.py[0m:113: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:187: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:165: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, _send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:174: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:172: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send_wrapper)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py[0m:85: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py[0m:62: in __call__
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions([96mself[39;49;00m.app, conn)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:715: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:735: in app
+    [0m[94mawait[39;49;00m route.handle(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:288: in handle
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:76: in app
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions(app, request)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:73: in app
+    [0mresponse = [94mawait[39;49;00m f(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:301: in app
+    [0mraw_response = [94mawait[39;49;00m run_endpoint_function([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:212: in run_endpoint_function
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m dependant.call(**values)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:83: in login
+    [0m[94mawait[39;49;00m ensure_default_users(db)[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:45: in ensure_default_users
+    [0mresult = [94mawait[39;49;00m db.execute(select(User).where(User.username.in_([[33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m])))[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py[0m:461: in execute
+    [0mresult = [94mawait[39;49;00m greenlet_spawn([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:201: in greenlet_spawn
+    [0mresult = context.throw(*sys.exc_info())[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2362: in execute
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._execute_internal([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2247: in _execute_internal
+    [0mresult: Result[Any] = compile_state_cls.orm_execute_statement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py[0m:305: in orm_execute_statement
+    [0mresult = conn.execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1418: in execute
+    [0m[94mreturn[39;49;00m meth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py[0m:515: in _execute_on_connection
+    [0m[94mreturn[39;49;00m connection._execute_clauseelement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1640: in _execute_clauseelement
+    [0mret = [96mself[39;49;00m._execute_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1846: in _execute_context
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._exec_single_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1986: in _exec_single_context
+    [0m[96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:2355: in _handle_dbapi_exception
+    [0m[94mraise[39;49;00m sqlalchemy_exception.with_traceback(exc_info[[94m2[39;49;00m]) [94mfrom[39;49;00m[90m [39;49;00m[04m[96me[39;49;00m[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: in _exec_single_context
+    [0m[96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+[1m[31mE                   [SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at [0m
+[1m[31mE                   FROM users [0m
+[1m[31mE                   WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)][0m
+[1m[31mE                   [parameters: ('admin', 'manager')][0m
+[1m[31mE                   (Background on this error at: https://sqlalche.me/e/20/rvf5)[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+------------------------------ Captured log call -------------------------------
+[1m[31mERROR   [0m root:main.py:75 Unhandled server error: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+[SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)]
+[parameters: ('admin', 'manager')]
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[31m[1m______________________ test_accounting_invoice_validation ______________________[0m
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+
+    [0m[94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92m_start_transaction[39;49;00m([96mself[39;49;00m):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m.isolation_level == [33m"[39;49;00m[33mautocommit[39;49;00m[33m"[39;49;00m:[90m[39;49;00m
+            [94mreturn[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [96mself[39;49;00m._connection.transaction([90m[39;49;00m
+                isolation=[96mself[39;49;00m.isolation_level,[90m[39;49;00m
+                readonly=[96mself[39;49;00m.readonly,[90m[39;49;00m
+                deferrable=[96mself[39;49;00m.deferrable,[90m[39;49;00m
+            )[90m[39;49;00m
+>           [94mawait[39;49;00m [96mself[39;49;00m._transaction.start()[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:835: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/transaction.py[0m:146: in start
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._connection.execute(query)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/connection.py[0m:350: in execute
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._protocol.query(query, timeout)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31masyncpg/protocol/protocol.pyx[0m:359: in query
+    [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+[1m[31mE   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress[0m
+
+[1m[31masyncpg/protocol/protocol.pyx[0m:744: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+self = <sqlalchemy.engine.base.Connection object at 0x74173a5c1df0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x74173d3b3800>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x74173a5c1010>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x74173bc0e1b0>
+parameters = [('admin', 'manager')]
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_exec_single_context[39;49;00m([90m[39;49;00m
+        [96mself[39;49;00m,[90m[39;49;00m
+        dialect: Dialect,[90m[39;49;00m
+        context: ExecutionContext,[90m[39;49;00m
+        statement: Union[[96mstr[39;49;00m, Compiled],[90m[39;49;00m
+        parameters: Optional[_AnyMultiExecuteParams],[90m[39;49;00m
+    ) -> CursorResult[Any]:[90m[39;49;00m
+    [90m    [39;49;00m[33m"""continue the _execute_context() method for a single DBAPI[39;49;00m
+    [33m    cursor.execute() or cursor.executemany() call.[39;49;00m
+    [33m[39;49;00m
+    [33m    """[39;49;00m[90m[39;49;00m
+        [94mif[39;49;00m dialect.bind_typing [95mis[39;49;00m BindTyping.SETINPUTSIZES:[90m[39;49;00m
+            generic_setinputsizes = context._prepare_set_input_sizes()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m generic_setinputsizes:[90m[39;49;00m
+                [94mtry[39;49;00m:[90m[39;49;00m
+                    dialect.do_set_input_sizes([90m[39;49;00m
+                        context.cursor, generic_setinputsizes, context[90m[39;49;00m
+                    )[90m[39;49;00m
+                [94mexcept[39;49;00m [96mBaseException[39;49;00m [94mas[39;49;00m e:[90m[39;49;00m
+                    [96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+                        e, [96mstr[39;49;00m(statement), parameters, [94mNone[39;49;00m, context[90m[39;49;00m
+                    )[90m[39;49;00m
+    [90m[39;49;00m
+        cursor, str_statement, parameters = ([90m[39;49;00m
+            context.cursor,[90m[39;49;00m
+            context.statement,[90m[39;49;00m
+            context.parameters,[90m[39;49;00m
+        )[90m[39;49;00m
+    [90m[39;49;00m
+        effective_parameters: Optional[_AnyExecuteParams][90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m context.executemany:[90m[39;49;00m
+            effective_parameters = parameters[[94m0[39;49;00m][90m[39;49;00m
+        [94melse[39;49;00m:[90m[39;49;00m
+            effective_parameters = parameters[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._has_events [95mor[39;49;00m [96mself[39;49;00m.engine._has_events:[90m[39;49;00m
+            [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dispatch.before_cursor_execute:[90m[39;49;00m
+                str_statement, effective_parameters = fn([90m[39;49;00m
+                    [96mself[39;49;00m,[90m[39;49;00m
+                    cursor,[90m[39;49;00m
+                    str_statement,[90m[39;49;00m
+                    effective_parameters,[90m[39;49;00m
+                    context,[90m[39;49;00m
+                    context.executemany,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._echo:[90m[39;49;00m
+            [96mself[39;49;00m._log_info(str_statement)[90m[39;49;00m
+    [90m[39;49;00m
+            stats = context._get_cache_stats()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m [95mnot[39;49;00m [96mself[39;49;00m.engine.hide_parameters:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [39;49;00m[33m%r[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                    sql_util._repr_params([90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        batches=[94m10[39;49;00m,[90m[39;49;00m
+                        ismulti=context.executemany,[90m[39;49;00m
+                    ),[90m[39;49;00m
+                )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [SQL parameters hidden due to hide_parameters=True][39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        evt_handled: [96mbool[39;49;00m = [94mFalse[39;49;00m[90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [94mif[39;49;00m context.execute_style [95mis[39;49;00m ExecuteStyle.EXECUTEMANY:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreMultiExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_executemany:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_executemany([90m[39;49;00m
+                        cursor,[90m[39;49;00m
+                        str_statement,[90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        context,[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melif[39;49;00m [95mnot[39;49;00m effective_parameters [95mand[39;49;00m context.no_parameters:[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute_no_params:[90m[39;49;00m
+                        [94mif[39;49;00m fn(cursor, str_statement, context):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_execute_no_params([90m[39;49;00m
+                        cursor, str_statement, context[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreSingleExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+>                   [96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+                        cursor, str_statement, effective_parameters, context[90m[39;49;00m
+                    )[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_accounting_invoice_validation[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+>       login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+
+[1m[31mtests/test_finance.py[0m:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1892: in post
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.request([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1574: in request
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.send(request, auth=auth, follow_redirects=follow_redirects)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1661: in send
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_auth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1689: in _send_handling_auth
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_redirects([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1726: in _send_handling_redirects
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_single_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1763: in _send_single_request
+    [0mresponse = [94mawait[39;49;00m transport.handle_async_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py[0m:164: in handle_async_request
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/applications.py[0m:1054: in __call__
+    [0m[94mawait[39;49;00m [96msuper[39;49;00m().[92m__call__[39;49;00m(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/applications.py[0m:113: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:187: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:165: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, _send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:174: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:172: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send_wrapper)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py[0m:85: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py[0m:62: in __call__
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions([96mself[39;49;00m.app, conn)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:715: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:735: in app
+    [0m[94mawait[39;49;00m route.handle(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:288: in handle
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:76: in app
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions(app, request)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:73: in app
+    [0mresponse = [94mawait[39;49;00m f(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:301: in app
+    [0mraw_response = [94mawait[39;49;00m run_endpoint_function([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:212: in run_endpoint_function
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m dependant.call(**values)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:83: in login
+    [0m[94mawait[39;49;00m ensure_default_users(db)[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:45: in ensure_default_users
+    [0mresult = [94mawait[39;49;00m db.execute(select(User).where(User.username.in_([[33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m])))[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py[0m:461: in execute
+    [0mresult = [94mawait[39;49;00m greenlet_spawn([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:201: in greenlet_spawn
+    [0mresult = context.throw(*sys.exc_info())[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2362: in execute
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._execute_internal([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2247: in _execute_internal
+    [0mresult: Result[Any] = compile_state_cls.orm_execute_statement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py[0m:305: in orm_execute_statement
+    [0mresult = conn.execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1418: in execute
+    [0m[94mreturn[39;49;00m meth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py[0m:515: in _execute_on_connection
+    [0m[94mreturn[39;49;00m connection._execute_clauseelement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1640: in _execute_clauseelement
+    [0mret = [96mself[39;49;00m._execute_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1846: in _execute_context
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._exec_single_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1986: in _exec_single_context
+    [0m[96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:2355: in _handle_dbapi_exception
+    [0m[94mraise[39;49;00m sqlalchemy_exception.with_traceback(exc_info[[94m2[39;49;00m]) [94mfrom[39;49;00m[90m [39;49;00m[04m[96me[39;49;00m[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: in _exec_single_context
+    [0m[96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+[1m[31mE                   [SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at [0m
+[1m[31mE                   FROM users [0m
+[1m[31mE                   WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)][0m
+[1m[31mE                   [parameters: ('admin', 'manager')][0m
+[1m[31mE                   (Background on this error at: https://sqlalche.me/e/20/rvf5)[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+------------------------------ Captured log call -------------------------------
+[1m[31mERROR   [0m root:main.py:75 Unhandled server error: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+[SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)]
+[parameters: ('admin', 'manager')]
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[31m[1m___________________________ test_payroll_calculation ___________________________[0m
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+
+    [0m[94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92m_start_transaction[39;49;00m([96mself[39;49;00m):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m.isolation_level == [33m"[39;49;00m[33mautocommit[39;49;00m[33m"[39;49;00m:[90m[39;49;00m
+            [94mreturn[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [96mself[39;49;00m._connection.transaction([90m[39;49;00m
+                isolation=[96mself[39;49;00m.isolation_level,[90m[39;49;00m
+                readonly=[96mself[39;49;00m.readonly,[90m[39;49;00m
+                deferrable=[96mself[39;49;00m.deferrable,[90m[39;49;00m
+            )[90m[39;49;00m
+>           [94mawait[39;49;00m [96mself[39;49;00m._transaction.start()[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:835: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/transaction.py[0m:146: in start
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._connection.execute(query)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/connection.py[0m:350: in execute
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._protocol.query(query, timeout)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31masyncpg/protocol/protocol.pyx[0m:359: in query
+    [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+[1m[31mE   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress[0m
+
+[1m[31masyncpg/protocol/protocol.pyx[0m:744: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+self = <sqlalchemy.engine.base.Connection object at 0x74173a5c3680>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x74173d3b3800>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x74173af284a0>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x74173bc0e1b0>
+parameters = [('admin', 'manager')]
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_exec_single_context[39;49;00m([90m[39;49;00m
+        [96mself[39;49;00m,[90m[39;49;00m
+        dialect: Dialect,[90m[39;49;00m
+        context: ExecutionContext,[90m[39;49;00m
+        statement: Union[[96mstr[39;49;00m, Compiled],[90m[39;49;00m
+        parameters: Optional[_AnyMultiExecuteParams],[90m[39;49;00m
+    ) -> CursorResult[Any]:[90m[39;49;00m
+    [90m    [39;49;00m[33m"""continue the _execute_context() method for a single DBAPI[39;49;00m
+    [33m    cursor.execute() or cursor.executemany() call.[39;49;00m
+    [33m[39;49;00m
+    [33m    """[39;49;00m[90m[39;49;00m
+        [94mif[39;49;00m dialect.bind_typing [95mis[39;49;00m BindTyping.SETINPUTSIZES:[90m[39;49;00m
+            generic_setinputsizes = context._prepare_set_input_sizes()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m generic_setinputsizes:[90m[39;49;00m
+                [94mtry[39;49;00m:[90m[39;49;00m
+                    dialect.do_set_input_sizes([90m[39;49;00m
+                        context.cursor, generic_setinputsizes, context[90m[39;49;00m
+                    )[90m[39;49;00m
+                [94mexcept[39;49;00m [96mBaseException[39;49;00m [94mas[39;49;00m e:[90m[39;49;00m
+                    [96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+                        e, [96mstr[39;49;00m(statement), parameters, [94mNone[39;49;00m, context[90m[39;49;00m
+                    )[90m[39;49;00m
+    [90m[39;49;00m
+        cursor, str_statement, parameters = ([90m[39;49;00m
+            context.cursor,[90m[39;49;00m
+            context.statement,[90m[39;49;00m
+            context.parameters,[90m[39;49;00m
+        )[90m[39;49;00m
+    [90m[39;49;00m
+        effective_parameters: Optional[_AnyExecuteParams][90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m context.executemany:[90m[39;49;00m
+            effective_parameters = parameters[[94m0[39;49;00m][90m[39;49;00m
+        [94melse[39;49;00m:[90m[39;49;00m
+            effective_parameters = parameters[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._has_events [95mor[39;49;00m [96mself[39;49;00m.engine._has_events:[90m[39;49;00m
+            [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dispatch.before_cursor_execute:[90m[39;49;00m
+                str_statement, effective_parameters = fn([90m[39;49;00m
+                    [96mself[39;49;00m,[90m[39;49;00m
+                    cursor,[90m[39;49;00m
+                    str_statement,[90m[39;49;00m
+                    effective_parameters,[90m[39;49;00m
+                    context,[90m[39;49;00m
+                    context.executemany,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._echo:[90m[39;49;00m
+            [96mself[39;49;00m._log_info(str_statement)[90m[39;49;00m
+    [90m[39;49;00m
+            stats = context._get_cache_stats()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m [95mnot[39;49;00m [96mself[39;49;00m.engine.hide_parameters:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [39;49;00m[33m%r[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                    sql_util._repr_params([90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        batches=[94m10[39;49;00m,[90m[39;49;00m
+                        ismulti=context.executemany,[90m[39;49;00m
+                    ),[90m[39;49;00m
+                )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [SQL parameters hidden due to hide_parameters=True][39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        evt_handled: [96mbool[39;49;00m = [94mFalse[39;49;00m[90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [94mif[39;49;00m context.execute_style [95mis[39;49;00m ExecuteStyle.EXECUTEMANY:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreMultiExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_executemany:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_executemany([90m[39;49;00m
+                        cursor,[90m[39;49;00m
+                        str_statement,[90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        context,[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melif[39;49;00m [95mnot[39;49;00m effective_parameters [95mand[39;49;00m context.no_parameters:[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute_no_params:[90m[39;49;00m
+                        [94mif[39;49;00m fn(cursor, str_statement, context):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_execute_no_params([90m[39;49;00m
+                        cursor, str_statement, context[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreSingleExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+>                   [96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+                        cursor, str_statement, effective_parameters, context[90m[39;49;00m
+                    )[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_payroll_calculation[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+>       login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33madmin123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+
+[1m[31mtests/test_hr.py[0m:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1892: in post
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.request([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1574: in request
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.send(request, auth=auth, follow_redirects=follow_redirects)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1661: in send
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_auth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1689: in _send_handling_auth
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_redirects([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1726: in _send_handling_redirects
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_single_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1763: in _send_single_request
+    [0mresponse = [94mawait[39;49;00m transport.handle_async_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py[0m:164: in handle_async_request
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/applications.py[0m:1054: in __call__
+    [0m[94mawait[39;49;00m [96msuper[39;49;00m().[92m__call__[39;49;00m(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/applications.py[0m:113: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:187: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:165: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, _send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:174: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:172: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send_wrapper)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py[0m:85: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py[0m:62: in __call__
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions([96mself[39;49;00m.app, conn)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:715: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:735: in app
+    [0m[94mawait[39;49;00m route.handle(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:288: in handle
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:76: in app
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions(app, request)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:73: in app
+    [0mresponse = [94mawait[39;49;00m f(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:301: in app
+    [0mraw_response = [94mawait[39;49;00m run_endpoint_function([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:212: in run_endpoint_function
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m dependant.call(**values)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:83: in login
+    [0m[94mawait[39;49;00m ensure_default_users(db)[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:45: in ensure_default_users
+    [0mresult = [94mawait[39;49;00m db.execute(select(User).where(User.username.in_([[33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m])))[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py[0m:461: in execute
+    [0mresult = [94mawait[39;49;00m greenlet_spawn([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:201: in greenlet_spawn
+    [0mresult = context.throw(*sys.exc_info())[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2362: in execute
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._execute_internal([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2247: in _execute_internal
+    [0mresult: Result[Any] = compile_state_cls.orm_execute_statement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py[0m:305: in orm_execute_statement
+    [0mresult = conn.execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1418: in execute
+    [0m[94mreturn[39;49;00m meth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py[0m:515: in _execute_on_connection
+    [0m[94mreturn[39;49;00m connection._execute_clauseelement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1640: in _execute_clauseelement
+    [0mret = [96mself[39;49;00m._execute_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1846: in _execute_context
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._exec_single_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1986: in _exec_single_context
+    [0m[96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:2355: in _handle_dbapi_exception
+    [0m[94mraise[39;49;00m sqlalchemy_exception.with_traceback(exc_info[[94m2[39;49;00m]) [94mfrom[39;49;00m[90m [39;49;00m[04m[96me[39;49;00m[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: in _exec_single_context
+    [0m[96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+[1m[31mE                   [SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at [0m
+[1m[31mE                   FROM users [0m
+[1m[31mE                   WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)][0m
+[1m[31mE                   [parameters: ('admin', 'manager')][0m
+[1m[31mE                   (Background on this error at: https://sqlalche.me/e/20/rvf5)[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+------------------------------ Captured log call -------------------------------
+[1m[31mERROR   [0m root:main.py:75 Unhandled server error: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+[SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)]
+[parameters: ('admin', 'manager')]
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[31m[1m____________________________ test_vacation_creation ____________________________[0m
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+
+    [0m[94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92m_start_transaction[39;49;00m([96mself[39;49;00m):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m.isolation_level == [33m"[39;49;00m[33mautocommit[39;49;00m[33m"[39;49;00m:[90m[39;49;00m
+            [94mreturn[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [96mself[39;49;00m._connection.transaction([90m[39;49;00m
+                isolation=[96mself[39;49;00m.isolation_level,[90m[39;49;00m
+                readonly=[96mself[39;49;00m.readonly,[90m[39;49;00m
+                deferrable=[96mself[39;49;00m.deferrable,[90m[39;49;00m
+            )[90m[39;49;00m
+>           [94mawait[39;49;00m [96mself[39;49;00m._transaction.start()[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:835: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/transaction.py[0m:146: in start
+    [0m[94mawait[39;49;00m [96mself[39;49;00m._connection.execute(query)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/asyncpg/connection.py[0m:350: in execute
+    [0mresult = [94mawait[39;49;00m [96mself[39;49;00m._protocol.query(query, timeout)[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31masyncpg/protocol/protocol.pyx[0m:359: in query
+    [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   [0m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[04m[91m?[39;49;00m[90m[39;49;00m
+[1m[31mE   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress[0m
+
+[1m[31masyncpg/protocol/protocol.pyx[0m:744: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+self = <sqlalchemy.engine.base.Connection object at 0x74173af1fbc0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x74173d3b3800>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x74173aef40e0>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x74173bc0e1b0>
+parameters = [('admin', 'manager')]
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_exec_single_context[39;49;00m([90m[39;49;00m
+        [96mself[39;49;00m,[90m[39;49;00m
+        dialect: Dialect,[90m[39;49;00m
+        context: ExecutionContext,[90m[39;49;00m
+        statement: Union[[96mstr[39;49;00m, Compiled],[90m[39;49;00m
+        parameters: Optional[_AnyMultiExecuteParams],[90m[39;49;00m
+    ) -> CursorResult[Any]:[90m[39;49;00m
+    [90m    [39;49;00m[33m"""continue the _execute_context() method for a single DBAPI[39;49;00m
+    [33m    cursor.execute() or cursor.executemany() call.[39;49;00m
+    [33m[39;49;00m
+    [33m    """[39;49;00m[90m[39;49;00m
+        [94mif[39;49;00m dialect.bind_typing [95mis[39;49;00m BindTyping.SETINPUTSIZES:[90m[39;49;00m
+            generic_setinputsizes = context._prepare_set_input_sizes()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m generic_setinputsizes:[90m[39;49;00m
+                [94mtry[39;49;00m:[90m[39;49;00m
+                    dialect.do_set_input_sizes([90m[39;49;00m
+                        context.cursor, generic_setinputsizes, context[90m[39;49;00m
+                    )[90m[39;49;00m
+                [94mexcept[39;49;00m [96mBaseException[39;49;00m [94mas[39;49;00m e:[90m[39;49;00m
+                    [96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+                        e, [96mstr[39;49;00m(statement), parameters, [94mNone[39;49;00m, context[90m[39;49;00m
+                    )[90m[39;49;00m
+    [90m[39;49;00m
+        cursor, str_statement, parameters = ([90m[39;49;00m
+            context.cursor,[90m[39;49;00m
+            context.statement,[90m[39;49;00m
+            context.parameters,[90m[39;49;00m
+        )[90m[39;49;00m
+    [90m[39;49;00m
+        effective_parameters: Optional[_AnyExecuteParams][90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m context.executemany:[90m[39;49;00m
+            effective_parameters = parameters[[94m0[39;49;00m][90m[39;49;00m
+        [94melse[39;49;00m:[90m[39;49;00m
+            effective_parameters = parameters[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._has_events [95mor[39;49;00m [96mself[39;49;00m.engine._has_events:[90m[39;49;00m
+            [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dispatch.before_cursor_execute:[90m[39;49;00m
+                str_statement, effective_parameters = fn([90m[39;49;00m
+                    [96mself[39;49;00m,[90m[39;49;00m
+                    cursor,[90m[39;49;00m
+                    str_statement,[90m[39;49;00m
+                    effective_parameters,[90m[39;49;00m
+                    context,[90m[39;49;00m
+                    context.executemany,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._echo:[90m[39;49;00m
+            [96mself[39;49;00m._log_info(str_statement)[90m[39;49;00m
+    [90m[39;49;00m
+            stats = context._get_cache_stats()[90m[39;49;00m
+    [90m[39;49;00m
+            [94mif[39;49;00m [95mnot[39;49;00m [96mself[39;49;00m.engine.hide_parameters:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [39;49;00m[33m%r[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                    sql_util._repr_params([90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        batches=[94m10[39;49;00m,[90m[39;49;00m
+                        ismulti=context.executemany,[90m[39;49;00m
+                    ),[90m[39;49;00m
+                )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                [96mself[39;49;00m._log_info([90m[39;49;00m
+                    [33m"[39;49;00m[33m[[39;49;00m[33m%s[39;49;00m[33m] [SQL parameters hidden due to hide_parameters=True][39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+                    stats,[90m[39;49;00m
+                )[90m[39;49;00m
+    [90m[39;49;00m
+        evt_handled: [96mbool[39;49;00m = [94mFalse[39;49;00m[90m[39;49;00m
+        [94mtry[39;49;00m:[90m[39;49;00m
+            [94mif[39;49;00m context.execute_style [95mis[39;49;00m ExecuteStyle.EXECUTEMANY:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreMultiExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_executemany:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_executemany([90m[39;49;00m
+                        cursor,[90m[39;49;00m
+                        str_statement,[90m[39;49;00m
+                        effective_parameters,[90m[39;49;00m
+                        context,[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melif[39;49;00m [95mnot[39;49;00m effective_parameters [95mand[39;49;00m context.no_parameters:[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute_no_params:[90m[39;49;00m
+                        [94mif[39;49;00m fn(cursor, str_statement, context):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+                    [96mself[39;49;00m.dialect.do_execute_no_params([90m[39;49;00m
+                        cursor, str_statement, context[90m[39;49;00m
+                    )[90m[39;49;00m
+            [94melse[39;49;00m:[90m[39;49;00m
+                effective_parameters = cast([90m[39;49;00m
+                    [33m"[39;49;00m[33m_CoreSingleExecuteParams[39;49;00m[33m"[39;49;00m, effective_parameters[90m[39;49;00m
+                )[90m[39;49;00m
+                [94mif[39;49;00m [96mself[39;49;00m.dialect._has_events:[90m[39;49;00m
+                    [94mfor[39;49;00m fn [95min[39;49;00m [96mself[39;49;00m.dialect.dispatch.do_execute:[90m[39;49;00m
+                        [94mif[39;49;00m fn([90m[39;49;00m
+                            cursor,[90m[39;49;00m
+                            str_statement,[90m[39;49;00m
+                            effective_parameters,[90m[39;49;00m
+                            context,[90m[39;49;00m
+                        ):[90m[39;49;00m
+                            evt_handled = [94mTrue[39;49;00m[90m[39;49;00m
+                            [94mbreak[39;49;00m[90m[39;49;00m
+                [94mif[39;49;00m [95mnot[39;49;00m evt_handled:[90m[39;49;00m
+>                   [96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+                        cursor, str_statement, effective_parameters, context[90m[39;49;00m
+                    )[90m[39;49;00m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+
+[33mThe above exception was the direct cause of the following exception:[0m
+
+async_client = <httpx.AsyncClient object at 0x74173bc0e060>
+
+    [0m[37m@pytest[39;49;00m.mark.asyncio[90m[39;49;00m
+    [94masync[39;49;00m [94mdef[39;49;00m[90m [39;49;00m[92mtest_vacation_creation[39;49;00m(async_client: AsyncClient):[90m[39;49;00m
+>       login_resp = [94mawait[39;49;00m async_client.post([90m[39;49;00m
+            [33m"[39;49;00m[33m/api/auth/login[39;49;00m[33m"[39;49;00m,[90m[39;49;00m
+            json={[33m"[39;49;00m[33musername[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mpassword[39;49;00m[33m"[39;49;00m: [33m"[39;49;00m[33mmanager123[39;49;00m[33m"[39;49;00m}[90m[39;49;00m
+        )[90m[39;49;00m
+
+[1m[31mtests/test_hr.py[0m:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1892: in post
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.request([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1574: in request
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m [96mself[39;49;00m.send(request, auth=auth, follow_redirects=follow_redirects)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1661: in send
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_auth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1689: in _send_handling_auth
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_handling_redirects([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1726: in _send_handling_redirects
+    [0mresponse = [94mawait[39;49;00m [96mself[39;49;00m._send_single_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_client.py[0m:1763: in _send_single_request
+    [0mresponse = [94mawait[39;49;00m transport.handle_async_request(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/httpx/_transports/asgi.py[0m:164: in handle_async_request
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/applications.py[0m:1054: in __call__
+    [0m[94mawait[39;49;00m [96msuper[39;49;00m().[92m__call__[39;49;00m(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/applications.py[0m:113: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:187: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py[0m:165: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, _send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:174: in __call__
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/prometheus_fastapi_instrumentator/middleware.py[0m:172: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send_wrapper)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/cors.py[0m:85: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py[0m:62: in __call__
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions([96mself[39;49;00m.app, conn)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:715: in __call__
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.middleware_stack(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:735: in app
+    [0m[94mawait[39;49;00m route.handle(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:288: in handle
+    [0m[94mawait[39;49;00m [96mself[39;49;00m.app(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:76: in app
+    [0m[94mawait[39;49;00m wrap_app_handling_exceptions(app, request)(scope, receive, send)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:62: in wrapped_app
+    [0m[94mraise[39;49;00m exc[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py[0m:51: in wrapped_app
+    [0m[94mawait[39;49;00m app(scope, receive, sender)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/starlette/routing.py[0m:73: in app
+    [0mresponse = [94mawait[39;49;00m f(request)[90m[39;49;00m
+               ^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:301: in app
+    [0mraw_response = [94mawait[39;49;00m run_endpoint_function([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/fastapi/routing.py[0m:212: in run_endpoint_function
+    [0m[94mreturn[39;49;00m [94mawait[39;49;00m dependant.call(**values)[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:83: in login
+    [0m[94mawait[39;49;00m ensure_default_users(db)[90m[39;49;00m
+[1m[31mapp/api/auth.py[0m:45: in ensure_default_users
+    [0mresult = [94mawait[39;49;00m db.execute(select(User).where(User.username.in_([[33m"[39;49;00m[33madmin[39;49;00m[33m"[39;49;00m, [33m"[39;49;00m[33mmanager[39;49;00m[33m"[39;49;00m])))[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py[0m:461: in execute
+    [0mresult = [94mawait[39;49;00m greenlet_spawn([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:201: in greenlet_spawn
+    [0mresult = context.throw(*sys.exc_info())[90m[39;49;00m
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2362: in execute
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._execute_internal([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py[0m:2247: in _execute_internal
+    [0mresult: Result[Any] = compile_state_cls.orm_execute_statement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py[0m:305: in orm_execute_statement
+    [0mresult = conn.execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1418: in execute
+    [0m[94mreturn[39;49;00m meth([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py[0m:515: in _execute_on_connection
+    [0m[94mreturn[39;49;00m connection._execute_clauseelement([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1640: in _execute_clauseelement
+    [0mret = [96mself[39;49;00m._execute_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1846: in _execute_context
+    [0m[94mreturn[39;49;00m [96mself[39;49;00m._exec_single_context([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1986: in _exec_single_context
+    [0m[96mself[39;49;00m._handle_dbapi_exception([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:2355: in _handle_dbapi_exception
+    [0m[94mraise[39;49;00m sqlalchemy_exception.with_traceback(exc_info[[94m2[39;49;00m]) [94mfrom[39;49;00m[90m [39;49;00m[04m[96me[39;49;00m[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py[0m:1967: in _exec_single_context
+    [0m[96mself[39;49;00m.dialect.do_execute([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py[0m:941: in do_execute
+    [0mcursor.execute(statement, parameters)[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:572: in execute
+    [0m[96mself[39;49;00m._adapt_connection.await_([90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:132: in await_only
+    [0m[94mreturn[39;49;00m current.parent.switch(awaitable)  [90m# type: ignore[no-any-return,attr-defined] # noqa: E501[39;49;00m[90m[39;49;00m
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py[0m:196: in greenlet_spawn
+    [0mvalue = [94mawait[39;49;00m result[90m[39;49;00m
+            ^^^^^^^^^^^^[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:508: in _prepare_and_execute
+    [0m[94mawait[39;49;00m adapt_connection._start_transaction()[90m[39;49;00m
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:837: in _start_transaction
+    [0m[96mself[39;49;00m._handle_exception(error)[90m[39;49;00m
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AdaptedConnection <asyncpg.connection.Connection object at 0x74173bc26120>>
+error = InterfaceError('cannot perform operation: another operation is in progress')
+
+    [0m[94mdef[39;49;00m[90m [39;49;00m[92m_handle_exception[39;49;00m([96mself[39;49;00m, error):[90m[39;49;00m
+        [94mif[39;49;00m [96mself[39;49;00m._connection.is_closed():[90m[39;49;00m
+            [96mself[39;49;00m._transaction = [94mNone[39;49;00m[90m[39;49;00m
+            [96mself[39;49;00m._started = [94mFalse[39;49;00m[90m[39;49;00m
+    [90m[39;49;00m
+        [94mif[39;49;00m [95mnot[39;49;00m [96misinstance[39;49;00m(error, AsyncAdapt_asyncpg_dbapi.Error):[90m[39;49;00m
+            exception_mapping = [96mself[39;49;00m.dbapi._asyncpg_error_translate[90m[39;49;00m
+    [90m[39;49;00m
+            [94mfor[39;49;00m super_ [95min[39;49;00m [96mtype[39;49;00m(error).[91m__mro__[39;49;00m:[90m[39;49;00m
+                [94mif[39;49;00m super_ [95min[39;49;00m exception_mapping:[90m[39;49;00m
+                    translated_error = exception_mapping[super_]([90m[39;49;00m
+                        [33m"[39;49;00m[33m%s[39;49;00m[33m: [39;49;00m[33m%s[39;49;00m[33m"[39;49;00m % ([96mtype[39;49;00m(error), error)[90m[39;49;00m
+                    )[90m[39;49;00m
+                    translated_error.pgcode = translated_error.sqlstate = ([90m[39;49;00m
+                        [96mgetattr[39;49;00m(error, [33m"[39;49;00m[33msqlstate[39;49;00m[33m"[39;49;00m, [94mNone[39;49;00m)[90m[39;49;00m
+                    )[90m[39;49;00m
+>                   [94mraise[39;49;00m translated_error [94mfrom[39;49;00m[90m [39;49;00m[04m[96merror[39;49;00m[90m[39;49;00m
+[1m[31mE                   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress[0m
+[1m[31mE                   [SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at [0m
+[1m[31mE                   FROM users [0m
+[1m[31mE                   WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)][0m
+[1m[31mE                   [parameters: ('admin', 'manager')][0m
+[1m[31mE                   (Background on this error at: https://sqlalche.me/e/20/rvf5)[0m
+
+[1m[31m/usr/local/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py[0m:784: InterfaceError
+------------------------------ Captured log call -------------------------------
+[1m[31mERROR   [0m root:main.py:75 Unhandled server error: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+[SQL: SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.avatar_url, users.phone, users.position, users.department, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.username IN ($1::VARCHAR, $2::VARCHAR)]
+[parameters: ('admin', 'manager')]
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[33m=============================== warnings summary ===============================[0m
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291: 17 warnings
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_crm.py::test_create_and_convert_lead
+  /usr/local/lib/python3.12/site-packages/httpx/_client.py:1559: DeprecationWarning: Setting per-request cookies=<...> is being deprecated, because the expected behaviour on cookie persistence is ambiguous. Set cookies directly on the client instance instead.
+    warnings.warn(message, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+[36m[1m=========================== short test summary info ============================[0m
+[31mFAILED[0m tests/test_auth.py::[1mtest_auth_flow[0m - assert 422 == 200
+[31mFAILED[0m tests/test_crm.py::[1mtest_create_and_convert_lead[0m - assert 307 == 200
+[31mFAILED[0m tests/test_crm.py::[1mtest_contact_validation[0m - RuntimeError: Task <Task pending name='Task-37' coro=<test_contact_validati...
+[31mFAILED[0m tests/test_finance.py::[1mtest_warehouse_movements[0m - sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.Inte...
+[31mFAILED[0m tests/test_finance.py::[1mtest_accounting_invoice_validation[0m - sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.Inte...
+[31mFAILED[0m tests/test_hr.py::[1mtest_payroll_calculation[0m - sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.Inte...
+[31mFAILED[0m tests/test_hr.py::[1mtest_vacation_creation[0m - sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.Inte...
+[31m=================== [31m[1m7 failed[0m, [32m7 passed[0m, [33m19 warnings[0m[31m in 4.32s[0m[31m ===================[0m

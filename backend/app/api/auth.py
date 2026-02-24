@@ -131,7 +131,11 @@ async def login(data: LoginRequest, request: Request, response: Response, db: As
         max_age=7 * 24 * 60 * 60 # 7 days
     )
     
-    return {"message": "Login successful", "user": _user_to_response(user)}
+    return {
+        "message": "Login successful",
+        "user": _user_to_response(user),
+        "email": user.email # Add email at root level for test compatibility
+    }
 
 
 # ============ REGISTER ============

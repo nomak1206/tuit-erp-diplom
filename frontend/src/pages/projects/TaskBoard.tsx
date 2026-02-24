@@ -11,7 +11,7 @@ const statusCols = [
     { key: 'done', tKey: 'projects.statuses.done', defaultLabel: 'Готово', color: '#52c41a' },
 ]
 
-const priorityLabels: Record<string, string> = { low: 'projects.priority.low', medium: 'projects.priority.medium', high: 'projects.priority.high', critical: 'projects.priority.critical' }
+const priorityLabels: Record<string, string> = { low: 'projects.priorities.low', medium: 'projects.priorities.medium', high: 'projects.priorities.high', critical: 'projects.priorities.critical' }
 const priorityColors: Record<string, string> = { low: 'default', medium: 'blue', high: 'orange', critical: 'red' }
 
 export default function TaskBoard() {

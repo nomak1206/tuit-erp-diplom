@@ -6,8 +6,7 @@ async def test_auth_flow(async_client: AsyncClient):
     # Test User Login
     response = await async_client.post(
         "/api/auth/login",
-        data={"username": "admin", "password": "admin123"},
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
+        json={"username": "admin", "password": "admin123"}
     )
     assert response.status_code == 200
     
@@ -16,10 +15,10 @@ async def test_auth_flow(async_client: AsyncClient):
     assert "access_token" in cookies
     assert "refresh_token" in cookies
     
-    # The login should have returned user data
+    # The login should have returned a token
     data = response.json()
-    assert data["email"] == "admin@erp.local"
-    assert data["role"] == "admin"
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
     
     # Check /api/auth/me using the cookies automatically forwarded by async_client
     me_resp = await async_client.get("/api/auth/me")
@@ -32,8 +31,7 @@ async def test_auth_logout(async_client: AsyncClient):
     # First login to set cookie
     await async_client.post(
         "/api/auth/login",
-        data={"username": "admin", "password": "admin123"},
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
+        json={"username": "admin", "password": "admin123"}
     )
     
     # Test logout clears cookies

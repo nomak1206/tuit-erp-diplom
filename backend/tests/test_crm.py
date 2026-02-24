@@ -15,14 +15,13 @@ async def test_create_and_convert_lead(async_client: AsyncClient):
     # 1. Create a Lead
     lead_data = {
         "title": "Test Lead Conversion",
-        "first_name": "John",
-        "last_name": "Test",
+        "contact_name": "John Test",
         "phone": "+998900000000",
         "status": "new",
         "source": "website"
     }
     
-    create_resp = await async_client.post("/api/crm/leads/", json=lead_data, cookies=crm_cookies)
+    create_resp = await async_client.post("/api/crm/leads", json=lead_data, cookies=crm_cookies)
     assert create_resp.status_code == 200
     lead = create_resp.json()
     lead_id = lead["id"]
@@ -75,6 +74,6 @@ async def test_contact_validation(async_client: AsyncClient):
         "contact_type": "individual"
     }
     
-    resp = await async_client.post("/api/crm/contacts/", json=contact_data, cookies=crm_cookies)
+    resp = await async_client.post("/api/crm/contacts", json=contact_data, cookies=crm_cookies)
     # The Pydantic model throws 422 for invalid email strings
     assert resp.status_code == 422

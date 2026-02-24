@@ -53,7 +53,7 @@ app.include_router(warehouse.router)
 app.include_router(projects.router)
 app.include_router(documents.router)
 app.include_router(analytics.router)
-app.include_router(notifications.router, prefix="/api")
+app.include_router(notifications.router)
 
 
 # ---------- Exception Handlers ----------

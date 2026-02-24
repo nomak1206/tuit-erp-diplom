@@ -1,0 +1,190 @@
+﻿============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0
+rootdir: /app
+configfile: pytest.ini
+plugins: asyncio-1.3.0, anyio-4.12.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=session, asyncio_default_test_loop_scope=session
+collected 14 items
+
+tests/test_api.py ...                                                    [ 21%]
+tests/test_auth.py F.                                                    [ 35%]
+tests/test_basic.py ...                                                  [ 57%]
+tests/test_crm.py FF                                                     [ 71%]
+tests/test_finance.py .F                                                 [ 85%]
+tests/test_hr.py .F                                                      [100%]
+
+=================================== FAILURES ===================================
+________________________________ test_auth_flow ________________________________
+
+async_client = <httpx.AsyncClient object at 0x70ee6beda570>
+
+    @pytest.mark.asyncio
+    async def test_auth_flow(async_client: AsyncClient):
+        # Test User Login
+        response = await async_client.post(
+            "/api/auth/login",
+            json={"username": "admin", "password": "admin123"}
+        )
+        assert response.status_code == 200
+    
+        # Check that cookies are set
+        cookies = response.cookies
+        assert "access_token" in cookies
+        assert "refresh_token" in cookies
+    
+        # The login should have returned user data
+        data = response.json()
+>       assert data["email"] == "admin@erp.local"
+               ^^^^^^^^^^^^^
+E       KeyError: 'email'
+
+tests/test_auth.py:20: KeyError
+_________________________ test_create_and_convert_lead _________________________
+
+async_client = <httpx.AsyncClient object at 0x70ee6beda570>
+
+    @pytest.mark.asyncio
+    async def test_create_and_convert_lead(async_client: AsyncClient):
+        # Setup - sign in as manager
+        login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+        assert login_resp.status_code == 200
+        crm_cookies = dict(login_resp.cookies)
+        assert login_resp.status_code == 200
+    
+        # 1. Create a Lead
+        lead_data = {
+            "title": "Test Lead Conversion",
+            "first_name": "John",
+            "last_name": "Test",
+            "phone": "+998900000000",
+            "status": "new",
+            "source": "website"
+        }
+    
+        create_resp = await async_client.post("/api/crm/leads", json=lead_data, cookies=crm_cookies)
+>       assert create_resp.status_code == 200
+E       assert 405 == 200
+E        +  where 405 = <Response [405 Method Not Allowed]>.status_code
+
+tests/test_crm.py:26: AssertionError
+___________________________ test_contact_validation ____________________________
+
+async_client = <httpx.AsyncClient object at 0x70ee6beda570>
+
+    @pytest.mark.asyncio
+    async def test_contact_validation(async_client: AsyncClient):
+        login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+        assert login_resp.status_code == 200
+        crm_cookies = dict(login_resp.cookies)
+    
+        # Try invalid email
+        contact_data = {
+            "first_name": "Invalid",
+            "last_name": "Contact",
+            "email": "not_an_email",
+            "contact_type": "individual"
+        }
+    
+        resp = await async_client.post("/api/crm/contacts/", json=contact_data, cookies=crm_cookies)
+        # The Pydantic model throws 422 for invalid email strings
+>       assert resp.status_code == 422
+E       assert 307 == 422
+E        +  where 307 = <Response [307 Temporary Redirect]>.status_code
+
+tests/test_crm.py:80: AssertionError
+______________________ test_accounting_invoice_validation ______________________
+
+async_client = <httpx.AsyncClient object at 0x70ee6beda570>
+
+    @pytest.mark.asyncio
+    async def test_accounting_invoice_validation(async_client: AsyncClient):
+        login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+        assert login_resp.status_code == 200
+    
+        invoice_data = {
+            "number": "INV-TEST-001",
+            "contact_name": "Test Client",
+            "date": "2026-03-01",
+            "due_date": "2026-03-15",
+            "status": "draft",
+            "subtotal": -100, # Invalid amount/logic or missing fields might trigger 422
+            "tax": 0,
+            "total": -100
+        }
+    
+        resp = await async_client.post(
+            "/api/accounting/invoices",
+            json=invoice_data,
+>           cookies=finance_cookies
+                    ^^^^^^^^^^^^^^^
+        )
+E       NameError: name 'finance_cookies' is not defined
+
+tests/test_finance.py:49: NameError
+____________________________ test_vacation_creation ____________________________
+
+async_client = <httpx.AsyncClient object at 0x70ee6beda570>
+
+    @pytest.mark.asyncio
+    async def test_vacation_creation(async_client: AsyncClient):
+        login_resp = await async_client.post(
+            "/api/auth/login",
+            json={"username": "manager", "password": "manager123"}
+        )
+        assert login_resp.status_code == 200
+    
+        hr_cookies = dict(login_resp.cookies)
+    
+        # Try invalid dates end before start
+        vac_data = {
+            "employee_id": 1,
+            "leave_type": "vacation",
+            "start_date": "2026-05-10",
+            "end_date": "2026-05-01",
+            "reason": "Rest"
+        }
+    
+        resp = await async_client.post(
+            "/api/hr/leaves",
+            json=vac_data,
+            cookies=hr_cookies
+        )
+        if resp.status_code != 400:
+>           raise Exception(f"DEBUG OUTPUT LEAVES: {resp.text}")
+E           Exception: DEBUG OUTPUT LEAVES: {"id":3}
+
+tests/test_hr.py:60: Exception
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291: 17 warnings
+  /usr/local/lib/python3.12/site-packages/pydantic/_internal/_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+../usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_crm.py::test_create_and_convert_lead
+tests/test_crm.py::test_contact_validation
+tests/test_finance.py::test_warehouse_movements
+tests/test_hr.py::test_payroll_calculation
+tests/test_hr.py::test_vacation_creation
+  /usr/local/lib/python3.12/site-packages/httpx/_client.py:1559: DeprecationWarning: Setting per-request cookies=<...> is being deprecated, because the expected behaviour on cookie persistence is ambiguous. Set cookies directly on the client instance instead.
+    warnings.warn(message, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_auth.py::test_auth_flow - KeyError: 'email'
+FAILED tests/test_crm.py::test_create_and_convert_lead - assert 405 == 200
+FAILED tests/test_crm.py::test_contact_validation - assert 307 == 422
+FAILED tests/test_finance.py::test_accounting_invoice_validation - NameError:...
+FAILED tests/test_hr.py::test_vacation_creation - Exception: DEBUG OUTPUT LEA...
+=================== 5 failed, 9 passed, 23 warnings in 5.57s ===================

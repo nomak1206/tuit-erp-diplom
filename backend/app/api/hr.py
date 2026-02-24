@@ -221,12 +221,21 @@ async def get_leaves(db: AsyncSession = Depends(get_db)):
 
 @router.post("/leaves")
 async def create_leave(data: dict, db: AsyncSession = Depends(get_db)):
+    start_t = data.get("start_date")
+    end_t = data.get("end_date")
+    if not start_t or not end_t:
+        raise HTTPException(status_code=400, detail="Missing dates")
+    sd = date.fromisoformat(start_t[:10])
+    ed = date.fromisoformat(end_t[:10])
+    if sd > ed:
+        raise HTTPException(status_code=400, detail="Invalid dates: end_date must be after start_date")
+        
     leave = Leave(
         employee_id=data.get("employee_id"),
         type=data.get("type", "vacation"),
-        start_date=date.fromisoformat(data.get("start_date")[:10]),
-        end_date=date.fromisoformat(data.get("end_date")[:10]),
-        days_count=_calc_work_days(data.get("start_date"), data.get("end_date")),
+        start_date=sd,
+        end_date=ed,
+        days_count=_calc_work_days(start_t, end_t),
         reason=data.get("reason"),
         status=LeaveStatus.PENDING
     )
