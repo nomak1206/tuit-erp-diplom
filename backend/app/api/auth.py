@@ -149,11 +149,9 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if result.scalars().first():
         raise HTTPException(status_code=400, detail="Email уже используется")
 
-    # Resolve role
-    try:
-        role = UserRole(data.role)
-    except ValueError:
-        role = UserRole.EMPLOYEE
+    # Security: always assign EMPLOYEE role on registration.
+    # Role changes should only be done by admins via a separate endpoint.
+    role = UserRole.EMPLOYEE
 
     user = User(
         email=data.email,

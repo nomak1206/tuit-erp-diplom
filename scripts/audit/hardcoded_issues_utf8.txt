@@ -1,0 +1,6 @@
+﻿Found 5 lines with hardcoded Cyrillic text.
+c:\diplom\frontend\src\utils\printForms.ts:4:/** ╧Ёшїюфэ√щ ърёёют√щ юЁфхЁ (╧╩╬) */
+c:\diplom\frontend\src\utils\printForms.ts:36:/** ╨рёїюфэ√щ ърёёют√щ юЁфхЁ (╨╩╬) */
+c:\diplom\frontend\src\utils\printForms.ts:61:/** ╥ютрЁэю-ЄЁрэёяюЁЄэр  эръырфэр  (╥╥═) */
+c:\diplom\frontend\src\utils\printForms.ts:103:/** └ъЄ т√яюыэхээ√ї ЁрсюЄ */
+c:\diplom\frontend\src\utils\printForms.ts:148:/** ╨рёў╕Єэ√щ ышёЄ ёюЄЁєфэшър */

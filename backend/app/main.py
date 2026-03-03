@@ -1,9 +1,12 @@
+import logging
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from app.config import get_settings
-from app.api import auth, crm, accounting, hr, warehouse, projects, documents, analytics, notifications
+from app.api import auth, crm, accounting, hr, warehouse, projects, documents, analytics, notifications, extra
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
@@ -54,6 +57,7 @@ app.include_router(projects.router)
 app.include_router(documents.router)
 app.include_router(analytics.router)
 app.include_router(notifications.router)
+app.include_router(extra.router)
 
 
 # ---------- Exception Handlers ----------
@@ -71,8 +75,7 @@ async def integrity_error_handler(request, exc: IntegrityError):
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc: Exception):
-    import logging
-    logging.error(f"Unhandled server error: {exc}")
+    logger.error(f"Unhandled server error: {exc}")
     # Don't expose internal server paths or exact DB driver bugs to the user
     return JSONResponse(
         status_code=500,

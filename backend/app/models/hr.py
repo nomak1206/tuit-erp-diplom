@@ -126,3 +126,35 @@ class Leave(Base):
     # Relationships
     employee = relationship("Employee", back_populates="leaves", lazy="selectin")
     approver = relationship("User", foreign_keys=[approved_by], lazy="selectin")
+
+
+class WorkSchedule(Base):
+    __tablename__ = "work_schedules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    schedule_type = Column(String(50), default="five_day")  # five_day, six_day, shift
+    department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"), nullable=True)
+    start_time = Column(String(10), default="09:00")
+    end_time = Column(String(10), default="18:00")
+    break_minutes = Column(Integer, default=60)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    department = relationship("Department", lazy="selectin")
+
+
+class StaffingPosition(Base):
+    __tablename__ = "staffing_positions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"), nullable=True)
+    position_name = Column(String(255), nullable=False)
+    count = Column(Integer, default=1)
+    occupied = Column(Integer, default=0)
+    salary_min = Column(Float, default=0.0)
+    salary_max = Column(Float, default=0.0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    department = relationship("Department", lazy="selectin")

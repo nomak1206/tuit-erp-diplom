@@ -14,6 +14,7 @@ celery_app = Celery(
     include=[
         "app.tasks.notifications",
         "app.tasks.reports",
+        "app.tasks.crm_automations",
     ],
 )
 
@@ -39,5 +40,13 @@ celery_app.conf.beat_schedule = {
     "send-pending-notifications": {
         "task": "app.tasks.notifications.send_pending_notifications",
         "schedule": 300.0,  # every 5 min
+    },
+    "check-deal-inactivity": {
+        "task": "app.tasks.crm_automations.check_deal_inactivity_task",
+        "schedule": 21600.0,  # every 6 hours
+    },
+    "auto-advance-deals": {
+        "task": "app.tasks.crm_automations.auto_advance_deals_task",
+        "schedule": 86400.0,  # daily
     },
 }

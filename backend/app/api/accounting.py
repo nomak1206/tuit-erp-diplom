@@ -3,10 +3,13 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.database import get_db
+from app.core.security import get_current_user
+from app.core.permissions import require_role
+from app.models.user import UserRole
 from app.models.accounting import Account, JournalEntry, JournalLine, Invoice, Payment
-from app.schemas.schemas import AccountBase, AccountResponse, JournalEntryCreate, InvoiceBase, InvoiceResponse
+from app.schemas.schemas import AccountBase, AccountResponse, JournalEntryCreate, InvoiceBase, InvoiceResponse, AccountUpdate, InvoiceUpdate
 
-router = APIRouter(prefix="/api/accounting", tags=["Accounting"])
+router = APIRouter(prefix="/api/accounting", tags=["Accounting"], dependencies=[Depends(get_current_user)])
 
 
 def _acc_dict(a: Account) -> dict:
@@ -26,6 +29,10 @@ def _inv_dict(i: Invoice) -> dict:
         "due_date": str(i.due_date) if i.due_date else None,
         "status": i.status.value if i.status else "draft",
         "subtotal": i.subtotal, "tax_amount": i.tax, "total_amount": i.total,
+        "nds_rate": i.nds_rate, "nds_amount": i.nds_amount,
+        "currency": i.currency.value if i.currency else "UZS",
+        "supplier_inn": i.supplier_inn, "buyer_inn": i.buyer_inn,
+        "contract_number": i.contract_number,
         "notes": i.notes,
         "created_at": i.created_at.isoformat() if i.created_at else None,
     }
@@ -40,7 +47,8 @@ async def get_accounts(db: AsyncSession = Depends(get_db), skip: int = 0, limit:
 
 @router.post("/accounts", status_code=201)
 async def create_account(data: AccountBase, db: AsyncSession = Depends(get_db)):
-    account = Account(code=data.code, name=data.name, type=data.type, parent_id=data.parent_id, description=data.description, is_active=True, balance=0)
+    account_type = data.get_account_type()
+    account = Account(code=data.code, name=data.name, type=account_type, parent_id=data.parent_id, description=data.description, is_active=True, balance=0)
     db.add(account)
     await db.commit()
     await db.refresh(account)
@@ -48,15 +56,16 @@ async def create_account(data: AccountBase, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/accounts/{account_id}")
-async def update_account(account_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+async def update_account(account_id: int, data: AccountUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Account).where(Account.id == account_id))
     a = result.scalars().first()
     if not a:
         raise HTTPException(status_code=404, detail="Account not found")
-    allowed = {"code", "name", "type", "parent_id", "description", "is_active", "balance"}
-    for k, v in data.items():
-        if k in allowed:
-            setattr(a, k, v)
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        setattr(a, k, v)
+        
     await db.commit()
     await db.refresh(a)
     return _acc_dict(a)
@@ -83,8 +92,13 @@ async def get_journal_entries(db: AsyncSession = Depends(get_db), skip: int = 0,
 
 @router.post("/journal", status_code=201)
 async def create_journal_entry(data: dict, db: AsyncSession = Depends(get_db)):
+    try:
+        entry_date = datetime.strptime(data.get("date", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
     entry = JournalEntry(
-        date=datetime.strptime(data.get("date", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d").date(),
+        date=entry_date,
         description=data.get("description", ""),
         reference=data.get("reference"),
         is_posted=False,
@@ -115,11 +129,21 @@ async def get_invoices(db: AsyncSession = Depends(get_db), skip: int = 0, limit:
 
 @router.post("/invoices", status_code=201)
 async def create_invoice(data: InvoiceBase, db: AsyncSession = Depends(get_db)):
+    subtotal = data.subtotal or 0
+    nds_rate = getattr(data, 'nds_rate', 12.0) or 12.0
+    nds_amount = round(subtotal * nds_rate / 100, 2)
+    total = data.total or (subtotal + nds_amount)
     invoice = Invoice(
         number=data.number, contact_name=data.contact_name, contact_id=data.contact_id,
         date=datetime.strptime(data.date, "%Y-%m-%d").date(),
         due_date=datetime.strptime(data.due_date, "%Y-%m-%d").date(),
-        status=data.status, subtotal=data.subtotal, tax=data.tax, total=data.total,
+        status=data.status, subtotal=subtotal,
+        nds_rate=nds_rate, nds_amount=nds_amount,
+        tax=data.tax or nds_amount, total=total,
+        currency=getattr(data, 'currency', 'UZS') or 'UZS',
+        supplier_inn=getattr(data, 'supplier_inn', None),
+        buyer_inn=getattr(data, 'buyer_inn', None),
+        contract_number=getattr(data, 'contract_number', None),
         notes=data.notes,
     )
     db.add(invoice)
@@ -129,15 +153,22 @@ async def create_invoice(data: InvoiceBase, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/invoices/{invoice_id}")
-async def update_invoice(invoice_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+async def update_invoice(invoice_id: int, data: InvoiceUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Invoice).where(Invoice.id == invoice_id))
     inv = result.scalars().first()
     if not inv:
         raise HTTPException(status_code=404, detail="Invoice not found")
-    allowed = {"number", "contact_name", "contact_id", "date", "due_date", "status", "subtotal", "tax", "total", "notes"}
-    for k, v in data.items():
-        if k in allowed:
+        
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        if k in ["date", "due_date"] and v:
+            try:
+                setattr(inv, k, datetime.strptime(str(v), "%Y-%m-%d").date())
+            except ValueError:
+                raise HTTPException(status_code=400, detail=f"Invalid date format for {k}")
+        else:
             setattr(inv, k, v)
+            
     await db.commit()
     await db.refresh(inv)
     return _inv_dict(inv)
@@ -163,6 +194,8 @@ async def get_payments(db: AsyncSession = Depends(get_db)):
 
 @router.post("/payments", status_code=201)
 async def create_payment(data: dict, db: AsyncSession = Depends(get_db)):
+    from app.models.accounting import InvoiceStatus
+
     payment = Payment(
         invoice_id=data.get("invoice_id"),
         amount=data.get("amount", 0),
@@ -174,8 +207,41 @@ async def create_payment(data: dict, db: AsyncSession = Depends(get_db)):
     db.add(payment)
     await db.commit()
     await db.refresh(payment)
-    return {"id": payment.id, "invoice_id": payment.invoice_id, "amount": payment.amount, "method": payment.method.value if payment.method else "bank_transfer", "date": str(payment.date), "created_at": payment.created_at.isoformat() if payment.created_at else None}
 
+    # AUTO-CREATE JOURNAL ENTRY (Double-Entry Bookkeeping)
+    # Credit: 4010 (Accounts Receivable)
+    # Debit: 5010 (Cash) or 5110 (Bank) based on method
+    debit_code = "5010" if payment.method and payment.method.value == "cash" else "5110"
+    
+    ar_acc = (await db.execute(select(Account).where(Account.code == "4010"))).scalars().first()
+    cash_acc = (await db.execute(select(Account).where(Account.code == debit_code))).scalars().first()
+
+    if ar_acc and cash_acc:
+        inv_ref = f"Оплата по счёту #{payment.invoice_id}" if payment.invoice_id else "Поступление средств"
+        je = JournalEntry(
+            date=payment.date,
+            description=payment.description or inv_ref,
+            reference=payment.reference or f"PAY-{payment.id}",
+            is_posted=True
+        )
+        db.add(je)
+        await db.flush()  # to get je.id
+
+        db.add(JournalLine(entry_id=je.id, account_id=cash_acc.id, debit=payment.amount, credit=0.0, description="Поступление средств"))
+        db.add(JournalLine(entry_id=je.id, account_id=ar_acc.id, debit=0.0, credit=payment.amount, description="Погашение задолженности покупателя"))
+        
+        # Update Invoice Status if paid in full
+        if payment.invoice_id:
+            inv = (await db.execute(select(Invoice).where(Invoice.id == payment.invoice_id))).scalars().first()
+            if inv:
+                pmts = await db.execute(select(func.sum(Payment.amount)).where(Payment.invoice_id == inv.id))
+                pmt_sum = pmts.scalar() or 0.0
+                if pmt_sum >= inv.total:
+                    inv.status = InvoiceStatus.PAID
+
+        await db.commit()
+
+    return {"id": payment.id, "invoice_id": payment.invoice_id, "amount": payment.amount, "method": payment.method.value if payment.method else "bank_transfer", "date": str(payment.date), "created_at": payment.created_at.isoformat() if payment.created_at else None}
 
 # ============ REPORTS ============
 @router.get("/reports/summary")
@@ -272,3 +338,102 @@ async def get_closed_months(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(JournalEntry).where(JournalEntry.reference.like("ЗП-%")))
     entries = result.scalars().all()
     return [{"period": e.reference.replace("ЗП-", ""), "closed_at": e.created_at.isoformat() if e.created_at else None} for e in entries]
+
+
+# ============ REPORTS ============
+
+@router.get("/reports/osv")
+async def get_osv_report(
+    start_date: str = None, end_date: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    """Оборотно-сальдовая ведомость (ОСВ / Trial Balance) with optional date filters."""
+    accounts = (await db.execute(select(Account))).scalars().all()
+    entries_query = select(JournalEntry)
+    if start_date:
+        entries_query = entries_query.where(JournalEntry.date >= start_date)
+    if end_date:
+        entries_query = entries_query.where(JournalEntry.date <= end_date)
+    entries = (await db.execute(entries_query.options())).scalars().all()
+    entry_ids = [e.id for e in entries]
+
+    # Get all journal lines for these entries
+    lines = []
+    if entry_ids:
+        lines_result = await db.execute(select(JournalLine).where(JournalLine.entry_id.in_(entry_ids)))
+        lines = lines_result.scalars().all()
+
+    # Build debit/credit totals per account
+    debit_totals = {}
+    credit_totals = {}
+    for line in lines:
+        debit_totals[line.account_id] = debit_totals.get(line.account_id, 0) + (line.debit or 0)
+        credit_totals[line.account_id] = credit_totals.get(line.account_id, 0) + (line.credit or 0)
+
+    rows = []
+    total_debit = 0
+    total_credit = 0
+    total_balance = 0
+    for a in sorted(accounts, key=lambda x: x.code):
+        debit = debit_totals.get(a.id, 0)
+        credit = credit_totals.get(a.id, 0)
+        balance = a.balance or 0
+        rows.append({
+            "code": a.code, "name": a.name,
+            "opening_balance": balance,
+            "debit_turnover": debit, "credit_turnover": credit,
+            "closing_balance": balance + debit - credit,
+            "type": a.type.value if a.type else "asset",
+        })
+        total_debit += debit
+        total_credit += credit
+        total_balance += balance
+
+    return {
+        "rows": rows,
+        "totals": {"debit": total_debit, "credit": total_credit, "balance": total_balance},
+        "period": {"start": start_date, "end": end_date},
+        "count": len(rows),
+    }
+
+
+@router.get("/reports/receivables")
+async def get_receivables_report(db: AsyncSession = Depends(get_db)):
+    """Дебиторская / кредиторская задолженность."""
+    invoices = (await db.execute(select(Invoice))).scalars().all()
+    debtors = []
+    creditors = []
+    for inv in invoices:
+        amount = inv.total or 0
+        status = inv.status.value if inv.status else "draft"
+        entry = {
+            "number": inv.number, "client": inv.contact_name,
+            "amount": amount, "status": status,
+            "date": str(inv.date) if inv.date else None,
+            "due_date": str(inv.due_date) if inv.due_date else None,
+            "overdue": inv.due_date and inv.due_date < datetime.now(timezone.utc).date() and status != "paid",
+        }
+        if status in ("sent", "overdue", "draft"):
+            debtors.append(entry)
+
+    return {
+        "debtors": debtors,
+        "creditors": creditors,
+        "total_receivable": sum(d["amount"] for d in debtors),
+        "total_payable": sum(c["amount"] for c in creditors),
+        "overdue_count": sum(1 for d in debtors if d.get("overdue")),
+    }
+
+
+@router.get("/reports/monthly-revenue")
+async def get_monthly_revenue(db: AsyncSession = Depends(get_db)):
+    """Помесячная выручка для графиков."""
+    invoices = (await db.execute(select(Invoice))).scalars().all()
+    monthly = {}
+    for inv in invoices:
+        if inv.date and inv.status and inv.status.value == "paid":
+            month_key = inv.date.strftime("%Y-%m")
+            monthly[month_key] = monthly.get(month_key, 0) + (inv.total or 0)
+    return {
+        "months": [{"month": k, "revenue": v} for k, v in sorted(monthly.items())],
+    }

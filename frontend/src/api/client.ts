@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 import axios from 'axios'
 import { message } from 'antd'
 
@@ -13,7 +14,7 @@ api.interceptors.request.use((config) => {
     return config
 })
 
-// Global response error handler
+// Global response interceptor
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -36,14 +37,14 @@ api.interceptors.response.use(
                 window.location.href = '/login'
             }
         } else if (status === 403) {
-            message.error('Недостаточно прав для этого действия')
+            message.error(i18n.t('api.forbidden', 'Недостаточно прав для этого действия'))
         } else if (status === 404) {
             // Silently ignored — component handles empty state
         } else if (status === 422) {
-            const msg = detail?.[0]?.msg || 'Ошибка валидации данных'
+            const msg = detail?.[0]?.msg || i18n.t('api.validation_error', 'Ошибка валидации данных')
             message.error(msg)
         } else if (status >= 500) {
-            message.error('Ошибка сервера. Попробуйте позже.')
+            message.error(i18n.t('api.server_error', 'Ошибка сервера. Попробуйте позже.'))
         }
 
         return Promise.reject(error)

@@ -3,17 +3,16 @@ import { test, expect } from '@playwright/test';
 test.describe('Full System Integration and UI Audit', () => {
 
     test.beforeEach(async ({ page }) => {
-        // 1. Authenticate and verify core Layout
+        // 1. Authenticate via login form
         await page.goto('/');
 
-        // Simulate Auto-login (dev mode bypass) or explicit login
-        const loginButton = page.locator('button:has-text("Войти как Admin"), button:has-text("Admin sifatida kirish"), button:has-text("Login as Admin")');
-        if (await loginButton.isVisible()) {
-            await loginButton.click();
-        }
+        // Fill in login form
+        await page.fill('input[name="username"]', 'admin');
+        await page.fill('input[name="password"]', 'admin123');
+        await page.click('button[type="submit"]');
 
         // Verify Dashboard loads (indicating successful backend auth cookie)
-        await expect(page.locator('h1').first()).toContainText(/Дашборд|Boshqaruv paneli|Dashboard/i);
+        await expect(page.locator('h1').first()).toContainText(/Дашборд|Boshqaruv paneli|Dashboard/i, { timeout: 15000 });
     });
 
     test('Module 1: CRM Hub - Leads and Deals Pipeline', async ({ page }) => {

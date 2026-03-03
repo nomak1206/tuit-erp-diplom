@@ -1,0 +1,13 @@
+{
+    "layout.acc_payments": "Платежи",
+    "crm.title": "CRM — Обзор",
+    "crm.activities": "Активности",
+    "crm.subject": "Тема / Описание",
+    "crm.contact": "Контакт",
+    "crm.deal": "Сделка",
+    "hr_dashboard.vacation_request_title": "Заявка на отпуск",
+    "hr_dashboard.vacation_request_desc": "Новая заявка на отпуск от сотрудника",
+    "accounting.payment_method": "Способ оплаты",
+    "accounting.payments": "Платежи",
+    "accounting.invoice": "Счёт-фактура"
+}

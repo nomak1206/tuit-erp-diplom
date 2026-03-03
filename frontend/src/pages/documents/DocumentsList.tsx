@@ -69,7 +69,7 @@ export default function DocumentsList() {
 
     const handleStatusChange = async (id: number, status: string) => {
         try {
-            await updateDocument.mutateAsync({ id, status }); message.success(`Статус → "${statusLabels[status]}"`)
+            await updateDocument.mutateAsync({ id, status }); message.success(`${t('documents.status_changed', 'Статус →')} "${statusLabels[status]}"`)
             if (selected?.id === id) setSelected({ ...selected, status })
         } catch { message.error(t('common.error')) }
     }

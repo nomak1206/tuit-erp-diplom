@@ -1,0 +1,34 @@
+[
+    [
+        "hr.employees",
+        "Сотрудники"
+    ],
+    [
+        "layout.crm_activities",
+        "Активности"
+    ],
+    [
+        "contacts.9_digits",
+        "9 цифр"
+    ],
+    [
+        "contacts.org_placeholder",
+        "ООО «Название»"
+    ],
+    [
+        "contacts.address_placeholder",
+        "г. Ташкент, ..."
+    ],
+    [
+        "common.fields",
+        "полей"
+    ],
+    [
+        "documents.no_templates",
+        "Нет шаблонов"
+    ],
+    [
+        "common.h",
+        "s"
+    ]
+]

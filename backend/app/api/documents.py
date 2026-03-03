@@ -3,9 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
+from app.core.security import get_current_user
 from app.models.document import Document, ApprovalStep, DocumentVersion
 
-router = APIRouter(prefix="/api/documents", tags=["Documents"])
+router = APIRouter(prefix="/api/documents", tags=["Documents"], dependencies=[Depends(get_current_user)])
 
 # Static templates (no model needed — read-only config)
 _document_templates = [

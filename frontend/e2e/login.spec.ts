@@ -1,18 +1,28 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Dashboard Navigation', () => {
-    test('should login and load the main dashboard', async ({ page }) => {
-        // Visit the base URL (which redirects to /login if unauthenticated)
+test.describe('Login Flow', () => {
+    test('should login with valid credentials and redirect to dashboard', async ({ page }) => {
         await page.goto('/');
 
-        // Wait for the login button to appear
-        const loginBtn = page.getByRole('button');
-        await loginBtn.waitFor({ state: 'visible', timeout: 10000 });
+        // Fill in the login form
+        await page.fill('input[name="username"]', 'admin');
+        await page.fill('input[name="password"]', 'admin123');
 
-        // Click the auto-login button
-        await loginBtn.click();
+        // Submit the form
+        await page.click('button[type="submit"]');
 
-        // Check for some known sidebar/header text to confirm the app loaded and redirected
-        await expect(page.getByRole('heading', { name: 'CRM' })).toBeVisible({ timeout: 15000 });
+        // Verify redirect to dashboard
+        await expect(page.locator('h1').first()).toContainText(/Дашборд|Boshqaruv paneli|Dashboard/i, { timeout: 15000 });
+    });
+
+    test('should show error for invalid credentials', async ({ page }) => {
+        await page.goto('/');
+
+        await page.fill('input[name="username"]', 'wrong_user');
+        await page.fill('input[name="password"]', 'wrong_pass');
+        await page.click('button[type="submit"]');
+
+        // Should display error message
+        await expect(page.locator('text=Неверный логин')).toBeVisible({ timeout: 5000 });
     });
 });

@@ -5,10 +5,10 @@ import { useTasks, useCreateTask, useUpdateTask, useDeleteTask, useProjects } fr
 import { useTranslation } from 'react-i18next'
 
 const statusCols = [
-    { key: 'todo', tKey: 'projects.statuses.todo', defaultLabel: 'К выполнению', color: '#8884d8' },
-    { key: 'in_progress', tKey: 'projects.statuses.in_progress', defaultLabel: 'В работе', color: '#ffa940' },
-    { key: 'review', tKey: 'projects.statuses.review', defaultLabel: 'На проверке', color: '#36cfc9' },
-    { key: 'done', tKey: 'projects.statuses.done', defaultLabel: 'Готово', color: '#52c41a' },
+    { key: 'todo', tKey: 'projects.statuses.todo', defaultLabel: 'To Do', color: '#8884d8' },
+    { key: 'in_progress', tKey: 'projects.statuses.in_progress', defaultLabel: 'In Progress', color: '#ffa940' },
+    { key: 'review', tKey: 'projects.statuses.review', defaultLabel: 'Review', color: '#36cfc9' },
+    { key: 'done', tKey: 'projects.statuses.done', defaultLabel: 'Done', color: '#52c41a' },
 ]
 
 const priorityLabels: Record<string, string> = { low: 'projects.priorities.low', medium: 'projects.priorities.medium', high: 'projects.priorities.high', critical: 'projects.priorities.critical' }

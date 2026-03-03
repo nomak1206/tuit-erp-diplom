@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from app.config import get_settings
 
@@ -45,8 +45,6 @@ def decode_token(token: str) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
-from fastapi import Depends, HTTPException, status, Request
 
 def get_token_from_cookie(request: Request) -> str:
     token = request.cookies.get("access_token")

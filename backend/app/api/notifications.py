@@ -6,7 +6,7 @@ from app.database import get_db
 from app.core.security import get_current_user
 from app.models.notification import Notification
 
-router = APIRouter(prefix="/notifications", tags=["notifications"])
+router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 
 @router.get("/", response_model=List[Any])
 async def get_notifications(

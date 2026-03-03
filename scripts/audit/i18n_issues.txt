@@ -1,0 +1,50 @@
+Files containing potentially hardcoded Cyrillic text (missing translations):
+
+--- c:\diplom\frontend\src\components\layout\AppLayout.tsx ---
+  Line 201: { key: 'ru', label: 'Русский', disabled: i18n.language === 'ru' },
+
+--- c:\diplom\frontend\src\pages\accounting\Invoices.tsx ---
+  Line 70: { key: 'number', title: '№ счёта' }, { key: 'client_name', title: 'Контрагент' },
+  Line 71: { key: 'subtotal', title: 'Сумма без НДС' }, { key: 'nds_rate', title: 'Ставка НДС %' },
+  Line 72: { key: 'nds_amount', title: 'Сумма НДС' }, { key: 'total_amount', title: 'Итого' },
+  Line 73: { key: 'currency', title: 'Валюта' }, { key: 'status', title: 'Статус' },
+  Line 74: { key: 'issue_date', title: 'Дата' }, { key: 'buyer_inn', title: 'ИНН покупателя' },
+  Line 75: ], 'Счета-фактуры')
+  Line 80: const html = `<h1>СЧЁТ-ФАКТУРА № ${inv.number}</h1>
+  Line 81: <p><strong>Дата:</strong> ${inv.issue_date ? new Date(inv.issue_date).toLocaleDateString('ru-RU') : '—'}</p>
+  Line 83: <tr><th>Поставщик (ИНН)</th><td>${inv.supplier_inn || '—'}</td></tr>
+  Line 84: <tr><th>Покупатель</th><td>${inv.client_name || '—'}</td></tr>
+  Line 85: <tr><th>ИНН покупателя</th><td>${inv.buyer_inn || '—'}</td></tr>
+  Line 86: <tr><th>Договор №</th><td>${inv.contract_number || '—'}</td></tr>
+  Line 88: <h2>Расчёт</h2>
+  Line 90: <tr><th>Сумма без НДС</th><td class="right">${(inv.subtotal || 0).toLocaleString('ru-RU')} ${inv.currency || 'UZS'}</td></tr>
+  Line 91: <tr><th>НДС ${inv.nds_rate || 12}%</th><td class="right">${(inv.nds_amount || 0).toLocaleString('ru-RU')} ${inv.currency || 'UZS'}</td></tr>
+  Line 92: <tr><th><strong>ИТОГО</strong></th><td class="right"><strong>${(inv.total_amount || 0).toLocaleString('ru-RU')} ${inv.currency || 'UZS'}</strong></td></tr>
+  Line 94: <div class="stamp"><div>Руководитель ____________</div><div>Бухгалтер ____________</div></div>`
+  Line 144: <Col span={8}><Form.Item name="subtotal" label="Сумма без НДС"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+  Line 145: <Col span={8}><Form.Item name="nds_rate" label="Ставка НДС %"><Select options={[{ value: 12, label: '12%' }, { value: 0, label: 'Без НДС' }]} /></Form.Item></Col>
+  Line 146: <Col span={8}><Form.Item name="currency" label="Валюта"><Select options={[{ value: 'UZS', label: 'UZS (сум)' }, { value: 'USD', label: 'USD ($)' }]} /></Form.Item></Col>
+  Line 150: <Col span={12}><Form.Item name="supplier_inn" label="ИНН поставщика"><Input placeholder="123456789" /></Form.Item></Col>
+  Line 151: <Col span={12}><Form.Item name="buyer_inn" label="ИНН покупателя"><Input placeholder="987654321" /></Form.Item></Col>
+  Line 152: <Col span={12}><Form.Item name="contract_number" label="Номер договора"><Input placeholder="ДГ-2026-001" /></Form.Item></Col>
+  Line 169: <Descriptions.Item label="Сумма без НДС">{(selected.subtotal || 0).toLocaleString('ru-RU')} {selected.currency || 'UZS'}</Descriptions.Item>
+  Line 170: <Descriptions.Item label={`НДС ${selected.nds_rate || 12}%`}>{(selected.nds_amount || 0).toLocaleString('ru-RU')} {selected.currency || 'UZS'}</Descriptions.Item>
+  Line 175: {selected.supplier_inn && <Descriptions.Item label="ИНН поставщика">{selected.supplier_inn}</Descriptions.Item>}
+  Line 176: {selected.buyer_inn && <Descriptions.Item label="ИНН покупателя">{selected.buyer_inn}</Descriptions.Item>}
+  Line 177: {selected.contract_number && <Descriptions.Item label="Договор №">{selected.contract_number}</Descriptions.Item>}
+  Line 180: <Button icon={<FilePdfOutlined />} onClick={() => handlePrintInvoice(selected)}>Печать счёт-фактуры</Button>
+
+--- c:\diplom\frontend\src\pages\accounting\PaymentsList.tsx ---
+  Line 78: { value: 'bank_transfer', label: 'Банковский перевод' },
+  Line 79: { value: 'cash', label: 'Наличные' },
+  Line 80: { value: 'card', label: 'Карта' },
+
+--- c:\diplom\frontend\src\pages\documents\DocumentsList.tsx ---
+  Line 72: await updateDocument.mutateAsync({ id, status }); message.success(`Статус → "${statusLabels[status]}"`)
+
+--- c:\diplom\frontend\src\pages\projects\TaskBoard.tsx ---
+  Line 8: { key: 'todo', tKey: 'projects.statuses.todo', defaultLabel: 'К выполнению', color: '#8884d8' },
+  Line 9: { key: 'in_progress', tKey: 'projects.statuses.in_progress', defaultLabel: 'В работе', color: '#ffa940' },
+  Line 10: { key: 'review', tKey: 'projects.statuses.review', defaultLabel: 'На проверке', color: '#36cfc9' },
+  Line 11: { key: 'done', tKey: 'projects.statuses.done', defaultLabel: 'Готово', color: '#52c41a' },
+

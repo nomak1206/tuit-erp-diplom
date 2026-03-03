@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, Text, ForeignKey, Date, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, Text, ForeignKey, Date, Boolean, JSON
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -26,6 +26,11 @@ class PaymentMethod(str, enum.Enum):
     BANK_TRANSFER = "bank_transfer"
     CARD = "card"
     CHECK = "check"
+
+
+class Currency(str, enum.Enum):
+    UZS = "UZS"
+    USD = "USD"
 
 
 class Account(Base):
@@ -88,8 +93,15 @@ class Invoice(Base):
     due_date = Column(Date, nullable=False)
     status = Column(Enum(InvoiceStatus), default=InvoiceStatus.DRAFT)
     subtotal = Column(Float, default=0.0)
-    tax = Column(Float, default=0.0)
+    nds_rate = Column(Float, default=12.0)       # НДС ставка (%)
+    nds_amount = Column(Float, default=0.0)       # НДС сумма
+    tax = Column(Float, default=0.0)              # Общий налог (legacy)
     total = Column(Float, default=0.0)
+    currency = Column(Enum(Currency), default=Currency.UZS)
+    # ИНН поставщика / покупателя (e-factura)
+    supplier_inn = Column(String(20), nullable=True)
+    buyer_inn = Column(String(20), nullable=True)
+    contract_number = Column(String(100), nullable=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

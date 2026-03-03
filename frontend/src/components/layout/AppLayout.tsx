@@ -74,12 +74,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
         { path: '/', label: t('dashboard.title', 'Дашборд'), icon: '📊' },
         { path: '/crm', label: t('crm.title', 'CRM — Обзор'), icon: '💼' },
         { path: '/crm/contacts', label: t('contacts.title', 'CRM — Контакты'), icon: '👥' },
-        { path: '/crm/leads', label: t('leads.title', 'CRM — Лиды'), icon: '🎯' },
         { path: '/crm/deals', label: t('deals.title', 'CRM — Сделки (Kanban)'), icon: '💰' },
+        { path: '/crm/activities', label: t('crm.activities', 'CRM — Активности'), icon: '📅' },
         { path: '/accounting', label: t('accounting.title', 'Бухгалтерия — Обзор'), icon: '🧮' },
         { path: '/accounting/chart', label: t('accounting.chart_title', 'План счетов'), icon: '📋' },
         { path: '/accounting/journal', label: t('accounting.journal_title', 'Журнал проводок'), icon: '📖' },
         { path: '/accounting/invoices', label: t('accounting.invoices_title', 'Счета-фактуры'), icon: '🧾' },
+        { path: '/accounting/payments', label: t('accounting.payments', 'Платежи'), icon: '💳' },
         { path: '/hr', label: t('hr.title', 'HR — Обзор'), icon: '👤' },
         { path: '/hr/employees', label: t('hr.employees', 'Сотрудники'), icon: '🏢' },
         { path: '/hr/timesheet', label: t('timesheet.title', 'Табель учёта'), icon: '⏰' },
@@ -112,6 +113,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 { key: '/crm/leads', icon: <SolutionOutlined />, label: t('layout.crm_leads') },
                 { key: '/crm/deals', icon: <DollarOutlined />, label: t('layout.crm_deals') },
                 { key: '/crm/contacts', icon: <ContactsOutlined />, label: t('layout.crm_contacts') },
+                { key: '/crm/activities', icon: <CalendarOutlined />, label: t('layout.crm_activities', 'Активности') },
             ],
         },
         {
@@ -121,6 +123,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 { key: '/accounting/chart', icon: <AccountBookOutlined />, label: t('layout.acc_chart') },
                 { key: '/accounting/journal', icon: <AuditOutlined />, label: t('layout.acc_journal') },
                 { key: '/accounting/invoices', icon: <FileTextOutlined />, label: t('layout.acc_invoices') },
+                { key: '/accounting/payments', icon: <DollarOutlined />, label: t('layout.acc_payments', 'Платежи') },
                 { key: '/accounting/month-close', icon: <LockOutlined />, label: t('layout.acc_close') },
                 { key: '/accounting/trial-balance', icon: <BarChartOutlined />, label: t('layout.acc_trial') },
             ],
@@ -175,7 +178,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 okText: t('layout.logout'),
                 cancelText: t('common.cancel', 'Отмена'),
                 okButtonProps: { danger: true },
-                onOk: () => { message.success(t('layout.logout_success', 'Вы вышли из системы')); navigate('/') },
+                onOk: async () => {
+                    try {
+                        await import('../../api/client').then(m => m.default.post('/auth/logout'))
+                    } catch { /* ignore — cookie may already be gone */ }
+                    message.success(t('layout.logout_success', 'Вы вышли из системы'))
+                    window.location.href = '/login'
+                },
             })
         }
     }
@@ -189,8 +198,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     ]
 
     const languageMenuItems: MenuProps['items'] = [
-        { key: 'ru', label: 'Русский', disabled: i18n.language === 'ru' },
-        { key: 'uz', label: 'Oʻzbekcha', disabled: i18n.language === 'uz' },
+        { key: 'ru', label: t('settings.lang_ru', 'Русский'), disabled: i18n.language === 'ru' },
+        { key: 'uz', label: t('settings.lang_uz', 'Oʻzbekcha'), disabled: i18n.language === 'uz' },
     ]
 
     const getSelectedKeys = () => [location.pathname]

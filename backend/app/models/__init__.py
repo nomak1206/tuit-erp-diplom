@@ -6,7 +6,7 @@ Usage:
 """
 from app.models.user import User, AuditLog, UserRole
 from app.models.crm import Contact, Lead, Deal, Activity, LeadSource, LeadStatus, DealStage, ActivityType
-from app.models.accounting import Account, JournalEntry, JournalLine, Invoice, Payment, AccountType, InvoiceStatus, PaymentMethod
+from app.models.accounting import Account, JournalEntry, JournalLine, Invoice, Payment, AccountType, InvoiceStatus, PaymentMethod, Currency
 from app.models.hr import Department, Employee, Timesheet, PayrollEntry, Leave, EmployeeStatus, LeaveType, LeaveStatus
 from app.models.warehouse import Category, Product, Warehouse, StockMovement, InventoryCheck, MovementType, UnitOfMeasure
 from app.models.project import Project, Task, TaskComment, ProjectStatus, TaskStatus, TaskPriority
@@ -21,7 +21,7 @@ __all__ = [
     "LeadSource", "LeadStatus", "DealStage", "ActivityType",
     # Accounting
     "Account", "JournalEntry", "JournalLine", "Invoice", "Payment",
-    "AccountType", "InvoiceStatus", "PaymentMethod",
+    "AccountType", "InvoiceStatus", "PaymentMethod", "Currency",
     # HR
     "Department", "Employee", "Timesheet", "PayrollEntry", "Leave",
     "EmployeeStatus", "LeaveType", "LeaveStatus",

@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.core.security import get_current_user
 from app.models.crm import Contact, Lead, Deal, Activity, LeadStatus, DealStage
+from app.schemas.schemas import ContactBase, LeadBase, DealBase, ActivityBase, ContactUpdate, LeadUpdate, DealUpdate, ActivityUpdate
 
 router = APIRouter(prefix="/api/crm", tags=["CRM"], dependencies=[Depends(get_current_user)])
 
@@ -208,55 +209,98 @@ async def get_pipeline_stats(db: AsyncSession = Depends(get_db)):
         "conversion_rate": round(stages["won"] / max(len(deals), 1) * 100, 1),
     }
 @router.post("/contacts", status_code=200)
-async def create_contact(data: dict, db: AsyncSession = Depends(get_db)):
+async def create_contact(data: ContactBase, db: AsyncSession = Depends(get_db)):
+    import re
+    email = data.email
+    if email and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
     c = Contact(
-        first_name=data.get("first_name", ""),
-        last_name=data.get("last_name", ""),
-        email=data.get("email"),
-        phone=data.get("phone"),
-        company=data.get("company"),
-        position=data.get("position"),
-        address=data.get("address"),
-        notes=data.get("notes"),
+        first_name=data.first_name,
+        last_name=data.last_name,
+        email=email,
+        phone=data.phone,
+        company=data.company,
+        position=data.position,
+        address=data.address,
+        notes=data.notes,
     )
     db.add(c)
     await db.commit()
     await db.refresh(c)
     return {"id": c.id, "first_name": c.first_name, "last_name": c.last_name, "email": c.email}
 
-@router.post("/leads", status_code=200)
-async def create_lead(data: dict, db: AsyncSession = Depends(get_db)):
-    # Calculate estimated value if budget is provided
-    budget = data.get("budget") or data.get("estimated_value")
-    if budget is not None:
-        estimated_value = float(budget)
-    else:
-        estimated_value = 0.0
 
+
+@router.patch("/contacts/{contact_id}")
+async def update_contact(contact_id: int, data: ContactUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Contact).where(Contact.id == contact_id))
+    c = result.scalars().first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        setattr(c, k, v)
+    
+    await db.commit()
+    await db.refresh(c)
+    return {"id": c.id, "first_name": c.first_name, "last_name": c.last_name, "email": c.email, "company": c.company}
+
+
+@router.post("/leads", status_code=200)
+async def create_lead(data: LeadBase, db: AsyncSession = Depends(get_db)):
     l = Lead(
-        title=data.get("title", "New Lead"),
-        contact_name=data.get("contact_name") or (data.get("first_name", "") + " " + data.get("last_name", "")).strip() or "Unknown",
-        email=data.get("email"),
-        phone=data.get("phone"),
-        company=data.get("company"),
-        description=data.get("description"),
-        source=data.get("source", "website"),
-        status=data.get("status", LeadStatus.NEW),
-        estimated_value=estimated_value,
+        title=data.title,
+        contact_name=data.contact_name,
+        email=data.email,
+        phone=data.phone,
+        company=data.company,
+        description=data.description,
+        source=data.source,
+        status=data.status,
+        score=data.score,
+        estimated_value=data.estimated_value,
     )
     db.add(l)
     await db.commit()
     await db.refresh(l)
     return {"id": l.id, "title": l.title, "status": l.status.value if hasattr(l.status, 'value') else l.status}
 
+
+@router.patch("/leads/{lead_id}")
+async def update_lead(lead_id: int, data: LeadUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Lead).where(Lead.id == lead_id))
+    l = result.scalars().first()
+    if not l:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        if k == "budget":
+            l.estimated_value = v
+        else:
+            setattr(l, k, v)
+            
+    await db.commit()
+    await db.refresh(l)
+    return {"id": l.id, "title": l.title, "status": l.status.value if hasattr(l.status, 'value') else l.status}
+
+
 @router.post("/leads/{lead_id}/activities", status_code=200)
 async def create_lead_activity(lead_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+    try:
+        due_date = None
+        if data.get("due_date"):
+            due_date = datetime.fromisoformat(data["due_date"].replace('Z', '+00:00'))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid due_date format. Use ISO format.")
+
     act = Activity(
         lead_id=lead_id,
         type=data.get("type", "note"),
         title=data.get("title", data.get("description", "Activity")),
         description=data.get("description"),
-        due_date=datetime.fromisoformat(data["due_date"].replace('Z', '+00:00')) if data.get("due_date") else None
+        due_date=due_date
     )
     db.add(act)
     await db.commit()
@@ -281,19 +325,87 @@ async def convert_lead(lead_id: int, db: AsyncSession = Depends(get_db)):
     await db.refresh(d)
     return {"id": d.id, "title": d.title, "stage": "new"}
 
-@router.put("/deals/{deal_id}", status_code=200)
-async def update_deal(deal_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+
+@router.post("/deals", status_code=200)
+async def create_deal(data: DealBase, db: AsyncSession = Depends(get_db)):
+    try:
+        ecd = data.expected_close_date
+        if ecd:
+            ecd = date.fromisoformat(str(ecd)[:10])
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid expected_close_date format")
+
+    d = Deal(
+        title=data.title,
+        contact_id=data.contact_id,
+        lead_id=data.lead_id,
+        stage=data.stage,
+        amount=data.amount,
+        currency=data.currency,
+        probability=data.probability,
+        expected_close_date=ecd,
+        description=data.description,
+    )
+    db.add(d)
+    await db.commit()
+    await db.refresh(d)
+    return {
+        "id": d.id, "title": d.title, "stage": d.stage.value if hasattr(d.stage, 'value') else d.stage,
+        "amount": d.amount, "created_at": d.created_at.isoformat() if d.created_at else None
+    }
+
+
+@router.patch("/deals/{deal_id}")
+async def update_deal(deal_id: int, data: DealUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Deal).where(Deal.id == deal_id))
     d = result.scalars().first()
     if not d:
         raise HTTPException(status_code=404, detail="Deal not found")
-    if "stage" in data:
-        for stage in DealStage:
-            if stage.value == data["stage"]:
-                d.stage = stage
-                break
-    if "title" in data:
-        d.title = data["title"]
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        if k == "expected_close_date" and v:
+            try:
+                d.expected_close_date = date.fromisoformat(str(v)[:10])
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid date format")
+        else:
+            setattr(d, k, v)
+            
     await db.commit()
     await db.refresh(d)
-    return {"id": d.id, "stage": d.stage.value if hasattr(d.stage, 'value') else d.stage, "title": d.title}
+    return {"id": d.id, "stage": d.stage.value if hasattr(d.stage, 'value') else d.stage, "title": d.title, "amount": d.amount}
+
+
+# ============ DELETE ENDPOINTS ============
+@router.delete("/contacts/{contact_id}")
+async def delete_contact(contact_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Contact).where(Contact.id == contact_id))
+    c = result.scalars().first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    await db.delete(c)
+    await db.commit()
+    return {"detail": "Contact deleted"}
+
+
+@router.delete("/leads/{lead_id}")
+async def delete_lead(lead_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Lead).where(Lead.id == lead_id))
+    l = result.scalars().first()
+    if not l:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    await db.delete(l)
+    await db.commit()
+    return {"detail": "Lead deleted"}
+
+
+@router.delete("/deals/{deal_id}")
+async def delete_deal(deal_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Deal).where(Deal.id == deal_id))
+    d = result.scalars().first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    await db.delete(d)
+    await db.commit()
+    return {"detail": "Deal deleted"}

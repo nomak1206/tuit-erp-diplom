@@ -8,10 +8,12 @@ import CrmDashboard from './pages/crm/CrmDashboard'
 import LeadsList from './pages/crm/LeadsList'
 import DealsPipeline from './pages/crm/DealsPipeline'
 import ContactsList from './pages/crm/ContactsList'
+import ActivitiesList from './pages/crm/ActivitiesList'
 import AccountingDashboard from './pages/accounting/AccountingDashboard'
 import ChartOfAccounts from './pages/accounting/ChartOfAccounts'
 import JournalEntries from './pages/accounting/JournalEntries'
 import Invoices from './pages/accounting/Invoices'
+import PaymentsList from './pages/accounting/PaymentsList'
 import MonthClose from './pages/accounting/MonthClose'
 import TrialBalance from './pages/accounting/TrialBalance'
 import HrDashboard from './pages/hr/HrDashboard'
@@ -52,11 +54,13 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-// ─── Login Page (demo auto-login) ─────────────────────────────────────────────
+// ─── Login Page ─────────────────────────────────────────────────────────────
 function LoginPage() {
   const nav = useNavigate()
   const { t } = useTranslation()
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     api.get('/auth/me')
@@ -66,19 +70,42 @@ function LoginPage() {
 
   if (checkingAuth) return null
 
+  const handleLogin = async (values: { username: string; password: string }) => {
+    setLoading(true)
+    setError('')
+    try {
+      await api.post('/auth/login', values)
+      window.location.href = '/'
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || t('common.login_error', 'Неверный логин или пароль'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <Result
-        status="403"
-        title={t('common.auth_required')}
-        subTitle={t('common.login_to_continue')}
-        extra={
-          <Button type="primary" size="large" onClick={() => {
-            api.post('/auth/login', { username: 'admin_tashkent', password: 'admin123' })
-              .then(() => nav('/'))
-          }}>{t('common.login_as_admin')}</Button>
-        }
-      />
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
+      <div style={{ width: 380, padding: 32, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: 24 }}>ERP/CRM System</h2>
+        {error && <div style={{ color: '#ff4d4f', marginBottom: 12, textAlign: 'center' }}>{error}</div>}
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          const fd = new FormData(e.currentTarget)
+          handleLogin({ username: fd.get('username') as string, password: fd.get('password') as string })
+        }}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', marginBottom: 4 }}>{t('common.username', 'Имя пользователя')}</label>
+            <input name="username" required style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #d9d9d9', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', marginBottom: 4 }}>{t('common.password', 'Пароль')}</label>
+            <input name="password" type="password" required style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #d9d9d9', boxSizing: 'border-box' }} />
+          </div>
+          <Button type="primary" htmlType="submit" loading={loading} block size="large">
+            {t('common.login', 'Войти')}
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
@@ -107,16 +134,19 @@ function App() {
           <AppLayout>
             <Routes>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Navigate to="/" replace />} />
               {/* CRM */}
               <Route path="/crm" element={<CrmDashboard />} />
               <Route path="/crm/leads" element={<LeadsList />} />
               <Route path="/crm/deals" element={<DealsPipeline />} />
               <Route path="/crm/contacts" element={<ContactsList />} />
+              <Route path="/crm/activities" element={<ActivitiesList />} />
               {/* Accounting */}
               <Route path="/accounting" element={<AccountingDashboard />} />
               <Route path="/accounting/chart" element={<ChartOfAccounts />} />
               <Route path="/accounting/journal" element={<JournalEntries />} />
               <Route path="/accounting/invoices" element={<Invoices />} />
+              <Route path="/accounting/payments" element={<PaymentsList />} />
               <Route path="/accounting/month-close" element={<MonthClose />} />
               <Route path="/accounting/trial-balance" element={<TrialBalance />} />
               {/* HR */}

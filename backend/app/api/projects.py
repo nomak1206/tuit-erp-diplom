@@ -4,10 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.database import get_db
+from app.core.security import get_current_user
 from app.models.project import Project, Task, TaskComment
-from app.schemas.schemas import ProjectBase, ProjectResponse, TaskBase, TaskResponse
+from app.schemas.schemas import ProjectBase, ProjectResponse, TaskBase, TaskResponse, ProjectUpdate, TaskUpdate
 
-router = APIRouter(prefix="/api/projects", tags=["Projects"])
+router = APIRouter(prefix="/api/projects", tags=["Projects"], dependencies=[Depends(get_current_user)])
 
 
 def _proj_dict(p: Project) -> dict:
@@ -61,15 +62,16 @@ async def create_project(data: ProjectBase, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{project_id}")
-async def update_project(project_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+async def update_project(project_id: int, data: ProjectUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Project).where(Project.id == project_id))
     p = result.scalars().first()
     if not p:
         raise HTTPException(status_code=404, detail="Project not found")
-    allowed = {"name", "code", "description", "status", "start_date", "end_date", "budget", "spent", "progress"}
-    for k, v in data.items():
-        if k in allowed:
-            setattr(p, k, v)
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        setattr(p, k, v)
+        
     await db.commit()
     await db.refresh(p)
     return _proj_dict(p)
@@ -115,15 +117,16 @@ async def create_task(data: TaskBase, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/tasks/{task_id}")
-async def update_task(task_id: int, data: dict, db: AsyncSession = Depends(get_db)):
+async def update_task(task_id: int, data: TaskUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Task).where(Task.id == task_id))
     t = result.scalars().first()
     if not t:
         raise HTTPException(status_code=404, detail="Task not found")
-    allowed = {"title", "description", "project_id", "status", "priority", "assigned_to", "assigned_name", "due_date", "estimated_hours", "actual_hours", "sort_order"}
-    for k, v in data.items():
-        if k in allowed:
-            setattr(t, k, v)
+    
+    update_data = data.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        setattr(t, k, v)
+        
     await db.commit()
     await db.refresh(t)
     return _task_dict(t)

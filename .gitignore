@@ -39,3 +39,16 @@ Thumbs.db
 # Monitoring data
 prometheus_data/
 grafana_data/
+
+# Celery
+celerybeat-schedule
+celerybeat-schedule.db
+
+# Test outputs
+backend/pytest_out*.txt
+backend/tests_output*.txt
+
+# Root-level Node artifacts (frontend has its own)
+/package.json
+/package-lock.json
+/node_modules/

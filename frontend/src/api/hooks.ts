@@ -928,3 +928,102 @@ export const useCreateInventory = () => {
     })
 }
 
+// ==================== Extra: CBU Exchange Rates ====================
+
+export const useExchangeRates = () =>
+    useQuery({
+        queryKey: ['extra', 'exchange-rates'],
+        queryFn: () => api.get('/extra/exchange-rates').then(r => r.data),
+        staleTime: 3600000, // cache for 1 hour
+    })
+
+// ==================== Extra: VAT Books ====================
+
+export const useVATPurchaseBook = (startDate?: string, endDate?: string) =>
+    useQuery({
+        queryKey: ['extra', 'vat', 'purchase', startDate, endDate],
+        queryFn: () => api.get('/extra/vat/purchase-book', { params: { start_date: startDate, end_date: endDate } }).then(r => r.data),
+    })
+
+export const useVATSalesBook = (startDate?: string, endDate?: string) =>
+    useQuery({
+        queryKey: ['extra', 'vat', 'sales', startDate, endDate],
+        queryFn: () => api.get('/extra/vat/sales-book', { params: { start_date: startDate, end_date: endDate } }).then(r => r.data),
+    })
+
+export const useVATSummary = (startDate?: string, endDate?: string) =>
+    useQuery({
+        queryKey: ['extra', 'vat', 'summary', startDate, endDate],
+        queryFn: () => api.get('/extra/vat/summary', { params: { start_date: startDate, end_date: endDate } }).then(r => r.data),
+    })
+
+// ==================== Accounting Reports ====================
+
+export const useOSVReport = (startDate?: string, endDate?: string) =>
+    useQuery({
+        queryKey: ['accounting', 'osv', startDate, endDate],
+        queryFn: () => api.get('/accounting/reports/osv', { params: { start_date: startDate, end_date: endDate } }).then(r => r.data),
+    })
+
+export const useReceivablesReport = () =>
+    useQuery({
+        queryKey: ['accounting', 'receivables'],
+        queryFn: () => api.get('/accounting/reports/receivables').then(r => r.data),
+    })
+
+export const useMonthlyRevenue = () =>
+    useQuery({
+        queryKey: ['accounting', 'monthly-revenue'],
+        queryFn: () => api.get('/accounting/reports/monthly-revenue').then(r => r.data),
+    })
+
+// ==================== Warehouse: Stock by Warehouse ====================
+
+export const useStockByWarehouse = () =>
+    useQuery({
+        queryKey: ['warehouse', 'stock-by-warehouse'],
+        queryFn: () => api.get('/warehouse/stock/by-warehouse').then(r => r.data),
+    })
+
+// ==================== HR: Sick Leave ====================
+
+export const useSickLeaveCalc = (employeeId: number, startDate: string, endDate: string) =>
+    useQuery({
+        queryKey: ['hr', 'sick-leave', employeeId, startDate, endDate],
+        queryFn: () => api.get('/hr/sick-leave/calculate', { params: { employee_id: employeeId, start_date: startDate, end_date: endDate } }).then(r => r.data),
+        enabled: !!employeeId && !!startDate && !!endDate,
+    })
+
+// ==================== File Upload ====================
+
+export const useUploadFile = () => {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: ({ file, entityType, entityId }: { file: File; entityType: string; entityId: number }) => {
+            const formData = new FormData()
+            formData.append('file', file)
+            return api.post(`/extra/upload?entity_type=${entityType}&entity_id=${entityId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            }).then(r => r.data)
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['files'] }),
+    })
+}
+
+// ==================== Notification Config ====================
+
+export const useNotificationConfig = () =>
+    useQuery({
+        queryKey: ['extra', 'notifications-config'],
+        queryFn: () => api.get('/extra/notifications/config').then(r => r.data),
+    })
+
+export const useTestTelegram = () =>
+    useMutation({
+        mutationFn: () => api.post('/extra/notifications/test-telegram').then(r => r.data),
+    })
+
+export const useTestEmail = () =>
+    useMutation({
+        mutationFn: () => api.post('/extra/notifications/test-email').then(r => r.data),
+    })
